@@ -10,8 +10,11 @@
                   (testing "contains caps->protocol/operations"
                            (is (contains? reg/default-registry :caps->protocol/operations)))
 
-                  (testing "has one entry"
-                           (is (= 1 (count reg/default-registry))))))
+                  (testing "contains effect-sig->type-schema/outputs"
+                           (is (contains? reg/default-registry :effect-sig->type-schema/outputs)))
+
+                  (testing "has two entries"
+                           (is (= 2 (count reg/default-registry))))))
 
 (deftest morphisms-involving-test
   ;; Filter registry by formalism kind.
@@ -21,8 +24,12 @@
                                             reg/default-registry :capability-set)))))
 
                   (testing "finds morphisms involving :effect-signature"
-                           (is (= 1 (count (reg/morphisms-involving
+                           (is (= 2 (count (reg/morphisms-involving
                                             reg/default-registry :effect-signature)))))
+
+                  (testing "finds morphisms involving :type-schema"
+                           (is (= 1 (count (reg/morphisms-involving
+                                            reg/default-registry :type-schema)))))
 
                   (testing "returns empty for uninvolved formalism"
                            (is (empty? (reg/morphisms-involving
