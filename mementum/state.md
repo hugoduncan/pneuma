@@ -1,8 +1,9 @@
 # Pneuma — Working Memory
 
 ## Status
-Phase 0 complete. Protocols implemented and tested. Design documents
-and implementation plan in place.
+Phases 0–1c complete. Dogfood checkpoint reached. Pneuma can check
+its own protocol layer's cross-formalism references and produce a
+two-layer gap report.
 
 ## Active Intent
 Build pneuma bottom-up, sequenced for earliest dogfooding on
@@ -14,27 +15,29 @@ pneuma.protocol itself.
 - 🎯 Revised build order: EffectSignature → CapabilitySet → dogfood
   checkpoint, then Statechart and remaining formalisms.
 - 🎯 Protocol layer maps to EffectSignature (typed operations) +
-  CapabilitySet (required implementations) + existential/structural
-  morphisms.
+  CapabilitySet (required implementations) + existential morphism.
+- 🎯 The structural return-type morphism from dogfood-protocol.md §3.3
+  needs a dedicated return-type schema formalism as target, not a
+  CapabilitySet. Deferred.
 
 ## Completed
 - pneuma.protocol — IProjectable, IConnection, IReferenceable
-- Structural domain model (19 sorts, 28 axioms, 13 morphisms)
-- System architecture design (Option A recommended)
-- Option A formalism (8 sorts, 17 axioms, 6 morphisms)
-- Projection contract axioms (A21–A28)
-- Dogfood protocol design
+- pneuma.formalism.effect-signature — EffectSignature record
+- pneuma.formalism.capability — CapabilitySet record
+- pneuma.morphism.existential — ExistentialMorphism + IConnection
+- pneuma.morphism.structural — StructuralMorphism + IConnection
+- pneuma.morphism.registry — connection registry (1 entry)
+- pneuma.gap.core — two-layer gap report assembly
+- 27 tests, 165 assertions, 0 failures
 
 ## Next
-Phase 1a: implement pneuma.formalism.effect-signature
+Phase 2a: remaining formalisms (Statechart first) or the dogfood
+instance test namespace (pneuma.dogfood.protocol).
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
-- doc/formalism-first-conformance.md — mathematical foundations
-- doc/structural-domain-model.md — domain model
-- doc/system-architecture-prose.md — architecture design
-- doc/option-a-formalism.md — architecture formalism
 - doc/dogfood-protocol.md — protocol dogfooding strategy
 
 ## Related
 - memories/dogfood-intent.md
+- memories/two-level-modeling.md

@@ -24,13 +24,13 @@ The dependency-free leaf. All other code depends on this.
 EffectSignature and CapabilitySet first, because they are sufficient
 to describe and check pneuma.protocol (see dogfood-protocol.md).
 
-- [ ] `pneuma.formalism.effect-signature` — EffectSignature record + IProjectable
+- [x] `pneuma.formalism.effect-signature` — EffectSignature record + IProjectable
   - Operations as Σ(name : Keyword). Fields(name)
   - →schema: Malli :multi schema keyed on operation name
   - →monitor: check emitted effects match declared field shapes
   - →gen: generate well-typed effect description maps
   - →gap-type: :missing-operation, :missing-field, :wrong-field-type
-- [ ] `pneuma.formalism.capability` — CapabilitySet record + IProjectable
+- [x] `pneuma.formalism.capability` — CapabilitySet record + IProjectable
   - Product of three PowerSets (dispatch, subscribe, query)
   - →schema: set membership bounds
   - →monitor: check dispatched events are within bounds
@@ -41,23 +41,25 @@ to describe and check pneuma.protocol (see dogfood-protocol.md).
 
 Two morphism kinds needed to connect EffectSignature ↔ CapabilitySet.
 
-- [ ] `pneuma.morphism.existential` — ExistentialMorphism record + IConnection
+- [x] `pneuma.morphism.existential` — ExistentialMorphism record + IConnection
   - Set membership: identifier in A must exist in B
   - Gap type: dangling-ref
-- [ ] `pneuma.morphism.structural` — StructuralMorphism record + IConnection
+- [x] `pneuma.morphism.structural` — StructuralMorphism record + IConnection
   - Schema validation: output of A conforms to input schema of B
   - Gap type: shape-mismatch
-- [ ] `pneuma.morphism.registry` — connection registry as data
-  - Initial entries: caps→protocol/operations, protocol-ops→return-types
+- [x] `pneuma.morphism.registry` — connection registry as data
+  - Initial entry: caps→protocol/operations (existential)
+  - TODO: structural return-type morphism needs a dedicated target formalism
 
 ### Phase 1c — Dogfood gap report
 
 Minimal gap assembly — enough to produce a two-layer report (object
 + morphism gaps, no path gaps yet).
 
-- [ ] `pneuma.gap.core` — Gap construction, GapReport assembly
-  - assemble-report: merge object-gaps and morphism-gaps
+- [x] `pneuma.gap.core` — Gap construction, GapReport assembly
+  - gap-report: merge object-gaps and morphism-gaps
   - failures: filter to non-conforming gaps
+  - has-failures?: predicate for quick pass/fail
 
 ### Dogfood checkpoint
 
@@ -66,7 +68,7 @@ from dogfood-protocol.md. This is the first time pneuma checks
 itself. Validates that the object and morphism layers work on a real
 target.
 
-- [ ] `pneuma.dogfood.protocol` — formalism instances describing pneuma.protocol
+- [ ] `pneuma.dogfood.protocol` — formalism instances describing pneuma.protocol (TODO)
   - EffectSignature instance for the six protocol methods
   - CapabilitySet instances for formalism and morphism records
   - Registry entries connecting them
