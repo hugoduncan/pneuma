@@ -1,43 +1,45 @@
 # Pneuma — Working Memory
 
 ## Status
-Phases 0–1c complete. Dogfood checkpoint reached. Pneuma can check
-its own protocol layer's cross-formalism references and produce a
-two-layer gap report.
+Dogfood checkpoint complete. Pneuma checks its own protocol layer
+with zero failures. Specs live in a separate spec/ source tree using
+the -spec naming convention.
 
 ## Active Intent
-Build pneuma bottom-up, sequenced for earliest dogfooding on
-pneuma.protocol itself.
+Build pneuma bottom-up, sequenced for earliest dogfooding.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
 - 🎯 Option A architecture: Records + Protocols + Data Registry.
-- 🎯 Revised build order: EffectSignature → CapabilitySet → dogfood
-  checkpoint, then Statechart and remaining formalisms.
-- 🎯 Protocol layer maps to EffectSignature (typed operations) +
-  CapabilitySet (required implementations) + existential morphism.
-- 🎯 The structural return-type morphism from dogfood-protocol.md §3.3
-  needs a dedicated return-type schema formalism as target, not a
-  CapabilitySet. Deferred.
+- 🎯 Build order revised for dogfooding: EffectSignature →
+  CapabilitySet → dogfood checkpoint (done), then Statechart and
+  remaining formalisms.
+- 🎯 Specs go in spec/ source tree with -spec suffix. Not packaged
+  in production jar.
+- 🎯 TypeSchema formalism added to fix structural morphism wiring.
+- 🎯 Defer specs for implementation namespaces until after Phase 2a —
+  more value with richer cross-references.
 
 ## Completed
 - pneuma.protocol — IProjectable, IConnection, IReferenceable
 - pneuma.formalism.effect-signature — EffectSignature record
 - pneuma.formalism.capability — CapabilitySet record
+- pneuma.formalism.type-schema — TypeSchema record
 - pneuma.morphism.existential — ExistentialMorphism + IConnection
 - pneuma.morphism.structural — StructuralMorphism + IConnection
-- pneuma.morphism.registry — connection registry (1 entry)
+- pneuma.morphism.registry — connection registry (2 entries)
 - pneuma.gap.core — two-layer gap report assembly
-- 27 tests, 165 assertions, 0 failures
+- pneuma.protocol-spec — formal spec of pneuma.protocol (in spec/)
+- 35 tests, 207 assertions, 0 failures
 
 ## Next
-Phase 2a: remaining formalisms (Statechart first) or the dogfood
-instance test namespace (pneuma.dogfood.protocol).
+Phase 2a: implement pneuma.formalism.statechart
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
-- doc/dogfood-protocol.md — protocol dogfooding strategy
+- spec/pneuma/protocol_spec.clj — protocol layer specification
 
 ## Related
 - memories/dogfood-intent.md
 - memories/two-level-modeling.md
+- memories/structural-morphism-target.md

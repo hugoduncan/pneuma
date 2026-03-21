@@ -68,7 +68,7 @@ from dogfood-protocol.md. This is the first time pneuma checks
 itself. Validates that the object and morphism layers work on a real
 target.
 
-- [ ] `pneuma.dogfood.protocol` — formalism instances describing pneuma.protocol (TODO)
+- [x] `pneuma.protocol-spec` — formalism spec of pneuma.protocol (in spec/)
   - EffectSignature instance for the six protocol methods
   - CapabilitySet instances for formalism and morphism records
   - Registry entries connecting them
