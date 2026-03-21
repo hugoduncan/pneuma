@@ -10,21 +10,18 @@
                   (testing "contains caps->protocol/operations"
                            (is (contains? reg/default-registry :caps->protocol/operations)))
 
-                  (testing "contains protocol-ops->return-types"
-                           (is (contains? reg/default-registry :protocol-ops->return-types)))
-
-                  (testing "has two entries"
-                           (is (= 2 (count reg/default-registry))))))
+                  (testing "has one entry"
+                           (is (= 1 (count reg/default-registry))))))
 
 (deftest morphisms-involving-test
   ;; Filter registry by formalism kind.
          (testing "morphisms-involving"
                   (testing "finds morphisms involving :capability-set"
-                           (is (= 2 (count (reg/morphisms-involving
+                           (is (= 1 (count (reg/morphisms-involving
                                             reg/default-registry :capability-set)))))
 
                   (testing "finds morphisms involving :effect-signature"
-                           (is (= 2 (count (reg/morphisms-involving
+                           (is (= 1 (count (reg/morphisms-involving
                                             reg/default-registry :effect-signature)))))
 
                   (testing "returns empty for uninvolved formalism"
