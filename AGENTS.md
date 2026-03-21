@@ -1,5 +1,8 @@
 # Pneuma
 
+## Plan
+
+See [PLAN.md](PLAN.md) for the implementation plan and build order.
 
 ## Memory
 

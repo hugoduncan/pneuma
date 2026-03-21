@@ -86,7 +86,12 @@ MorphismKind   = { :existential, :structural, :containment, :ordering }
 OpticType      = { :Lens, :Traversal, :Fold, :Derived }
 ProjectionKind = { :schema, :monitor, :generator, :gap-type }
 GapLayer       = { :object, :morphism, :path }
+Verdict        = { :ok, :violation }
 ```
+
+`Verdict` is the return type of a monitor applied to an event log
+entry — either the entry conforms or it violates the formalism's
+behavioral contract.
 
 ### 3. Arrows
 
@@ -387,16 +392,51 @@ operation.
 Projection = Schema ⊔ Monitor ⊔ Generator ⊔ GapTypeDesc
 ```
 
-Each variant has different structure:
+Each variant has a distinct formal structure:
 
-- `Schema` — a Malli schema value, usable with `m/validate`,
-  `m/explain`, `mg/generate`.
-- `Monitor` — a function `EventLogEntry → Verdict`. Consumes trace
-  entries, returns conformance verdicts.
-- `Generator` — a test.check generator producing valid inputs for
-  property-based testing.
-- `GapTypeDesc` — a data descriptor classifying how conformance
-  failures are reported for this formalism.
+- `Schema` — a Malli schema value. Closed under Malli's algebra:
+  `m/validate : Schema × Any → Bool` and
+  `m/explain : Schema × Any → Option(Explanation)` and
+  `mg/generate : Schema → test.check.Generator(Any)`.
+  The schema describes valid structural shapes for the formalism's
+  relevant state.
+
+- `Monitor` — a function `EventLogEntry → Verdict`. The monitor
+  consumes a single trace entry and returns `:ok` or `:violation`.
+  A violation carries a structured detail payload (a Gap with layer
+  `:object`). Monitors are pure — the same entry always produces the
+  same verdict — and independent across formalisms.
+
+- `Generator` — a test.check generator. The generator's output type
+  depends on the source formalism:
+
+  | Formalism | Generator output type |
+  |---|---|
+  | Statechart | `List(Keyword)` — valid event sequences (random walks) |
+  | EffectSignature | `Map(Keyword, Any)` — well-typed effect descriptions |
+  | MealyDeclaration | `(Map × Keyword)` — `(db, event)` pairs satisfying guards |
+  | OpticDeclaration | `Map(Keyword, Any)` — state maps where the optic resolves |
+  | ResolverGraph | `𝒫(Keyword)` — sets of input attributes |
+  | CapabilitySet | `Keyword` — events within the capability bound |
+
+  The generator is the bridge between specification and
+  implementation: the formalism generates valid inputs, the
+  implementation runs them, the monitor judges the output.
+
+- `GapTypeDesc` — a data map describing the taxonomy of conformance
+  failures for this formalism. Structure:
+
+  ```
+  GapTypeDesc = {
+    formalism : Keyword,
+    gap-kinds : 𝒫(GapKind),
+    statuses  : { :conforms, :absent, :diverges }
+  }
+  ```
+
+  Where `GapKind` is formalism-specific (e.g. `:missing-state`,
+  `:unreachable-state` for statecharts; `:missing-field`,
+  `:wrong-field-type` for effect signatures).
 
 The four variants are the four methods of `IProjectable`. Each
 formalism produces all four.
@@ -719,6 +759,100 @@ Every formalism concept maps to a concrete implementation path.
 ```
 The refinement map points to live, well-formed runtime state.
 
+#### 5.8 Projection contract axioms
+
+These axioms formalize the semantic contracts of the IProjectable
+protocol methods — what the return values must satisfy, and how the
+four projections relate to each other and to the gap report.
+
+**A21 — Schema well-formedness:**
+```
+∀ f : Formalism,
+  m/validate(→schema(f), x) ∈ Bool   for all x
+  ∧ m/schema?(→schema(f)) = true
+```
+`→schema` always returns a valid Malli schema. The schema is usable
+with `m/validate`, `m/explain`, and `mg/generate` without error.
+
+**A22 — Monitor purity:**
+```
+∀ f : Formalism, ∀ e : EventLogEntry,
+  →monitor(f)(e) ∈ Verdict
+  ∧ →monitor(f)(e) = →monitor(f)(e)     (referential transparency)
+```
+`→monitor` returns a function from EventLogEntry to Verdict. The
+function is pure — the same entry always produces the same verdict.
+Monitors carry no mutable state.
+
+**A23 — Monitor–schema coherence:**
+```
+∀ f : Formalism, ∀ e : EventLogEntry,
+  ¬m/validate(→schema(f), dbAfter(e))
+  ⟹ →monitor(f)(e) = :violation
+```
+If the state after an event violates the formalism's schema, the
+monitor must report a violation. The monitor is at least as strict
+as the schema — it catches everything the schema catches (structural
+violations) plus behavioral violations the schema cannot see (e.g.
+invalid state transitions).
+
+**A24 — Generator–schema consistency:**
+```
+∀ f : Formalism, ∀ x ∈ sample(→gen(f)),
+  m/validate(→schema(f), x) = true
+```
+Every value produced by the generator conforms to the schema. The
+generator only produces valid inputs — it is the schema's
+constructive witness.
+
+**A25 — Generator–monitor integration:**
+```
+∀ f : Formalism,
+  ∀ trace ∈ traces(→gen(f), dispatch!),
+    ∀ e ∈ trace,
+      →monitor(f)(e) = :ok
+  ∨ the trace reveals a conformance gap
+```
+When the generator produces inputs, the implementation runs them via
+`dispatch!`, and the monitor judges each resulting event log entry,
+the outcome is either all-ok (implementation conforms) or a
+discovered gap. This is the generative testing contract: model
+generates, implementation runs, monitor judges.
+
+**A26 — Gap-type descriptor completeness:**
+```
+∀ f : Formalism,
+  ∀ g : Gap where sourceFormalism(g) = f,
+    gapKind(g) ∈ gap-kinds(→gap-type(f))
+```
+Every gap produced by checking formalism `f` has a gap-kind that
+appears in `f`'s gap-type descriptor. The descriptor is an exhaustive
+taxonomy of failure modes for the formalism.
+
+**A27 — Projection determinism:**
+```
+∀ f : Formalism,
+  →schema(f) = →schema(f)
+  ∧ →monitor(f) = →monitor(f)
+  ∧ →gen(f) = →gen(f)
+  ∧ →gap-type(f) = →gap-type(f)
+```
+All four projections are deterministic. The same formalism always
+produces the same schema, monitor, generator, and gap-type
+descriptor. Projections are derived values, not stateful
+computations.
+
+**A28 — IConnection contract:**
+```
+∀ conn : Morphism, ∀ src tgt : Formalism, ∀ rm : RefinementMap,
+  check(conn, src, tgt, rm) ⊆ { g : Gap | layer(g) = :morphism }
+  ∧ ∀ g ∈ check(conn, src, tgt, rm),
+      status(g) ∈ GapStatus
+```
+`check` returns a sequence of morphism-layer gaps. Every returned
+gap has a valid status. The check is total — it returns an empty
+sequence (not an error) when the boundary contract holds.
+
 ### 6. Morphisms
 
 #### 6.1 Projection functors
@@ -970,6 +1104,14 @@ structure.
 | A18 | Diagnostic ordering | Implication | Report |
 | A19 | Refinement totality | Totality | Infrastructure |
 | A20 | Refinement coherence | Totality | Infrastructure |
+| A21 | Schema well-formedness | Totality | Projection |
+| A22 | Monitor purity | Equation | Projection |
+| A23 | Monitor–schema coherence | Implication | Projection |
+| A24 | Generator–schema consistency | Membership | Projection |
+| A25 | Generator–monitor integration | Implication | Projection |
+| A26 | Gap-type descriptor completeness | SubsetOf | Projection |
+| A27 | Projection determinism | Equation | Projection |
+| A28 | IConnection contract | SubsetOf | Projection |
 
 ### Appendix C: Morphism Catalogue
 
