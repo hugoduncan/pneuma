@@ -3,8 +3,8 @@ repos:
     hooks:
       - id: cljfmt
         name: cljfmt
-        language: system
-        entry: cljfmt fix
+        language: script
+        entry: bin/cljfmt-and-restage
         types: [clojure]
         pass_filenames: true
 
