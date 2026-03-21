@@ -1,0 +1,1 @@
+🎯 pneuma is intended to dogfood itself — the project's own architecture (statecharts, effect signatures, mealy transitions, morphisms) should be specified and checked using pneuma as it is built. Build the tool by using the tool on itself.
