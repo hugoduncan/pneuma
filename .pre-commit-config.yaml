@@ -1,0 +1,16 @@
+repos:
+  - repo: local
+    hooks:
+      - id: cljfmt
+        name: cljfmt
+        language: system
+        entry: cljfmt fix
+        types: [clojure]
+        pass_filenames: true
+
+      - id: clj-kondo
+        name: clj-kondo
+        language: system
+        entry: clj-kondo --lint
+        types: [clojure]
+        pass_filenames: true

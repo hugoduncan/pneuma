@@ -1,0 +1,21 @@
+{:tasks
+ {repl    {:doc  "Start nREPL with CIDER middleware"
+           :task (clojure "-M:dev:nrepl")}
+
+  test    {:doc  "Run tests with kaocha"
+           :task (clojure "-M:test")}
+
+  lint    {:doc  "Lint with clj-kondo"
+           :task (clojure "-M:lint")}
+
+  fmt     {:doc  "Check formatting with cljfmt"
+           :task (clojure "-M:fmt")}
+
+  fmt/fix {:doc  "Fix formatting with cljfmt"
+           :task (clojure "-M:fmt/fix")}
+
+  outdated {:doc  "Check for outdated dependencies"
+            :task (clojure "-M:outdated")}
+
+  ci      {:doc  "Run lint + fmt check + tests"
+           :depends [lint fmt test]}}}
