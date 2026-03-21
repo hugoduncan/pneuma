@@ -1,10 +1,9 @@
-(ns pneuma.dogfood.protocol
-    "Dogfood: pneuma.protocol described using pneuma's own formalisms.
-  Defines the EffectSignature, CapabilitySets, and TypeSchema instances
-  that model the three protocols (IProjectable, IConnection,
+(ns pneuma.protocol-spec
+    "Formalism specification for pneuma.protocol.
+  Describes the three protocols (IProjectable, IConnection,
   IReferenceable), their method signatures, and the required
-  implementations. Wires them into a gap report via the connection
-  registry."
+  implementations using pneuma's own formalism types. Wires them
+  into a gap report via a connection registry."
     (:require [pneuma.formalism.effect-signature :as es]
               [pneuma.formalism.capability :as cap]
               [pneuma.formalism.type-schema :as ts]
@@ -106,10 +105,10 @@
         :source-ref-kind :operation-outputs
         :target-ref-kind :type-ids})})
 
-;;; Formalisms map (keyed by the :from/:to keywords in the registry)
+;;; Formalisms map
 
 (def protocol-formalisms
-     "All formalisms in the protocol-layer dogfood graph."
+     "All formalisms in the protocol-layer specification graph."
      {:effect-signature protocol-operations
       :capability-set/formalism formalism-record-caps
       :capability-set/morphism morphism-record-caps
@@ -118,7 +117,7 @@
 ;;; Gap report
 
 (defn protocol-gap-report
-      "Runs the full gap report on pneuma.protocol's formalism description.
+      "Runs the full gap report on pneuma.protocol's specification.
   Returns the three-layer gap report map."
       []
       (gap/gap-report

@@ -1,32 +1,31 @@
-(ns pneuma.dogfood.protocol-test
+(ns pneuma.protocol-spec-test
     (:require [clojure.test :refer [deftest testing is]]
               [pneuma.protocol :as p]
               [pneuma.formalism.capability :as cap]
-              [pneuma.dogfood.protocol :as dog]
+              [pneuma.protocol-spec :as spec]
               [pneuma.gap.core :as gap]))
 
-;; Dogfood test: pneuma checks its own protocol layer.
-;; This is the first time pneuma runs gap-report on itself.
+;; Specification test: pneuma checks its own protocol layer.
 
 (deftest protocol-formalisms-test
-  ;; The dogfood formalism instances are well-formed.
+  ;; The specification instances are well-formed.
          (testing "protocol formalisms"
                   (testing "effect signature has six operations"
-                           (is (= 6 (count (p/extract-refs dog/protocol-operations
+                           (is (= 6 (count (p/extract-refs spec/protocol-operations
                                                            :operation-ids)))))
 
                   (testing "formalism caps require five operations"
-                           (is (= 5 (count (p/extract-refs dog/formalism-record-caps
+                           (is (= 5 (count (p/extract-refs spec/formalism-record-caps
                                                            :dispatch-refs)))))
 
                   (testing "morphism caps require one operation"
-                           (is (= 1 (count (p/extract-refs dog/morphism-record-caps
+                           (is (= 1 (count (p/extract-refs spec/morphism-record-caps
                                                            :dispatch-refs)))))
 
                   (testing "type schema covers all output types"
-                           (let [output-types (p/extract-refs dog/protocol-operations
+                           (let [output-types (p/extract-refs spec/protocol-operations
                                                               :operation-outputs)
-                                 known-types (p/extract-refs dog/protocol-types
+                                 known-types (p/extract-refs spec/protocol-types
                                                              :type-ids)]
                                 (is (every? known-types output-types)
                                     (str "unregistered types: "
@@ -35,7 +34,7 @@
 (deftest protocol-gap-report-test
   ;; The gap report on pneuma.protocol should be clean —
   ;; all object and morphism gaps conform.
-         (let [report (dog/protocol-gap-report)]
+         (let [report (spec/protocol-gap-report)]
 
               (testing "protocol gap report"
                        (testing "has no failures"
@@ -56,8 +55,7 @@
 
 (deftest protocol-gap-report-detects-rename-test
   ;; If a protocol method were renamed, the capability set would
-  ;; have a dangling ref. Simulate this by adding a bad operation
-  ;; to the formalism caps.
+  ;; have a dangling ref. Simulate by adding an unknown operation.
          (testing "gap report detects simulated rename"
                   (let [bad-caps (cap/capability-set
                                   {:id :bad-formalism
@@ -66,9 +64,9 @@
                                                :renamed-method}})
                         report (gap/gap-report
                                 {:formalisms
-                                 (assoc dog/protocol-formalisms
+                                 (assoc spec/protocol-formalisms
                                         :capability-set/formalism bad-caps)
-                                 :registry dog/protocol-registry})]
+                                 :registry spec/protocol-registry})]
 
                        (testing "has failures"
                                 (is (gap/has-failures? report)))

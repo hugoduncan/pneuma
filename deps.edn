@@ -7,10 +7,10 @@
 
  :aliases
  {:dev
-  {:extra-paths ["dev"]}
+  {:extra-paths ["dev" "spec"]}
 
   :test
-  {:extra-paths ["test"]
+  {:extra-paths ["test" "spec"]
    :extra-deps  {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
    :main-opts   ["-m" "kaocha.runner"]}
 
@@ -23,15 +23,15 @@
 
   :lint
   {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2026.01.19"}}
-   :main-opts  ["-m" "clj-kondo.main" "--lint" "src" "test"]}
+   :main-opts  ["-m" "clj-kondo.main" "--lint" "src" "spec" "test"]}
 
   :fmt
   {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.2"}}
-   :main-opts  ["-m" "cljfmt.main" "check" "src" "test"]}
+   :main-opts  ["-m" "cljfmt.main" "check" "src" "spec" "test"]}
 
   :fmt/fix
   {:extra-deps {cljfmt/cljfmt {:mvn/version "0.9.2"}}
-   :main-opts  ["-m" "cljfmt.main" "fix" "src" "test"]}
+   :main-opts  ["-m" "cljfmt.main" "fix" "src" "spec" "test"]}
 
   :outdated
   {:extra-deps {com.github.liquidz/antq {:mvn/version "2.11.1276"}}
