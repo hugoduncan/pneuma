@@ -5,8 +5,10 @@
   Implements IProjectable to project into Malli schemas, trace monitors,
   test.check generators, and gap type descriptors."
     (:require [clojure.set :as set]
+              [clojure.string :as str]
               [clojure.test.check.generators :as gen]
               [malli.core :as m]
+              [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
 
 ;;; Constructor validation schema
@@ -185,6 +187,41 @@
                         :gap-kinds #{:missing-state :missing-transition
                                      :unreachable-state :invalid-config}
                         :statuses  #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (let [leaves    (leaf-states states hierarchy)
+                        all-evts  (into #{} (map :event) transitions)
+                        init-cfg  (initial-config hierarchy parallel initial)
+                        all-cfgs  (reachable-configs init-cfg all-evts transitions
+                                                     hierarchy parallel initial)
+                        diag-data {:states      (vec leaves)
+                                   :transitions (mapv (fn [t]
+                                                          [(:source t)
+                                                           (:target t)
+                                                           (name (:event t))])
+                                                      transitions)}
+                        t-rows    (mapv (fn [t]
+                                            {:source (name (:source t))
+                                             :event  (name (:event t))
+                                             :target (name (:target t))
+                                             :guard  (if-let [g (:guard t)] (name g) "")
+                                             :raise  (if-let [r (:raise t)] (str r) "")})
+                                        transitions)
+                        cfg-text  (str/join
+                                   ", "
+                                   (mapv str (sort-by str all-cfgs)))]
+                       (doc/section
+                        :statechart/root "Statechart"
+                        (filterv some?
+                                 [(doc/diagram-spec :statechart/diagram :mermaid-state diag-data)
+                                  (doc/table :statechart/transitions
+                                             [:source :event :target :guard :raise]
+                                             t-rows)
+                                  (doc/prose :statechart/configs
+                                             (str "Reachable configurations: " cfg-text))
+                                  (when (seq hierarchy)
+                                        (doc/prose :statechart/hierarchy
+                                                   (str "Hierarchy: " hierarchy)))]))))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]

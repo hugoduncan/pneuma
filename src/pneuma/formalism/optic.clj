@@ -7,6 +7,7 @@
     (:require [clojure.test.check.generators :as gen]
               [malli.core :as m]
               [malli.generator :as mg]
+              [pneuma.doc.fragment :as doc]
               [pneuma.formalism.effect-signature :as effect-signature]
               [pneuma.protocol :as p]))
 
@@ -219,6 +220,21 @@
                        {:formalism :optic
                         :gap-kinds #{:broken-path :wrong-derivation :missing-subscription}
                         :statuses  #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (let [optic-rows
+                        (mapv (fn [[_ decl]]
+                                  {:id         (name (:id decl))
+                                   :optic-type (name (:optic-type decl))
+                                   :path       (if (= :Derived (:optic-type decl))
+                                                   (str (keys (:sources decl {})))
+                                                   (str (:path decl)))})
+                              declarations)]
+                       (doc/section
+                        :optic/root "Optic Declarations"
+                        [(doc/table :optic/catalog
+                                    [:id :optic-type :path]
+                                    optic-rows)])))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]

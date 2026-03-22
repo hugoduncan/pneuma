@@ -6,6 +6,7 @@
   ambient. Implements IProjectable and IReferenceable."
     (:require [clojure.test.check.generators :as gen]
               [malli.core :as m]
+              [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
 
 ;;; Constructor validation schema
@@ -89,6 +90,15 @@
                        {:formalism :capability-set
                         :gap-kinds #{:unauthorized :empty-set}
                         :statuses #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (doc/section
+                   :capability/root "Capability Set"
+                   [(doc/table :capability/permissions
+                               [:kind :operations]
+                               [{:kind "dispatch"  :operations (str dispatch)}
+                                {:kind "subscribe" :operations (str subscribe)}
+                                {:kind "query"     :operations (str query)}])]))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]

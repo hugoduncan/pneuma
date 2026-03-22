@@ -8,6 +8,7 @@
     (:require [clojure.set :as set]
               [clojure.test.check.generators :as gen]
               [malli.core :as m]
+              [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
 
 ;;; Constructor validation schema
@@ -135,6 +136,32 @@
                        {:formalism :resolver
                         :gap-kinds #{:missing-resolver :unreachable-attribute :wrong-output}
                         :statuses  #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (let [resolver-rows
+                        (mapv (fn [[_ decl]]
+                                  {:id     (name (:id decl))
+                                   :input  (str (:input decl))
+                                   :output (str (:output decl))
+                                   :source (str (:source decl))})
+                              declarations)
+                        all-inputs  (into #{} (mapcat :input) (vals declarations))
+                        reachable   (reachable-attributes declarations all-inputs)
+                        graph-edges (into []
+                                          (mapcat (fn [[_ decl]]
+                                                      (for [in  (:input decl)
+                                                            out (:output decl)]
+                                                           [in out (name (:id decl))])))
+                                          declarations)]
+                       (doc/section
+                        :resolver/root "Resolver Graph"
+                        [(doc/table :resolver/resolvers
+                                    [:id :input :output :source]
+                                    resolver-rows)
+                         (doc/prose :resolver/reachability
+                                    (str "Reachable attributes from all inputs: " reachable))
+                         (doc/diagram-spec :resolver/graph :mermaid-graph
+                                           {:edges (into [] cat graph-edges)})])))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]

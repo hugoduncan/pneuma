@@ -6,6 +6,7 @@
   type descriptors."
     (:require [malli.core :as m]
               [malli.generator :as mg]
+              [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
 
 ;;; Type registry
@@ -123,6 +124,18 @@
                         :gap-kinds #{:missing-operation :malformed-fields
                                      :missing-op-key :unknown-type}
                         :statuses #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (let [op-rows (mapv (fn [[op-kw {:keys [input output]}]]
+                                          {:operation (name op-kw)
+                                           :fields    (str input)
+                                           :output    (name output)})
+                                      operations)]
+                       (doc/section
+                        :effect-signature/root "Effect Signature"
+                        [(doc/table :effect-signature/operations
+                                    [:operation :fields :output]
+                                    op-rows)])))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]

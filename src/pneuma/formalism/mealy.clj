@@ -4,9 +4,11 @@
   guards, state-update declarations, and effect declarations.
   Implements IProjectable to project into Malli schemas, trace monitors,
   test.check generators, and gap type descriptors."
-    (:require [clojure.test.check.generators :as gen]
+    (:require [clojure.string :as str]
+              [clojure.test.check.generators :as gen]
               [malli.core :as m]
               [malli.generator :as mg]
+              [pneuma.doc.fragment :as doc]
               [pneuma.formalism.effect-signature :as effect-signature]
               [pneuma.protocol :as p]))
 
@@ -183,6 +185,21 @@
                         :gap-kinds #{:absent-handler :missing-guard
                                      :wrong-update :wrong-emission}
                         :statuses  #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (let [handler-rows
+                        (mapv (fn [[_ decl]]
+                                  {:handler (name (:id decl))
+                                   :params  (str/join ", " (mapv (comp name :name) (:params decl [])))
+                                   :guards  (str/join ", " (mapv (comp name :check) (:guards decl [])))
+                                   :updates (str (count (:updates decl [])))
+                                   :effects (str/join ", " (mapv (comp name :op) (:effects decl [])))})
+                              declarations)]
+                       (doc/section
+                        :mealy/root "Mealy Handler Set"
+                        [(doc/table :mealy/handlers
+                                    [:handler :params :guards :updates :effects]
+                                    handler-rows)])))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]

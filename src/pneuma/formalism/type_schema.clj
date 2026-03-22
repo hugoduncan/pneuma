@@ -5,6 +5,7 @@
   types. Implements IProjectable and IReferenceable."
     (:require [malli.core :as m]
               [malli.generator :as mg]
+              [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
 
 (defrecord TypeSchema [types]
@@ -36,6 +37,17 @@
                        {:formalism :type-schema
                         :gap-kinds #{:unknown-type}
                         :statuses #{:conforms :absent :diverges}})
+
+           (->doc [_]
+                  (let [type-rows (mapv (fn [[type-kw schema]]
+                                            {:type   (name type-kw)
+                                             :schema (str schema)})
+                                        types)]
+                       (doc/section
+                        :type-schema/root "Type Schema"
+                        [(doc/table :type-schema/types
+                                    [:type :schema]
+                                    type-rows)])))
 
            p/IReferenceable
            (extract-refs [_ ref-kind]
