@@ -13,7 +13,7 @@
 (def lean-cap-operations
      "The ILeanProjectable ->lean contract for CapabilitySet."
      (es/effect-signature
-      {:label "Lean Cap Operations"
+      {:label "Lean Capability Operations"
        :operations
        {:->lean
         {:input {:formalism :CapabilitySet}
@@ -21,13 +21,13 @@
 
 (def lean-cap-caps
      (cap/capability-set
-      {:label "Lean Cap Capabilities"
+      {:label "Lean Capability Capabilities"
        :id :lean-cap
        :dispatch #{:->lean}}))
 
 (def lean-cap-types
      (ts/type-schema
-      {:label "Lean Cap Type Registry"
+      {:label "Lean Capability Type Registry"
        :types {:CapabilitySet :any
                :LeanSource :string}}))
 

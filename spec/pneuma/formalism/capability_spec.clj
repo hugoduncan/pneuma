@@ -14,7 +14,7 @@
 (def cap-api-operations
      "Public API of the capability namespace."
      (es/effect-signature
-      {:label "Cap API Operations"
+      {:label "Capability API Operations"
        :operations
        {:capability-set
         {:input {:id :Keyword
@@ -26,7 +26,7 @@
 (def cap-ref-operations
      "The extract-refs dispatch table for CapabilitySet."
      (es/effect-signature
-      {:label "Cap Ref Operations"
+      {:label "Capability Ref Operations"
        :operations
        {:dispatch-refs
         {:input {:formalism :CapabilitySet}
@@ -47,21 +47,21 @@
 (def cap-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:label "Cap API Capabilities"
+      {:label "Capability API Capabilities"
        :id :cap-api
        :dispatch #{:capability-set}}))
 
 (def cap-ref-kind-caps
      "The ref-kinds that CapabilitySet's IReferenceable supports."
      (cap/capability-set
-      {:label "Cap Ref Kind Capabilities"
+      {:label "Capability Ref Kind Capabilities"
        :id :cap-ref-kinds
        :dispatch #{:dispatch-refs :subscribe-refs :query-refs :all-refs}}))
 
 (def cap-types
      "Type universe for the capability namespace."
      (ts/type-schema
-      {:label "Cap Type Registry"
+      {:label "Capability Type Registry"
        :types {:CapabilitySet :any
                :Keyword :keyword
                :KeywordSet [:set :keyword]}}))

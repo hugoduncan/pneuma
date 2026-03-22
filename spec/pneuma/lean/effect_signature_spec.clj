@@ -13,7 +13,7 @@
 (def lean-es-operations
      "The ILeanProjectable ->lean contract for EffectSignature."
      (es/effect-signature
-      {:label "Lean ES Operations"
+      {:label "Lean Effect Signature Operations"
        :operations
        {:->lean
         {:input {:formalism :EffectSignature}
@@ -21,13 +21,13 @@
 
 (def lean-es-caps
      (cap/capability-set
-      {:label "Lean ES Capabilities"
+      {:label "Lean Effect Signature Capabilities"
        :id :lean-es
        :dispatch #{:->lean}}))
 
 (def lean-es-types
      (ts/type-schema
-      {:label "Lean ES Type Registry"
+      {:label "Lean Effect Signature Type Registry"
        :types {:EffectSignature :any
                :LeanSource :string}}))
 

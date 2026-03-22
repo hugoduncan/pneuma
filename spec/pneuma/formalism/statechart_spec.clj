@@ -14,7 +14,7 @@
 (def sc-api-operations
      "Public API of the statechart namespace."
      (es/effect-signature
-      {:label "SC API Operations"
+      {:label "Statechart API Operations"
        :operations
        {:statechart
         {:input {:states :KeywordSet
@@ -27,7 +27,7 @@
 (def sc-ref-operations
      "The extract-refs dispatch table for Statechart."
      (es/effect-signature
-      {:label "SC Ref Operations"
+      {:label "Statechart Ref Operations"
        :operations
        {:state-ids
         {:input {:formalism :Statechart}
@@ -44,21 +44,21 @@
 (def sc-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:label "SC API Capabilities"
+      {:label "Statechart API Capabilities"
        :id :sc-api
        :dispatch #{:statechart}}))
 
 (def sc-ref-kind-caps
      "The ref-kinds that Statechart's IReferenceable supports."
      (cap/capability-set
-      {:label "SC Ref Kind Capabilities"
+      {:label "Statechart Ref Kind Capabilities"
        :id :sc-ref-kinds
        :dispatch #{:state-ids :event-ids :raised-events}}))
 
 (def sc-types
      "Type universe for the statechart namespace."
      (ts/type-schema
-      {:label "SC Type Registry"
+      {:label "Statechart Type Registry"
        :types {:Statechart :any
                :KeywordSet [:set :keyword]
                :HierarchyMap :any
