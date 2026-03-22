@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Emit Lean proofs from pneuma's own dogfood specs, then build them.
+# Exit 0 if all proofs pass, non-zero otherwise.
+
+PROOFS_DIR="proofs/Pneuma"
+mkdir -p "$PROOFS_DIR"
+
+echo "Emitting Lean proofs from dogfood specs..."
+
+clojure -M:dev -e '
+(require (quote [pneuma.lean.core :as lean])
+         (quote [pneuma.gap.core :as gap])
+         (quote [pneuma.protocol-spec :as protocol-spec])
+         (quote [pneuma.lean-spec :as lean-spec])
+         (quote [pneuma.formalism.effect-signature-spec :as es-spec])
+         (quote [pneuma.formalism.capability-spec :as cap-spec])
+         (quote [pneuma.formalism.statechart-spec :as sc-spec])
+         (quote [pneuma.formalism.mealy-spec :as mealy-spec])
+         (quote [pneuma.formalism.optic-spec :as optic-spec])
+         (quote [pneuma.formalism.resolver-spec :as resolver-spec])
+         (quote [pneuma.formalism.type-schema-spec :as ts-spec]))
+
+(let [specs {"Protocol"        {:formalisms protocol-spec/protocol-formalisms
+                                 :registry   protocol-spec/protocol-registry}
+             "Lean"            {:formalisms lean-spec/lean-formalisms
+                                 :registry   lean-spec/lean-registry}
+             "EffectSignature" {:formalisms es-spec/es-formalisms
+                                 :registry   es-spec/es-registry}
+             "Capability"      {:formalisms cap-spec/cap-formalisms
+                                 :registry   cap-spec/cap-registry}
+             "Statechart"      {:formalisms sc-spec/sc-formalisms
+                                 :registry   sc-spec/sc-registry}
+             "Mealy"           {:formalisms mealy-spec/mealy-formalisms
+                                 :registry   mealy-spec/mealy-registry}
+             "Optic"           {:formalisms optic-spec/optic-formalisms
+                                 :registry   optic-spec/optic-registry}
+             "Resolver"        {:formalisms resolver-spec/resolver-formalisms
+                                 :registry   resolver-spec/resolver-registry}
+             "TypeSchema"      {:formalisms ts-spec/ts-formalisms
+                                 :registry   ts-spec/ts-registry}}
+      dir "proofs/Pneuma"
+      failed (atom false)]
+  (doseq [[spec-name config] (sort specs)]
+    (let [report (gap/gap-report config)]
+      (if (gap/has-failures? report)
+        (do (println (str "FAIL " spec-name ": " (count (gap/failures report)) " failures"))
+            (reset! failed true))
+        (let [lean-src (lean/emit-lean-system spec-name config)
+              path (str dir "/" spec-name ".lean")]
+          (spit path lean-src)
+          (println (str "  OK " spec-name " -> " path))))))
+  (when @failed
+    (System/exit 1)))
+'
+
+echo ""
+echo "Building Lean proofs..."
+export PATH="$HOME/.elan/bin:$PATH"
+cd proofs && lake build

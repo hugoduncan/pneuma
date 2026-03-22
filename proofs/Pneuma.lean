@@ -1,1 +1,4 @@
-import Pneuma.System
+-- Root module for pneuma self-proofs.
+-- Individual proof files in Pneuma/ are built as submodules.
+-- They are not imported here to avoid name collisions between
+-- generated opaque type declarations.

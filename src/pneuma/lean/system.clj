@@ -144,18 +144,19 @@
       (let [report (gap/gap-report config)
             conforms? (not (gap/has-failures? report))
             formalisms (:formalisms config)
-            effect-sig (some (fn [[_ v]]
-                                 (when (instance?
-                                        pneuma.formalism.effect_signature.EffectSignature v)
-                                       v))
-                             formalisms)
+            effect-sigs (into []
+                              (keep (fn [[_ v]]
+                                        (when (instance?
+                                               pneuma.formalism.effect_signature.EffectSignature v)
+                                              v)))
+                              formalisms)
             cap-sets (into {}
                            (keep (fn [[k v]]
                                      (when (instance?
                                             pneuma.formalism.capability.CapabilitySet v)
                                            [k v])))
                            formalisms)
-            operations (:operations effect-sig)
+            operations (into {} (mapcat :operations) effect-sigs)
             ;; Build morphism-id → caps-id mapping from registry
             registry (:registry config)
             cap-morphisms (into {}

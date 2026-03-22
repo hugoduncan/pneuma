@@ -26,5 +26,8 @@
   outdated  {:doc  "Check for outdated dependencies"
              :task (clojure "-M:outdated")}
 
+  self-proof {:doc  "Emit and build Lean proofs from pneuma's own specs"
+              :task (shell "bin/self-proof")}
+
   ci        {:doc  "Run lint + fmt check + all tests + lean proofs"
              :depends [lint fmt test-all lake]}}}
