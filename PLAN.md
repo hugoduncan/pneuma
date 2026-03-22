@@ -260,32 +260,32 @@ status. See
 
 **Phase 11a — Document fragment data model and rendering:**
 
-- [ ] `pneuma.doc.fragment` — DocFragment record and constructors
+- [x] `pneuma.doc.fragment` — DocFragment record and constructors
   - Section, Table, Prose, DiagramSpec, CrossRef, StatusAnnotation
   - Composable: fragments assemble into a document tree
-- [ ] `pneuma.doc.render` — format-agnostic → concrete output
+- [x] `pneuma.doc.render` — format-agnostic → concrete output
   - render-markdown, render-html, render-docx
   - Mermaid diagram embedding for statechart/morphism diagrams
   - Gap status overlay (conformance pills per element)
 
 **Phase 11b — Per-formalism ->doc implementations:**
 
-- [ ] `pneuma.formalism.statechart` — ->doc: state diagram, transition table, reachable configs, invariants
-- [ ] `pneuma.formalism.effect-signature` — ->doc: effect API reference with typed fields and callback targets
-- [ ] `pneuma.formalism.mealy` — ->doc: handler contract reference with guards, updates, effects
-- [ ] `pneuma.formalism.optic` — ->doc: subscription catalog with paths, types, derivation logic
-- [ ] `pneuma.formalism.resolver` — ->doc: query planner reference with attribute reachability graph
-- [ ] `pneuma.formalism.capability` — ->doc: extension permission reference
+- [x] `pneuma.formalism.statechart` — ->doc: state diagram, transition table, reachable configs, invariants
+- [x] `pneuma.formalism.effect-signature` — ->doc: effect API reference with typed fields and callback targets
+- [x] `pneuma.formalism.mealy` — ->doc: handler contract reference with guards, updates, effects
+- [x] `pneuma.formalism.optic` — ->doc: subscription catalog with paths, types, derivation logic
+- [x] `pneuma.formalism.resolver` — ->doc: query planner reference with attribute reachability graph
+- [x] `pneuma.formalism.capability` — ->doc: extension permission reference
 
 **Phase 11c — Cross-formalism documentation:**
 
-- [ ] Morphism documentation — integration contract map, connection graph
-- [ ] Composed path documentation — interaction pattern guide with sequence diagrams
-- [ ] Gap report documentation — implementation status dashboard, priority list, progress trajectory
+- [x] Morphism documentation — integration contract map, connection graph
+- [x] Composed path documentation — interaction pattern guide with sequence diagrams
+- [x] Gap report documentation — implementation status dashboard, priority list, progress trajectory
 
 **Phase 11d — Document assembly and REPL integration:**
 
-- [ ] `pneuma.doc.core` — public API
+- [x] `pneuma.doc.core` — public API
   - render-doc: assemble all fragments into a full document
   - explain: per-component interactive documentation at the REPL
   - explain-connections: morphism graph for a given formalism
