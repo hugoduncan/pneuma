@@ -157,15 +157,15 @@ how Pneuma checks its own lean layer.
 
 Build order within this phase follows §9.1 of the extension document.
 
-- [ ] `pneuma.lean.protocol` — ILeanProjectable, ILeanConnection
-- [ ] `pneuma.lean.statechart` — extend Statechart (first and most valuable emission)
-- [ ] `pneuma.lean.effect-signature` — extend EffectSignature
-- [ ] `pneuma.lean.mealy` — extend MealyHandlerSet
-- [ ] `pneuma.lean.capability` — extend CapabilitySet
+- [x] `pneuma.lean.protocol` — ILeanProjectable, ILeanConnection
+- [x] `pneuma.lean.statechart` — extend Statechart (first and most valuable emission)
+- [x] `pneuma.lean.effect-signature` — extend EffectSignature
+- [x] `pneuma.lean.mealy` — extend MealyHandlerSet
+- [x] `pneuma.lean.capability` — extend CapabilitySet
 - [x] `pneuma.lean.optic` — extend OpticDeclaration
 - [x] `pneuma.lean.resolver` — extend ResolverGraph
-- [ ] `pneuma.lean.existential` — extend ExistentialMorphism
-- [ ] `pneuma.lean.structural` — extend StructuralMorphism
+- [x] `pneuma.lean.existential` — extend ExistentialMorphism (ILeanConnection)
+- [x] `pneuma.lean.structural` — extend StructuralMorphism (ILeanConnection)
 - [ ] `pneuma.lean.core` — public API (emit-lean, emit-lean-cycle, emit-lean-bisim)
 - [ ] `proofs/` Lean project structure with `lakefile.lean` and Mathlib dependency
 - [ ] CI integration: `lake build` alongside `clojure -M:test`
