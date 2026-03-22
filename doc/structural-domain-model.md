@@ -84,7 +84,7 @@ Plus domain-specific enumerations:
 GapStatus      = { :conforms, :absent, :diverges }
 MorphismKind   = { :existential, :structural, :containment, :ordering }
 OpticType      = { :Lens, :Traversal, :Fold, :Derived }
-ProjectionKind = { :schema, :monitor, :generator, :gap-type, :lean }
+ProjectionKind = { :schema, :monitor, :generator, :gap-type, :lean, :doc }
 GapLayer       = { :object, :morphism, :path }
 Verdict        = { :ok, :violation }
 ```
@@ -389,7 +389,7 @@ operation.
 #### 4.8 Projection as Coproduct
 
 ```
-Projection = Schema ⊔ Monitor ⊔ Generator ⊔ GapTypeDesc ⊔ LeanSource
+Projection = Schema ⊔ Monitor ⊔ Generator ⊔ GapTypeDesc ⊔ LeanSource ⊔ DocFragment
 ```
 
 Each variant has a distinct formal structure:
@@ -465,10 +465,22 @@ Each variant has a distinct formal structure:
   static website with a dependency graph showing proof status. See
   [pneuma-lean4-extension.md](pneuma-lean4-extension.md) §11.
 
-The five variants correspond to the five projection functors (§6.1).
-The first four are methods of `IProjectable`; the fifth (`→lean`) is
+- `DocFragment` — a data structure describing human-readable document
+  sections: prose blocks, tables, cross-references, diagram
+  specifications (e.g. mermaid stateDiagrams), and gap status
+  annotations. Fragments are format-agnostic — a renderer converts
+  them to markdown, HTML, or docx. Each formalism produces a different
+  kind of documentation derived from its own structure (e.g. a
+  statechart produces a state diagram, transition table, reachable
+  configurations, and verified invariants). The gap report is overlaid
+  as a second pass, annotating each element with its conformance
+  status. See
+  [formalism-first-conformance.md](formalism-first-conformance.md) §8.
+
+The six variants correspond to the six projection functors (§6.1).
+The first five are methods of `IProjectable`; the sixth (`→lean`) is
 on the separate `ILeanProjectable` protocol. Each formalism produces
-all five.
+all six.
 
 #### 4.9 MorphismKind as Coproduct
 
@@ -606,11 +618,12 @@ it. The gap report is the failure set of the categorical laws.
 **A1 — Projection completeness:**
 ```
 ∀ f : Formalism,
-  ∃ s : Schema, m : Monitor, g : Generator, d : GapTypeDesc, l : LeanSource
+  ∃ s : Schema, m : Monitor, g : Generator, d : GapTypeDesc,
+    l : LeanSource, doc : DocFragment
   such that →schema(f) = s ∧ →monitor(f) = m ∧ →gen(f) = g
-        ∧ →gap-type(f) = d ∧ →lean(f) = l
+        ∧ →gap-type(f) = d ∧ →lean(f) = l ∧ →doc(f) = doc
 ```
-Every formalism projects to all five checking artifacts.
+Every formalism projects to all six artifacts.
 
 **A2 — Formalism exhaustiveness:**
 ```
@@ -867,11 +880,12 @@ taxonomy of failure modes for the formalism.
   ∧ →gen(f) = →gen(f)
   ∧ →gap-type(f) = →gap-type(f)
   ∧ →lean(f) = →lean(f)
+  ∧ →doc(f) = →doc(f)
 ```
-All five projections are deterministic. The same formalism always
+All six projections are deterministic. The same formalism always
 produces the same schema, monitor, generator, gap-type descriptor,
-and Lean source. Projections are derived values, not stateful
-computations.
+Lean source, and document fragment. Projections are derived values,
+not stateful computations.
 
 **A28 — Lean well-formedness:**
 ```
@@ -919,26 +933,30 @@ morphisms, and index comparisons for ordering morphisms.
 →gen      : Formalism → Generator
 →gap-type : Formalism → GapTypeDesc
 →lean     : Formalism → LeanSource
+→doc      : Formalism → DocFragment
 ```
 
-Five functors from the coproduct `Formalism` to the coproduct
-`Projection`. The first four are `IProjectable` protocol methods;
-the fifth (`→lean`) is on the separate `ILeanProjectable` protocol.
+Six functors from the coproduct `Formalism` to the coproduct
+`Projection`. The first five are `IProjectable` protocol methods;
+the sixth (`→lean`) is on the separate `ILeanProjectable` protocol.
 Each preserves the identity of the formalism — the projection is
 *determined by* the formalism. These are natural in the sense that
 adding a new formalism (extending the coproduct) requires only
-implementing the five methods; existing formalisms and their
+implementing the six methods; existing formalisms and their
 projections are unchanged.
 
 The first four projections produce runtime checking artifacts
-(sampled). The fifth (`→lean`) produces Lean 4 source code for
-kernel-verified proofs (universal). See
+(sampled). The fifth (`→doc`) produces human-readable document
+fragments (see
+[formalism-first-conformance.md](formalism-first-conformance.md) §8).
+The sixth (`→lean`) produces Lean 4 source code for kernel-verified
+proofs (universal). See
 [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the
 translation rules and proof targets.
 
 **Implementation note:** In the Clojure realization (Option A), the
-first four projections are methods on `IProjectable` in
-`pneuma.protocol`. The fifth (`→lean`) is on a separate protocol
+first five projections are methods on `IProjectable` in
+`pneuma.protocol`. The sixth (`→lean`) is on a separate protocol
 `ILeanProjectable` in `pneuma.lean.protocol`, bridged to existing
 records via `extend-protocol`. This isolates the optional Lean
 dependency from the core checking system. See
@@ -1089,8 +1107,8 @@ property of the graph's categorical structure.
 
 #### 7.1 Parallel projection strategies
 
-For a given formalism, the five projections (→schema, →monitor, →gen,
-→gap-type, →lean) are parallel morphisms from `Formalism` to `Projection`
+For a given formalism, the six projections (→schema, →monitor, →gen,
+→gap-type, →doc, →lean) are parallel morphisms from `Formalism` to `Projection`
 (different projection kinds). These are not 2-Cells in the strict
 sense — they have different codomains within the `Projection`
 coproduct.
@@ -1196,6 +1214,7 @@ structure.
 | 6.1 | →monitor | Formalism | Monitor | Coproduct |
 | 6.1 | →gen | Formalism | Generator | Coproduct |
 | 6.1 | →gap-type | Formalism | GapTypeDesc | Coproduct |
+| 6.1 | →doc | Formalism | DocFragment | Coproduct |
 | 6.1 | →lean | Formalism | LeanSource | Coproduct |
 | 6.2 | compose | Morphism × Morphism | Morphism | Presheaf |
 | 6.3 | check | Morphism × F × F | Gap | Coproduct |

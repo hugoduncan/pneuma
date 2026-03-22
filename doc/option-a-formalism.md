@@ -54,14 +54,14 @@ lean layer is optional; nothing in `integration` requires it.
 | Sort | Description | Instance count |
 |---|---|---|
 | **Protocol** | A Clojure `defprotocol`. Defines a set of methods that records must implement. | 5 |
-| **ProtocolMethod** | A single method declared within a protocol. Has a name, an argument signature, and a docstring. | 8 |
+| **ProtocolMethod** | A single method declared within a protocol. Has a name, an argument signature, and a docstring. | 9 |
 | **Record** | A Clojure `defrecord` type. Has positional fields and implements one or more protocols. | 10 |
 
 The five protocols (three core, two lean):
 
 | Protocol | Methods | Implemented by | Layer |
 |---|---|---|---|
-| `IProjectable` | `->schema`, `->monitor`, `->gen`, `->gap-type` | 6 formalism records | protocol |
+| `IProjectable` | `->schema`, `->monitor`, `->gen`, `->gap-type`, `->doc` | 6 formalism records | protocol |
 | `IConnection` | `check` | 4 morphism kind records | protocol |
 | `IReferenceable` | `extract-refs` | 6 formalism records | protocol |
 | `ILeanProjectable` | `->lean` | 6 formalism records (via extend-protocol) | lean |
@@ -237,7 +237,7 @@ declaration order is irrelevant in Clojure protocols.
 
 | Protocol | methods |
 |---|---|
-| IProjectable | `{ ->schema, ->monitor, ->gen, ->gap-type }` |
+| IProjectable | `{ ->schema, ->monitor, ->gen, ->gap-type, ->doc }` |
 | IConnection | `{ check }` |
 | IReferenceable | `{ extract-refs }` |
 
@@ -384,8 +384,9 @@ layout.)
 ∀ r : Record, layer(r) = formalism,
   { IProjectable, IReferenceable } ⊆ impls(r)
 ```
-Every formalism record implements both `IProjectable` (four
-projection methods) and `IReferenceable` (reference extraction).
+Every formalism record implements both `IProjectable` (five
+projection methods including `->doc`) and `IReferenceable` (reference
+extraction).
 This is the structural guarantee behind Axiom A1 of the domain model
 (projection completeness).
 

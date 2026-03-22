@@ -15,10 +15,11 @@
 5. [Composed Paths — Cycle-Level Invariants](#5-composed-paths--cycle-level-invariants)
 6. [The Refinement Map](#6-the-refinement-map)
 7. [The Three-Layer Gap Report](#7-the-three-layer-gap-report)
-8. [Why No Specification Language](#8-why-no-specification-language)
-9. [Implementation Strategy](#9-implementation-strategy)
-10. [Relationship to Existing Work](#10-relationship-to-existing-work)
-11. [Conclusion](#11-conclusion)
+8. [Living Documentation — The ->doc Projection](#8-living-documentation--the--doc-projection)
+9. [Why No Specification Language](#9-why-no-specification-language)
+10. [Implementation Strategy](#10-implementation-strategy)
+11. [Relationship to Existing Work](#11-relationship-to-existing-work)
+12. [Conclusion](#12-conclusion)
 
 ---
 
@@ -226,13 +227,14 @@ Each mathematical object implements a single protocol that projects it into four
 
 ```clojure
 (defprotocol IProjectable
-  (->schema  [this]  "Produce a Malli schema for structural validation.")
-  (->monitor [this]  "Produce a trace monitor for behavioral checking.")
-  (->gen     [this]  "Produce a test.check generator for property testing.")
-  (->gap-type [this] "Produce the gap type descriptor for this formalism."))
+  (->schema   [this]  "Produce a Malli schema for structural validation.")
+  (->monitor  [this]  "Produce a trace monitor for behavioral checking.")
+  (->gen      [this]  "Produce a test.check generator for property testing.")
+  (->gap-type [this]  "Produce the gap type descriptor for this formalism.")
+  (->doc      [this]  "Produce a human-readable document fragment."))
 ```
 
-The protocol is deliberately minimal. Each method takes only `this` — the mathematical object — and returns a checking artifact. There is no compilation context, no symbol table, no cross-references to other formalisms. Each formalism is self-contained in what it can project. Cross-formalism checks (like verifying that raised events from the statechart have corresponding Mealy handlers) happen at a higher level, after the individual projections.
+The protocol is deliberately minimal. Each method takes only `this` — the mathematical object — and returns a checking or documentation artifact. There is no compilation context, no symbol table, no cross-references to other formalisms. Each formalism is self-contained in what it can project. Cross-formalism checks (like verifying that raised events from the statechart have corresponding Mealy handlers) happen at a higher level, after the individual projections.
 
 ### 3.1. Schema Projection
 
@@ -640,37 +642,151 @@ The gap report is itself data. It can be diffed against previous reports to show
 
 ---
 
-## 8. Why No Specification Language
+## 8. Living Documentation — The ->doc Projection
+
+The formalisms are data with rich semantic structure. A statechart knows its states, transitions, regions, reachable configurations, and verified invariants. An effect signature knows its operations and their typed fields. The morphism graph knows every cross-reference between every pair of formalisms. The gap report knows the conformance status of every component. This is far more than what you'd get from code comments or docstrings — it's a complete architectural model that can narrate itself.
+
+The `->doc` projection is another method on `IProjectable`, sitting alongside `->schema`, `->monitor`, `->gen`, and `->gap-type`. Where those produce checking artifacts, this one produces human-readable document fragments that can be assembled into an architecture document.
+
+```clojure
+(defprotocol IProjectable
+  (->schema   [this])   ;; → Malli schema
+  (->monitor  [this])   ;; → trace checker
+  (->gen      [this])   ;; → test.check generator
+  (->gap-type [this])   ;; → gap type descriptor
+  (->doc      [this]))  ;; → document fragment
+```
+
+Each formalism produces a document fragment — a data structure describing sections, tables, prose blocks, cross-references, and diagram specifications. These fragments are composed into a full document and rendered to markdown, HTML, or docx. The gap report is overlaid as a second pass, annotating each element with its conformance status.
+
+### 8.1. What Each Formalism Narrates
+
+Each formalism produces a different kind of documentation, derived from its own structure:
+
+**Statechart → session lifecycle documentation.** A state diagram (emitted as a mermaid `stateDiagram`), a transition table with source, event, target, and raised events, the computed set of reachable configurations, verified invariants, and a prose paragraph describing the lifecycle: "A session begins idle. When the user submits a prompt, the session transitions to generating, where the AI model produces a response..."
+
+**Effect signature → effect API reference.** Per-operation documentation with typed fields, callback targets, and a prose description of what the operation does. Cross-references to the transitions that emit each effect and the events that close the callback loop.
+
+**Mealy transitions → handler contract reference.** Per-handler documentation with preconditions (guards), state updates, emitted effects, and a prose description: "submit-prompt requires the session to be idle and appends the user's message to the session history." Cross-references to which chart state enables each handler.
+
+**Optics → subscription catalog.** Per-subscription documentation with the optic path, the optic type (lens, traversal, fold), the return type, and for derived subscriptions, the source paths and derivation logic. Cross-references to which handlers update the paths these optics observe.
+
+**Resolvers → query planner reference.** Per-resolver documentation with input attributes, output attributes, and source (local or external). The computed attribute reachability graph, showing which attributes are derivable from which starting points. Cross-references to which capability sets are authorized to query which attributes.
+
+**Capability sets → extension permission reference.** Per-extension documentation listing what events it can dispatch, what subscriptions it can observe, and what queries it can issue. Cross-references to the corresponding transitions, optics, and resolvers.
+
+**Morphisms → integration contract map.** A connection graph showing which formalisms reference which, with per-morphism documentation of the contract type (existential, structural, containment, ordering), a prose description of what the contract means, and what failure looks like when it breaks.
+
+**Composed paths → interaction pattern guide.** Per-cycle documentation with a sequence diagram tracing the full path, a prose description of the invariant, the failure modes when the cycle breaks, and a worked example tracing a specific event through the cycle.
+
+**Gap report → implementation status dashboard.** A coverage matrix showing every formalism component and its conformance status. A priority list of what to implement next, ordered by downstream impact (object gaps that cascade into morphism and path gaps come first). A progress trajectory showing gap counts over time.
+
+### 8.2. Three Things Normal Documentation Cannot Do
+
+The `->doc` projection produces documentation that is qualitatively different from documentation generated from code comments, docstrings, or hand-written markdown.
+
+**It documents what the system should do, not what it does do.** The transition table shows the tool-error recovery path even though it isn't implemented yet. A code-derived doc would simply omit it. The architecture intent is visible regardless of implementation status, and the gap report overlay shows exactly where intent and reality diverge. Every table row, every effect operation, every handler contract carries a status pill — implemented, absent, or diverges — computed from the gap report.
+
+**It documents computed properties, not just declared ones.** The reachable configurations section is the result of a breadth-first search over the statechart's transition relation. The invariant verification is the result of checking those configurations against declared predicates. The attribute reachability graph is the transitive closure of the resolver dependency hypergraph. No human computed these — the formalisms computed them about themselves. If someone adds a new transition, the reachable set updates automatically and the invariants are re-checked.
+
+**The cross-references are structural, not manual.** The note under a handler saying "Morphism gap: shape mismatch at `[:on-error]`" and "Path gap: event-effect-callback cycle cannot close" comes from the morphism and cycle checking machinery. It connects the handler documentation to the cycle documentation to the gap report — three layers of Pneuma's architecture, surfaced as cross-references in the human-readable output. These cross-references are derived from the morphism registry and are always up to date because they're computed, not written.
+
+### 8.3. The Architecture Document Regenerates From Data
+
+The most important consequence: the architecture document that describes the system can itself be a `->doc` output. You don't write it by hand. You define the formalisms as Clojure data, and the document generates itself.
+
+```clojure
+;; Generate the full architecture document
+(spit "docs/architecture.md"
+  (p/render-doc
+    {:formalisms [session-chart effect-sig mealy-handlers
+                  optics resolvers caps]
+     :morphisms (p/morphism-registry)
+     :cycles (p/cycle-registry)
+     :gap-report (p/gap-report {:refinement-map {...}})
+     :format :markdown}))
+```
+
+If the architecture changes — a new state is added to the chart, a new effect operation is defined, a morphism is discovered between two formalisms — you don't update a markdown file. You update the Clojure data, and the document follows. The architecture.md becomes a *view* of the model, not the model itself.
+
+This closes a loop that is almost never closed in practice. Architecture documents are written once, during initial design, and then drift as the implementation evolves. The code diverges from the document, the document loses trust, and eventually nobody reads it. With `->doc`, the document is derived from the same mathematical objects that the implementation is checked against. If the implementation diverges from the model, the gap report shows it in the document. If the model evolves, the document evolves with it. The architecture document can never drift because it was never independent — it was always a projection.
+
+### 8.4. Output Formats
+
+The document fragments produced by `->doc` are format-agnostic data structures (sections, tables, prose blocks, diagram specs, cross-references). A renderer converts them to a specific output format:
+
+- **Markdown** — for inclusion in a git repository alongside the code. The primary format. Mermaid diagram blocks are embedded inline.
+- **HTML** — a static site with navigation, search, and interactive diagrams. The gap report status pills become color-coded badges. The morphism connection graph becomes a clickable SVG. The statechart becomes an interactive state diagram where clicking a state shows its transitions.
+- **Docx** — for design reviews and stakeholder communication. The same content, formatted for print, with a table of contents and page numbers.
+
+All three formats are generated from the same fragments. Changing the formalisms regenerates all three simultaneously.
+
+### 8.5. The REPL as Documentation Browser
+
+Because the formalisms live in the REPL, the documentation is queryable interactively:
+
+```clojure
+;; What does the approve-tool handler do?
+(p/explain :approve-tool)
+;; => "Approves a pending tool execution for the given session.
+;;     Requires: in-state?(sid, :awaiting-approval), some?(pending-tool).
+;;     Updates: clears pending-tool, appends to tool-history.
+;;     Emits: tool/execute with on-complete → tool-execution-complete.
+;;     Status: DIVERGES — missing guard (in-state?) and missing on-error field."
+
+;; What connects to the statechart?
+(p/explain-connections :chart)
+;; => "7 morphisms reference the statechart:
+;;     - mealy guards reference chart states (existential, 4 refs, all valid)
+;;     - chart raises events handled by mealy (structural, 3 refs, all valid)
+;;     - interceptor chain places chart before handler (ordering, valid)
+;;     - capabilities dispatch subset of chart-valid events (containment, not checked — caps absent)"
+
+;; Walk me through the effect-callback cycle for tool execution
+(p/explain-cycle :event-effect-callback {:from :tool-requested})
+;; => "1. Chart: generating --tool-requested--> awaiting-approval
+;;     2. Handler: approve-tool emits tool/execute
+;;     3. Effect: tool/execute has on-complete → tool-execution-complete
+;;     4. Re-entry: tool-execution-complete targets chart at tool-executing
+;;     GAP: handler advances chart to awaiting-approval, not tool-executing.
+;;          Callback will re-enter at wrong state."
+```
+
+This is not documentation you read — it's documentation you ask questions of. The model has enough semantic structure to answer "what does X do?", "what connects to Y?", and "walk me through cycle Z" because those questions map directly to computations over the formalism data: filtering transitions, traversing the morphism graph, composing along a cycle path.
+
+---
+
+## 9. Why No Specification Language
 
 The spec-language-free approach is not merely a simplification. It enables capabilities that a spec language cannot provide.
 
-### 8.1. Computation Over Formalisms
+### 9.1. Computation Over Formalisms
 
 Because the mathematical objects are live Clojure data, you can compute with them. Take the parallel product of two statecharts to model their joint behavior. Compute the transitive closure of the resolver dependency graph to determine attribute reachability. Check whether the intersection of two capability sets is empty. Compute the bisimulation quotient of two chart versions to verify that a refactor preserves observable behavior.
 
 Critically, you can compute over the *morphism graph* too. Enumerate all cycles. Check that every existential reference resolves. Compute the longest path through the formalism graph and identify the invariant it imposes. None of these operations are possible when the formalism is encoded as text in a spec file.
 
-### 8.2. Same-Runtime Feedback
+### 9.2. Same-Runtime Feedback
 
 The math objects live in the same process as the implementation. When you modify a transition declaration at the REPL, the schema, monitor, and generator projections update immediately — they are derived values, not compiled artifacts. The morphism checks also re-run: did your rename break an existential reference? Did your new effect field violate a structural match? The answer is instant.
 
 The gap report can be computed interactively during development. Run `(gap-report)` at the REPL after changing a handler, and see instantly whether object, morphism, and path gaps are resolved or introduced.
 
-### 8.3. Compositional Extension
+### 9.3. Compositional Extension
 
 Adding a new formalism means implementing `IProjectable` for a new record type. Adding the connections means implementing `IConnection` for each morphism to other formalisms. The existing formalisms and morphisms don't change. There is no grammar to extend, no parser to modify, no new syntax to design. The morphism graph grows automatically as new edges are discovered.
 
-### 8.4. Richer Gap Analysis
+### 9.4. Richer Gap Analysis
 
 A spec language can tell you "this handler is wrong." The formalism-first approach can tell you "this handler is wrong because it omits a guard that the statechart requires for the `:awaiting-approval → :tool-executing` transition (morphism gap), and this missing guard means the effect-callback cycle cannot close correctly because the callback will re-enter the chart in the wrong state (path gap)." The causal chain from object gap to morphism gap to path gap is traversable because all the structure is in memory and queryable.
 
 ---
 
-## 9. Implementation Strategy
+## 10. Implementation Strategy
 
 The system is built bottom-up through the three layers. Objects first, then morphisms, then composed paths. Each layer is independently useful before the next exists.
 
-### 9.1. Build Order
+### 10.1. Build Order
 
 **Phase 1 — Objects (formalisms in isolation):**
 
@@ -694,15 +810,18 @@ The system is built bottom-up through the three layers. Objects first, then morp
 - Observe-dispatch-update cycle checker. Catches subscription feedback loops.
 - Full dispatch precondition chain checker. Catches broken interceptor dependencies.
 
-**Phase 4 — Gap report synthesis:**
+**Phase 4 — Gap report synthesis and documentation:**
 
 - Merge all three layers into the unified report structure.
 - Gap diffing across time (compare successive reports to show progress).
 - REPL integration for interactive conformance checking.
+- The `->doc` projection for each formalism, producing document fragments.
+- Document assembly and rendering to markdown, HTML, and docx.
+- Gap report overlay onto the generated documentation.
 
-### 9.2. Dependencies
+### 10.2. Dependencies
 
-The core checking system requires only the standard Clojure ecosystem:
+The checking system requires only the standard Clojure ecosystem:
 
 - Malli for schema validation and generation (structural checking).
 - test.check for property-based testing (behavioral checking via generators).
@@ -710,6 +829,16 @@ The core checking system requires only the standard Clojure ecosystem:
 - The existing event log and state atom (no new infrastructure).
 
 No external theorem provers, model checkers, or formal methods tools are required for the core checking loop. The mathematical objects are Clojure maps; the projections are Clojure functions; the morphism checks are Clojure functions over pairs of maps; the gap report is a Clojure map. The entire system lives in one codebase, one runtime, one REPL.
+
+### 10.3. What To Defer
+
+The indexed coalgebra framing (Section 2.7) is useful for understanding how the formalisms relate but is not needed for the checking machinery. Build it only if cross-formalism reasoning becomes a bottleneck.
+
+Bisimulation computation over statecharts is valuable for verifying refactors but is a second-order concern — get basic gap reporting working first.
+
+Automatic cycle enumeration (Johnson's algorithm over the morphism graph) can be deferred by hardcoding the three known cycles. Generalize only when new formalisms introduce new cycles.
+
+Integration with external tools (Alloy for relational model-finding, TLA+ for temporal model checking) is a future extension. The mathematical objects can be serialized to these tools' input formats, but this requires translation layers that are not part of the core system.
 
 The optional Lean 4 integration (Phase 5, see
 [pneuma-lean4-extension.md](pneuma-lean4-extension.md)) adds:
@@ -720,47 +849,37 @@ The optional Lean 4 integration (Phase 5, see
 
 The Clojure side requires no new dependencies for Lean support — `->lean` is a pure function from Clojure maps to strings.
 
-### 9.3. What To Defer
-
-The indexed coalgebra framing (Section 2.7) is useful for understanding how the formalisms relate but is not needed for the checking machinery. Build it only if cross-formalism reasoning becomes a bottleneck.
-
-Bisimulation computation over statecharts is valuable for verifying refactors but is a second-order concern — get basic gap reporting working first.
-
-Cycle enumeration uses Johnson's algorithm (1975) over the morphism graph, discovering all elementary circuits generically. No application-specific cycles are hardcoded.
-
-Integration with external tools (Alloy for relational model-finding, TLA+ for temporal model checking) is a future extension. The mathematical objects can be serialized to these tools' input formats, but this requires translation layers that are not part of the core system.
-
-Lean 4 integration is designed as Phase 5 — see [pneuma-lean4-extension.md](pneuma-lean4-extension.md). The `->lean` projection on `IProjectable` and `IConnection` emits Lean source for kernel-verified proofs of architectural invariants (chart safety, replay determinism, morphism composition, cycle closure, bisimulation).
+Lean 4 integration is designed as Phase 5 — see [pneuma-lean4-extension.md](pneuma-lean4-extension.md). The `->lean` projection on `ILeanProjectable` and `ILeanConnection` emits Lean source for kernel-verified proofs of architectural invariants (chart safety, replay determinism, morphism composition, cycle closure, bisimulation).
 
 ---
 
-## 10. Relationship to Existing Work
+## 11. Relationship to Existing Work
 
 This approach draws on several research traditions but combines them in a way that, to our knowledge, has not been articulated before.
 
-### 10.1. Runtime Verification
+### 11.1. Runtime Verification
 
 The trace monitor projection is a form of runtime verification. The key difference from standard runtime verification is that the monitors are *derived from* mathematical objects rather than written independently, and that they check at three levels (object, morphism, path) rather than a single property level.
 
-### 10.2. Refinement Checking
+### 11.2. Refinement Checking
 
 The gap report describes a partial refinement relation. The three-layer structure refines the classical approach: object gaps are structural refinement failures, morphism gaps are interface refinement failures, and path gaps are behavioral refinement failures. The architectural patterns in this system — single atom, event sourcing, effects as data — make the refinement map nearly trivial, which is what makes the approach practical.
 
-### 10.3. Algebraic Effects
+### 11.3. Algebraic Effects
 
 The effect signature formalism follows Plotkin and Power's algebraic effects, as implemented in languages like Koka, Eff, and Frank. The contribution here is the observation that the free/interpret decomposition — chosen for software engineering reasons — also provides the mathematical structure needed for formal conformance checking, *including* the morphism-level checks on callback references and structural matches with handler output.
 
-### 10.4. Category Theory
+### 11.4. Category Theory
 
 The three-layer architecture (objects, morphisms, composed paths) is a category in the technical sense, and the cycle-level invariants are composition laws. This connects to Jacobs' coalgebras for state-based systems, Turi and Plotkin's mathematical operational semantics, and the profunctor optics literature. The connection graph structure is an instance of what the applied category theory community calls a "typed graph" or "knowledge graph with schema" — a graph where the edges carry typed contracts.
 
-### 10.5. Property-Based Testing
+### 11.5. Property-Based Testing
 
 The generator projections extend property-based testing in the QuickCheck tradition. The novelty is three-fold: generators are derived from mathematical objects, not hand-written; morphism-level generators test boundary contracts between components, not just component internals; and path-level generators produce entire execution scenarios that traverse architectural cycles, not just individual function calls.
 
 ---
 
-## 11. Conclusion
+## 12. Conclusion
 
 The central insight is that a specification language is a detour. If the goal is to check whether an implementation conforms to an architectural intent, and if that intent has mathematical structure, then the shortest path is to represent the mathematics directly as data and project checking artifacts mechanically.
 
@@ -771,3 +890,5 @@ The three-layer architecture (objects, morphisms, composed paths) captures this.
 This works because of two coincidences that are not coincidences. First, the architecture was designed for testability and replay — single atom, pure handlers, effects as data, event log — and these same properties make formal conformance checking tractable. Second, Clojure's data-oriented design means mathematical objects have natural representations as Clojure values. There is no impedance mismatch between the math and the code.
 
 The result is a conformance checking system that lives in the REPL, requires no external tools, produces three-layer structured diagnostic output, and gets richer as you add more formalisms and discover more connections between them. It turns the event log you already have into a formal verification trace, the atom you already have into a model-checkable state space, the effects you already describe as data into a verifiable interaction protocol, and — most importantly — the *connections* between these layers into checkable architectural invariants.
+
+There is one final closure. The architecture document that describes the system — its states, transitions, effects, handlers, subscriptions, resolvers, capabilities, connections, cycles, and invariants — is itself a projection from the mathematical objects. You don't write it by hand and hope it stays current. You define the formalisms, and the document generates itself, annotated with implementation status from the gap report, cross-referenced by the morphism registry, and enriched with computed properties like reachable configurations and attribute reachability graphs. The documentation is not about the model. The documentation *is* the model, presented in human-readable form.
