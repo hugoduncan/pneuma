@@ -186,6 +186,68 @@ Build order within this phase follows §9.1 of the extension document.
 - [x] `proofs/` Lean project structure with `lakefile.lean`
 - [x] CI integration: `bb ci` runs lint + fmt + test-all + `lake build`
 
+### Phase 6 — Dogfood: formalism layer
+
+Formal specs for each formalism record's constructor contract,
+required fields, and projection outputs. Each spec models one
+formalism namespace using EffectSignature (for its IProjectable
+methods) and TypeSchema (for its data shapes).
+
+- [x] `spec/pneuma/formalism/effect_signature_spec.clj` — self-spec for EffectSignature
+- [x] `spec/pneuma/formalism/capability_spec.clj` — spec for CapabilitySet
+- [x] `spec/pneuma/formalism/statechart_spec.clj` — spec for Statechart
+- [x] `spec/pneuma/formalism/mealy_spec.clj` — spec for MealyHandlerSet
+- [x] `spec/pneuma/formalism/optic_spec.clj` — spec for OpticDeclaration
+- [x] `spec/pneuma/formalism/resolver_spec.clj` — spec for ResolverGraph
+- [x] `spec/pneuma/formalism/type_schema_spec.clj` — spec for TypeSchema
+
+### Phase 7 — Dogfood: morphism layer
+
+Formal specs for each morphism record's `check` contract —
+inputs, outputs, and gap shapes.
+
+- [ ] `spec/pneuma/morphism/existential_spec.clj` — spec for ExistentialMorphism
+- [ ] `spec/pneuma/morphism/structural_spec.clj` — spec for StructuralMorphism
+- [ ] `spec/pneuma/morphism/containment_spec.clj` — spec for ContainmentMorphism
+- [ ] `spec/pneuma/morphism/ordering_spec.clj` — spec for OrderingMorphism
+- [ ] `spec/pneuma/morphism/registry_spec.clj` — spec for connection registry
+
+### Phase 8 — Dogfood: gap and path layers
+
+Formal specs for the gap report structure and path composition
+invariants.
+
+- [ ] `spec/pneuma/gap/core_spec.clj` — spec for 3-layer gap report structure
+- [ ] `spec/pneuma/gap/diff_spec.clj` — spec for gap diff operations
+- [ ] `spec/pneuma/path/core_spec.clj` — spec for ComposedPath and cycle checking
+- [ ] `spec/pneuma/path/graph_spec.clj` — spec for graph algorithm contracts
+
+### Phase 9 — Dogfood: lean emitters
+
+Formal specs for individual lean emitter output contracts (valid
+Lean 4 syntax/structure). The lean protocol layer is already
+modeled in Phase 5; this covers the per-formalism and
+per-morphism emitters.
+
+- [ ] `spec/pneuma/lean/statechart_spec.clj` — spec for Statechart lean emission
+- [ ] `spec/pneuma/lean/effect_signature_spec.clj` — spec for EffectSignature lean emission
+- [ ] `spec/pneuma/lean/mealy_spec.clj` — spec for MealyHandlerSet lean emission
+- [ ] `spec/pneuma/lean/optic_spec.clj` — spec for OpticDeclaration lean emission
+- [ ] `spec/pneuma/lean/resolver_spec.clj` — spec for ResolverGraph lean emission
+- [ ] `spec/pneuma/lean/capability_spec.clj` — spec for CapabilitySet lean emission
+- [ ] `spec/pneuma/lean/existential_spec.clj` — spec for ExistentialMorphism lean emission
+- [ ] `spec/pneuma/lean/structural_spec.clj` — spec for StructuralMorphism lean emission
+- [ ] `spec/pneuma/lean/containment_spec.clj` — spec for ContainmentMorphism lean emission
+- [ ] `spec/pneuma/lean/ordering_spec.clj` — spec for OrderingMorphism lean emission
+- [ ] `spec/pneuma/lean/core_spec.clj` — spec for lean orchestration API
+
+### Phase 10 — Dogfood: core and refinement
+
+Public API surface and refinement map contracts.
+
+- [ ] `spec/pneuma/core_spec.clj` — spec for public API
+- [ ] `spec/pneuma/refinement_spec.clj` — spec for RefinementMap
+
 ## Namespace Dependency Graph
 
 ```
