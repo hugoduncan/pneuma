@@ -57,11 +57,16 @@
       :capability-set/lean-ord lean-ord-caps
       :type-schema lean-ord-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms lean-ord-formalisms
+      :registry   lean-ord-registry})
+
 ;;; Gap report
 
 (defn lean-ord-gap-report
       "Runs the gap report on the lean.ordering spec."
       []
-      (gap/gap-report
-       {:formalisms lean-ord-formalisms
-        :registry lean-ord-registry}))
+      (gap/gap-report spec-system))

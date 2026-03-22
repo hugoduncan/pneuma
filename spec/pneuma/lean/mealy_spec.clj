@@ -54,11 +54,16 @@
       :capability-set/lean-mealy lean-mealy-caps
       :type-schema lean-mealy-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms lean-mealy-formalisms
+      :registry   lean-mealy-registry})
+
 ;;; Gap report
 
 (defn lean-mealy-gap-report
       "Runs the gap report on the lean.mealy spec."
       []
-      (gap/gap-report
-       {:formalisms lean-mealy-formalisms
-        :registry lean-mealy-registry}))
+      (gap/gap-report spec-system))

@@ -108,11 +108,16 @@
       :capability-set/mealy-ref-kinds mealy-ref-kind-caps
       :type-schema mealy-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms mealy-formalisms
+      :registry   mealy-registry})
+
 ;;; Gap report
 
 (defn mealy-gap-report
       "Runs the gap report on the mealy namespace spec."
       []
-      (gap/gap-report
-       {:formalisms mealy-formalisms
-        :registry mealy-registry}))
+      (gap/gap-report spec-system))

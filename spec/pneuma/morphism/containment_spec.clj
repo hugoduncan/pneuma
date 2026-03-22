@@ -101,11 +101,16 @@
       :capability-set/ct-check ct-check-caps
       :type-schema ct-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms ct-formalisms
+      :registry   ct-registry})
+
 ;;; Gap report
 
 (defn ct-gap-report
       "Runs the gap report on the containment morphism namespace spec."
       []
-      (gap/gap-report
-       {:formalisms ct-formalisms
-        :registry ct-registry}))
+      (gap/gap-report spec-system))

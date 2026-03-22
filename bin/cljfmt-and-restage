@@ -5,6 +5,8 @@ set -euo pipefail
 # Output is suppressed on success.
 output=$(cljfmt fix "$@" 2>&1) || { echo "$output"; exit 1; }
 
-for f in "$@"; do
-  git add "$f"
+# Retry git add to handle index.lock contention in worktree setups.
+for attempt in 1 2 3; do
+  git add "$@" 2>/dev/null && break
+  sleep 1
 done

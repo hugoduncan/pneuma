@@ -70,11 +70,16 @@
       :capability-set/diff-api diff-api-caps
       :type-schema diff-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms diff-formalisms
+      :registry   diff-registry})
+
 ;;; Gap report
 
 (defn diff-gap-report
       "Runs the gap report on the gap.diff namespace spec."
       []
-      (gap/gap-report
-       {:formalisms diff-formalisms
-        :registry diff-registry}))
+      (gap/gap-report spec-system))

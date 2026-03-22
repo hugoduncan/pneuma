@@ -99,11 +99,16 @@
       :capability-set/optic-ref-kinds optic-ref-kind-caps
       :type-schema optic-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms optic-formalisms
+      :registry   optic-registry})
+
 ;;; Gap report
 
 (defn optic-gap-report
       "Runs the gap report on the optic namespace spec."
       []
-      (gap/gap-report
-       {:formalisms optic-formalisms
-        :registry optic-registry}))
+      (gap/gap-report spec-system))

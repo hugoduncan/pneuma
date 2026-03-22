@@ -114,12 +114,17 @@
       :capability-set/morphism morphism-record-caps
       :type-schema protocol-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms protocol-formalisms
+      :registry   protocol-registry})
+
 ;;; Gap report
 
 (defn protocol-gap-report
       "Runs the full gap report on pneuma.protocol's specification.
   Returns the three-layer gap report map."
       []
-      (gap/gap-report
-       {:formalisms protocol-formalisms
-        :registry protocol-registry}))
+      (gap/gap-report spec-system))

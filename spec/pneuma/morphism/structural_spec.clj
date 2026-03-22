@@ -102,11 +102,16 @@
       :capability-set/st-check st-check-caps
       :type-schema st-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms st-formalisms
+      :registry   st-registry})
+
 ;;; Gap report
 
 (defn st-gap-report
       "Runs the gap report on the structural morphism namespace spec."
       []
-      (gap/gap-report
-       {:formalisms st-formalisms
-        :registry st-registry}))
+      (gap/gap-report spec-system))

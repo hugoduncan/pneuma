@@ -240,11 +240,16 @@
       :capability-set/core-check core-check-caps
       :type-schema core-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms core-formalisms
+      :registry   core-registry})
+
 ;;; Gap report
 
 (defn core-gap-report
       "Runs the gap report on the core namespace spec."
       []
-      (gap/gap-report
-       {:formalisms core-formalisms
-        :registry core-registry}))
+      (gap/gap-report spec-system))

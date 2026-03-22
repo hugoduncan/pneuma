@@ -104,11 +104,16 @@
       :capability-set/sc-ref-kinds sc-ref-kind-caps
       :type-schema sc-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms sc-formalisms
+      :registry   sc-registry})
+
 ;;; Gap report
 
 (defn sc-gap-report
       "Runs the gap report on the statechart namespace spec."
       []
-      (gap/gap-report
-       {:formalisms sc-formalisms
-        :registry sc-registry}))
+      (gap/gap-report spec-system))

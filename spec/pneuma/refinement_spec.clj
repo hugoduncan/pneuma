@@ -78,11 +78,16 @@
       :capability-set/rm-api rm-api-caps
       :type-schema rm-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms rm-formalisms
+      :registry   rm-registry})
+
 ;;; Gap report
 
 (defn rm-gap-report
       "Runs the gap report on the refinement namespace spec."
       []
-      (gap/gap-report
-       {:formalisms rm-formalisms
-        :registry rm-registry}))
+      (gap/gap-report spec-system))

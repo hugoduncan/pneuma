@@ -69,11 +69,16 @@
       :capability-set/reg-api reg-api-caps
       :type-schema reg-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms reg-formalisms
+      :registry   reg-registry})
+
 ;;; Gap report
 
 (defn reg-gap-report
       "Runs the gap report on the registry namespace spec."
       []
-      (gap/gap-report
-       {:formalisms reg-formalisms
-        :registry reg-registry}))
+      (gap/gap-report spec-system))

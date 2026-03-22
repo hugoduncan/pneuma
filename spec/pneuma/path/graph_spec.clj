@@ -69,11 +69,16 @@
       :capability-set/graph-api graph-api-caps
       :type-schema graph-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms graph-formalisms
+      :registry   graph-registry})
+
 ;;; Gap report
 
 (defn graph-gap-report
       "Runs the gap report on the path.graph namespace spec."
       []
-      (gap/gap-report
-       {:formalisms graph-formalisms
-        :registry graph-registry}))
+      (gap/gap-report spec-system))

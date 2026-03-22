@@ -90,11 +90,16 @@
       :capability-set/ts-ref-kinds ts-ref-kind-caps
       :type-schema ts-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms ts-formalisms
+      :registry   ts-registry})
+
 ;;; Gap report
 
 (defn ts-gap-report
       "Runs the gap report on the type-schema namespace spec."
       []
-      (gap/gap-report
-       {:formalisms ts-formalisms
-        :registry ts-registry}))
+      (gap/gap-report spec-system))

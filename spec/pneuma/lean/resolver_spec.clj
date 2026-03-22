@@ -54,11 +54,16 @@
       :capability-set/lean-resolver lean-resolver-caps
       :type-schema lean-resolver-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms lean-resolver-formalisms
+      :registry   lean-resolver-registry})
+
 ;;; Gap report
 
 (defn lean-resolver-gap-report
       "Runs the gap report on the lean.resolver spec."
       []
-      (gap/gap-report
-       {:formalisms lean-resolver-formalisms
-        :registry lean-resolver-registry}))
+      (gap/gap-report spec-system))

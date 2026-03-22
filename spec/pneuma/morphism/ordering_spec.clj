@@ -103,11 +103,16 @@
       :capability-set/ord-check ord-check-caps
       :type-schema ord-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms ord-formalisms
+      :registry   ord-registry})
+
 ;;; Gap report
 
 (defn ord-gap-report
       "Runs the gap report on the ordering morphism namespace spec."
       []
-      (gap/gap-report
-       {:formalisms ord-formalisms
-        :registry ord-registry}))
+      (gap/gap-report spec-system))

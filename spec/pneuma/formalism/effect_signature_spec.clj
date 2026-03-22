@@ -115,12 +115,17 @@
       :capability-set/es-ref-kinds es-ref-kind-caps
       :type-schema es-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms es-formalisms
+      :registry   es-registry})
+
 ;;; Gap report
 
 (defn es-gap-report
       "Runs the gap report on the effect-signature namespace spec.
   Returns the three-layer gap report map."
       []
-      (gap/gap-report
-       {:formalisms es-formalisms
-        :registry es-registry}))
+      (gap/gap-report spec-system))

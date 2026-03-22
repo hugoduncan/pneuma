@@ -85,11 +85,16 @@
       :capability-set/path-api path-api-caps
       :type-schema path-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms path-formalisms
+      :registry   path-registry})
+
 ;;; Gap report
 
 (defn path-gap-report
       "Runs the gap report on the path.core namespace spec."
       []
-      (gap/gap-report
-       {:formalisms path-formalisms
-        :registry path-registry}))
+      (gap/gap-report spec-system))

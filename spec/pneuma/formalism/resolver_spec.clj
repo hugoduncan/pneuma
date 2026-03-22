@@ -109,11 +109,16 @@
       :capability-set/resolver-ref-kinds resolver-ref-kind-caps
       :type-schema resolver-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms resolver-formalisms
+      :registry   resolver-registry})
+
 ;;; Gap report
 
 (defn resolver-gap-report
       "Runs the gap report on the resolver namespace spec."
       []
-      (gap/gap-report
-       {:formalisms resolver-formalisms
-        :registry resolver-registry}))
+      (gap/gap-report spec-system))

@@ -106,11 +106,16 @@
       :capability-set/cap-ref-kinds cap-ref-kind-caps
       :type-schema cap-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms cap-formalisms
+      :registry   cap-registry})
+
 ;;; Gap report
 
 (defn cap-gap-report
       "Runs the gap report on the capability namespace spec."
       []
-      (gap/gap-report
-       {:formalisms cap-formalisms
-        :registry cap-registry}))
+      (gap/gap-report spec-system))

@@ -54,11 +54,16 @@
       :capability-set/lean-optic lean-optic-caps
       :type-schema lean-optic-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms lean-optic-formalisms
+      :registry   lean-optic-registry})
+
 ;;; Gap report
 
 (defn lean-optic-gap-report
       "Runs the gap report on the lean.optic spec."
       []
-      (gap/gap-report
-       {:formalisms lean-optic-formalisms
-        :registry lean-optic-registry}))
+      (gap/gap-report spec-system))

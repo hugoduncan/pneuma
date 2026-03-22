@@ -87,12 +87,17 @@
       :capability-set/lean-morphism lean-morphism-caps
       :type-schema lean-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms lean-formalisms
+      :registry   lean-registry})
+
 ;;; Gap report
 
 (defn lean-gap-report
       "Runs the full gap report on the lean projection layer specification.
   Returns the three-layer gap report map."
       []
-      (gap/gap-report
-       {:formalisms lean-formalisms
-        :registry lean-registry}))
+      (gap/gap-report spec-system))

@@ -54,11 +54,16 @@
       :capability-set/lean-cap lean-cap-caps
       :type-schema lean-cap-types})
 
+;;; Spec system
+
+(def spec-system
+     "Complete specification system for use with gap-report and render-doc."
+     {:formalisms lean-cap-formalisms
+      :registry   lean-cap-registry})
+
 ;;; Gap report
 
 (defn lean-cap-gap-report
       "Runs the gap report on the lean.capability spec."
       []
-      (gap/gap-report
-       {:formalisms lean-cap-formalisms
-        :registry lean-cap-registry}))
+      (gap/gap-report spec-system))
