@@ -29,5 +29,8 @@
   self-proof {:doc  "Emit and build Lean proofs from pneuma's own specs"
               :task (shell "bin/self-proof")}
 
+  gen-doc    {:doc  "Generate architecture docs from dogfood specs"
+              :task (shell "bin/gen-doc")}
+
   ci        {:doc  "Run lint + fmt check + all tests + lean proofs"
              :depends [lint fmt test-all lake]}}}

@@ -44,68 +44,37 @@ clojure -M:dev -e '
          (quote [pneuma.core-spec :as core-spec])
          (quote [pneuma.refinement-spec :as rm-spec]))
 
-(let [specs {"Protocol"        {:formalisms protocol-spec/protocol-formalisms
-                                 :registry   protocol-spec/protocol-registry}
-             "Lean"            {:formalisms lean-spec/lean-formalisms
-                                 :registry   lean-spec/lean-registry}
-             "EffectSignature" {:formalisms es-spec/es-formalisms
-                                 :registry   es-spec/es-registry}
-             "Capability"      {:formalisms cap-spec/cap-formalisms
-                                 :registry   cap-spec/cap-registry}
-             "Statechart"      {:formalisms sc-spec/sc-formalisms
-                                 :registry   sc-spec/sc-registry}
-             "Mealy"           {:formalisms mealy-spec/mealy-formalisms
-                                 :registry   mealy-spec/mealy-registry}
-             "Optic"           {:formalisms optic-spec/optic-formalisms
-                                 :registry   optic-spec/optic-registry}
-             "Resolver"        {:formalisms resolver-spec/resolver-formalisms
-                                 :registry   resolver-spec/resolver-registry}
-             "TypeSchema"      {:formalisms ts-spec/ts-formalisms
-                                 :registry   ts-spec/ts-registry}
-             "Existential"     {:formalisms ex-spec/ex-formalisms
-                                 :registry   ex-spec/ex-registry}
-             "Structural"      {:formalisms st-spec/st-formalisms
-                                 :registry   st-spec/st-registry}
-             "Containment"     {:formalisms ct-spec/ct-formalisms
-                                 :registry   ct-spec/ct-registry}
-             "Ordering"        {:formalisms ord-spec/ord-formalisms
-                                 :registry   ord-spec/ord-registry}
-             "Registry"        {:formalisms reg-spec/reg-formalisms
-                                 :registry   reg-spec/reg-registry}
-             "GapCore"         {:formalisms gap-spec/gap-formalisms
-                                 :registry   gap-spec/gap-registry}
-             "GapDiff"         {:formalisms diff-spec/diff-formalisms
-                                 :registry   diff-spec/diff-registry}
-             "PathGraph"       {:formalisms pgraph-spec/graph-formalisms
-                                 :registry   pgraph-spec/graph-registry}
-             "PathCore"        {:formalisms pcore-spec/path-formalisms
-                                 :registry   pcore-spec/path-registry}
-             "LeanStatechart"  {:formalisms lsc-spec/lean-sc-formalisms
-                                 :registry   lsc-spec/lean-sc-registry}
-             "LeanEffectSig"   {:formalisms les-spec/lean-es-formalisms
-                                 :registry   les-spec/lean-es-registry}
-             "LeanMealy"       {:formalisms lmealy-spec/lean-mealy-formalisms
-                                 :registry   lmealy-spec/lean-mealy-registry}
-             "LeanOptic"       {:formalisms loptic-spec/lean-optic-formalisms
-                                 :registry   loptic-spec/lean-optic-registry}
-             "LeanResolver"    {:formalisms lresolver-spec/lean-resolver-formalisms
-                                 :registry   lresolver-spec/lean-resolver-registry}
-             "LeanCapability"  {:formalisms lcap-spec/lean-cap-formalisms
-                                 :registry   lcap-spec/lean-cap-registry}
-             "LeanExistential" {:formalisms lex-spec/lean-ex-formalisms
-                                 :registry   lex-spec/lean-ex-registry}
-             "LeanStructural"  {:formalisms lst-spec/lean-st-formalisms
-                                 :registry   lst-spec/lean-st-registry}
-             "LeanContainment" {:formalisms lct-spec/lean-ct-formalisms
-                                 :registry   lct-spec/lean-ct-registry}
-             "LeanOrdering"    {:formalisms lord-spec/lean-ord-formalisms
-                                 :registry   lord-spec/lean-ord-registry}
-             "LeanCore"        {:formalisms lcore-spec/lean-core-formalisms
-                                 :registry   lcore-spec/lean-core-registry}
-             "Core"            {:formalisms core-spec/core-formalisms
-                                 :registry   core-spec/core-registry}
-             "Refinement"      {:formalisms rm-spec/rm-formalisms
-                                 :registry   rm-spec/rm-registry}}
+(let [specs {"Protocol"        protocol-spec/spec-system
+             "Lean"            lean-spec/spec-system
+             "EffectSignature" es-spec/spec-system
+             "Capability"      cap-spec/spec-system
+             "Statechart"      sc-spec/spec-system
+             "Mealy"           mealy-spec/spec-system
+             "Optic"           optic-spec/spec-system
+             "Resolver"        resolver-spec/spec-system
+             "TypeSchema"      ts-spec/spec-system
+             "Existential"     ex-spec/spec-system
+             "Structural"      st-spec/spec-system
+             "Containment"     ct-spec/spec-system
+             "Ordering"        ord-spec/spec-system
+             "Registry"        reg-spec/spec-system
+             "GapCore"         gap-spec/spec-system
+             "GapDiff"         diff-spec/spec-system
+             "PathGraph"       pgraph-spec/spec-system
+             "PathCore"        pcore-spec/spec-system
+             "LeanStatechart"  lsc-spec/spec-system
+             "LeanEffectSig"   les-spec/spec-system
+             "LeanMealy"       lmealy-spec/spec-system
+             "LeanOptic"       loptic-spec/spec-system
+             "LeanResolver"    lresolver-spec/spec-system
+             "LeanCapability"  lcap-spec/spec-system
+             "LeanExistential" lex-spec/spec-system
+             "LeanStructural"  lst-spec/spec-system
+             "LeanContainment" lct-spec/spec-system
+             "LeanOrdering"    lord-spec/spec-system
+             "LeanCore"        lcore-spec/spec-system
+             "Core"            core-spec/spec-system
+             "Refinement"      rm-spec/spec-system}
       dir "proofs/Pneuma"
       failed (atom false)]
   (doseq [[spec-name config] (sort specs)]
