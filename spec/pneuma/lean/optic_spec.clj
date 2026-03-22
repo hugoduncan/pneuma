@@ -13,20 +13,23 @@
 (def lean-optic-operations
      "The ILeanProjectable ->lean contract for OpticDeclaration."
      (es/effect-signature
-      {:operations
+      {:label "Lean Optic Operations"
+       :operations
        {:->lean
         {:input {:formalism :OpticDeclaration}
          :output :LeanSource}}}))
 
 (def lean-optic-caps
      (cap/capability-set
-      {:id :lean-optic
+      {:label "Lean Optic Capabilities"
+       :id :lean-optic
        :dispatch #{:->lean}}))
 
 (def lean-optic-types
      (ts/type-schema
-      {:OpticDeclaration :any
-       :LeanSource :string}))
+      {:label "Lean Optic Type Registry"
+       :types {:OpticDeclaration :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

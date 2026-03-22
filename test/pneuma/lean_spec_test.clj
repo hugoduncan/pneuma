@@ -58,7 +58,8 @@
   ;; dangling ref. Simulate by adding an unknown operation.
          (testing "gap report detects simulated rename"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-lean-formalism
+                                  {:label "test caps"
+                                   :id :bad-lean-formalism
                                    :dispatch #{:->lean :->renamed-lean}})
                         report (gap/gap-report
                                 {:formalisms

@@ -64,7 +64,8 @@
   ;; Adding an unknown ref-kind should trigger a dangling ref.
          (testing "gap report detects simulated missing ref-kind"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-ref-kinds
+                                  {:label "test caps"
+                                   :id :bad-ref-kinds
                                    :dispatch #{:dispatch-refs :subscribe-refs
                                                :query-refs :all-refs :bogus-refs}})
                         report (gap/gap-report

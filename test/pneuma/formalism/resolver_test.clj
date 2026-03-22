@@ -12,7 +12,8 @@
 ;; msg-count chains off session-msgs output.
 ;; git-status is external.
 (def sample-declarations
-     {:declarations
+     {:label "test resolver"
+      :declarations
       [{:id     :session-msgs
         :input  #{:session/id}
         :output #{:session/messages}
@@ -34,30 +35,35 @@
 
                   (testing "accepts single minimal resolver"
                            (is (some? (resolver/resolver-graph
-                                       {:declarations [{:id :r :input #{:a} :output #{:b}}]}))))
+                                       {:label "test resolver"
+                                        :declarations [{:id :r :input #{:a} :output #{:b}}]}))))
 
                   (testing "accepts resolver with empty input"
                            (is (some? (resolver/resolver-graph
-                                       {:declarations [{:id :r :input #{} :output #{:b}}]}))))
+                                       {:label "test resolver"
+                                        :declarations [{:id :r :input #{} :output #{:b}}]}))))
 
                   (testing "rejects missing :declarations"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (resolver/resolver-graph {}))))
+                                        (resolver/resolver-graph {:label "test resolver"}))))
 
                   (testing "rejects declaration missing :id"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (resolver/resolver-graph
-                                         {:declarations [{:input #{:a} :output #{:b}}]}))))
+                                         {:label "test resolver"
+                                          :declarations [{:input #{:a} :output #{:b}}]}))))
 
                   (testing "rejects declaration missing :input"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (resolver/resolver-graph
-                                         {:declarations [{:id :r :output #{:b}}]}))))
+                                         {:label "test resolver"
+                                          :declarations [{:id :r :output #{:b}}]}))))
 
                   (testing "rejects duplicate resolver ids"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (resolver/resolver-graph
-                                         {:declarations [{:id :r :input #{:a} :output #{:b}}
+                                         {:label "test resolver"
+                                          :declarations [{:id :r :input #{:a} :output #{:b}}
                                                          {:id :r :input #{:c} :output #{:d}}]}))))))
 
 (deftest chase-test

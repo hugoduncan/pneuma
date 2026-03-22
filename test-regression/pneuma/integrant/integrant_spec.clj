@@ -20,7 +20,8 @@
   The expand step is implicit in init but modeled explicitly because
   expand-key is a separate multimethod with distinct contracts."
      (chart/statechart
-      {:states      #{:uninitialized :expanded :running :suspended :halted}
+      {:label       "Integrant Lifecycle"
+       :states      #{:uninitialized :expanded :running :suspended :halted}
        :hierarchy   {:root #{:uninitialized :expanded :running :suspended :halted}}
        :initial     {:root :uninitialized}
        :transitions [{:source :uninitialized :event :expand  :target :expanded}
@@ -35,7 +36,8 @@
      "The seven integrant multimethods as an algebraic effect signature.
   Each multimethod is an operation with typed inputs and output."
      (es/effect-signature
-      {:operations
+      {:label      "Integrant Multimethods"
+       :operations
        {:init-key
         {:input  {:key :ConfigKey :value :ConfigValue}
          :output :InitializedValue}
@@ -68,7 +70,8 @@
 (def init-phase-caps
      "Operations permitted during the init phase."
      (cap/capability-set
-      {:id       :init-phase
+      {:label    "Init Phase"
+       :id       :init-phase
        :dispatch #{:assert-key :expand-key :init-key :resolve-key}}))
 
 (def running-phase-caps
@@ -76,37 +79,42 @@
   No lifecycle multimethods are called; resolve-key is available
   for query access to hide internal state from dependents."
      (cap/capability-set
-      {:id       :running-phase
+      {:label    "Running Phase"
+       :id       :running-phase
        :dispatch #{}
        :query    #{:resolve-key}}))
 
 (def suspend-phase-caps
      "Operations permitted during the suspend phase."
      (cap/capability-set
-      {:id       :suspend-phase
+      {:label    "Suspend Phase"
+       :id       :suspend-phase
        :dispatch #{:suspend-key!}}))
 
 (def resume-phase-caps
      "Operations permitted during the resume phase."
      (cap/capability-set
-      {:id       :resume-phase
+      {:label    "Resume Phase"
+       :id       :resume-phase
        :dispatch #{:resume-key :resolve-key :assert-key}}))
 
 (def halt-phase-caps
      "Operations permitted during the halt phase."
      (cap/capability-set
-      {:id       :halt-phase
+      {:label    "Halt Phase"
+       :id       :halt-phase
        :dispatch #{:halt-key!}}))
 
 (def integrant-types
      "Type universe for integrant's multimethod signatures."
      (ts/type-schema
-      {:ConfigKey        :keyword
-       :ConfigValue      :any
-       :ConfigMap        [:map-of :keyword :any]
-       :InitializedValue :any
-       :ResolvedValue    :any
-       :UnitResult             :nil}))
+      {:label "Integrant Types"
+       :types {:ConfigKey        :keyword
+               :ConfigValue      :any
+               :ConfigMap        [:map-of :keyword :any]
+               :InitializedValue :any
+               :ResolvedValue    :any
+               :UnitResult       :nil}}))
 
 ;;; Registry
 

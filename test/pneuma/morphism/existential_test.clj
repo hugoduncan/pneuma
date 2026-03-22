@@ -10,7 +10,8 @@
 
 (def protocol-ops
      (es/effect-signature
-      {:operations
+      {:label "test ES"
+       :operations
        {:->schema {:input {:formalism :Keyword} :output :Any}
         :->monitor {:input {:formalism :Keyword} :output :Any}
         :->gen {:input {:formalism :Keyword} :output :Any}
@@ -20,13 +21,15 @@
 
 (def formalism-caps
      (cap/capability-set
-      {:id :formalism-record
+      {:label "test caps"
+       :id :formalism-record
        :dispatch #{:->schema :->monitor :->gen :->gap-type
                    :extract-refs}}))
 
 (def bad-caps
      (cap/capability-set
-      {:id :bad-record
+      {:label "test caps"
+       :id :bad-record
        :dispatch #{:->schema :->monitor :bogus-method}}))
 
 (def morphism

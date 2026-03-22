@@ -30,6 +30,7 @@
 (def mealy-handler-set-input-schema
      "Malli schema for the mealy-handler-set constructor input."
      [:map
+      [:label :string]
       [:declarations
        [:vector handler-declaration-schema]]])
 
@@ -132,7 +133,7 @@
 
 ;;; Record
 
-(defrecord MealyHandlerSet [declarations]
+(defrecord MealyHandlerSet [label declarations]
            p/IProjectable
            (->schema [_]
                      (build-handler-multi-schema declarations))
@@ -181,7 +182,8 @@
                                                  []))))))))
 
            (->gap-type [_]
-                       {:formalism :mealy
+                       {:label label
+                        :formalism :mealy
                         :gap-kinds #{:absent-handler :missing-guard
                                      :wrong-update :wrong-emission}
                         :statuses  #{:conforms :absent :diverges}})
@@ -196,7 +198,7 @@
                                    :effects (str/join ", " (mapv (comp name :op) (:effects decl [])))})
                               declarations)]
                        (doc/section
-                        :mealy/root "Mealy Handler Set"
+                        :mealy/root label
                         [(doc/table :mealy/handlers
                                     [:handler :params :guards :updates :effects]
                                     handler-rows)])))
@@ -241,9 +243,9 @@
 ;;; Public constructor
 
 (defn mealy-handler-set
-      "Creates a validated MealyHandlerSet from a map with :declarations.
-  Each declaration is a map with :id, and optional :params, :guards, :updates, :effects.
-  Throws ex-info on invalid input or duplicate handler ids."
+      "Creates a validated MealyHandlerSet from a map with :label and :declarations.
+  :label is a display string. Each declaration is a map with :id, and optional
+  :params, :guards, :updates, :effects. Throws ex-info on invalid input or duplicate handler ids."
       [m]
       (when-not (m/validate mealy-handler-set-input-schema m)
                 (throw (ex-info "Invalid mealy-handler-set input"
@@ -256,4 +258,4 @@
                  (throw (ex-info "Duplicate handler ids"
                                  {:duplicate-ids duplicates})))
            (let [indexed (into {} (map (fn [decl] [(:id decl) decl])) declarations)]
-                (->MealyHandlerSet indexed))))
+                (->MealyHandlerSet (:label m) indexed))))

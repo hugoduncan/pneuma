@@ -71,7 +71,8 @@
   ;; ref operation, the existential morphism catches the dangling ref.
          (testing "gap report detects simulated missing ref-kind"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-ref-kinds
+                                  {:label "test caps"
+                                   :id :bad-ref-kinds
                                    :dispatch #{:operation-ids :callback-refs
                                                :operation-outputs :bogus-refs}})
                         report (gap/gap-report

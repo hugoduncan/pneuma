@@ -9,7 +9,8 @@
   ;; ->lean emits ResolverId/Attribute inductives, resolver defs, and completeness.
          (testing "ResolverGraph ->lean"
                   (let [rg (resolver/resolver-graph
-                            {:declarations
+                            {:label "test resolver"
+                             :declarations
                              [{:id     :session-msgs
                                :input  #{:session/id}
                                :output #{:session/messages}

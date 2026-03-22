@@ -14,7 +14,8 @@
 (def rm-api-operations
      "Public API of the refinement namespace."
      (es/effect-signature
-      {:operations
+      {:label "Refinement Map API Operations"
+       :operations
        {:refinement-map
         {:input {:atom-ref :VarRef
                  :event-log-ref :VarRef
@@ -38,18 +39,20 @@
 (def rm-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :rm-api
+      {:label "Refinement Map API Capabilities"
+       :id :rm-api
        :dispatch #{:refinement-map :deref-state :deref-event-log :access}}))
 
 (def rm-types
      "Type universe for the refinement namespace."
      (ts/type-schema
-      {:VarRef :any
-       :AccessorMap :any
-       :NsVec :any
-       :RefinementMap :any
-       :Keyword :keyword
-       :Any :any}))
+      {:label "Refinement Map Type Registry"
+       :types {:VarRef :any
+               :AccessorMap :any
+               :NsVec :any
+               :RefinementMap :any
+               :Keyword :keyword
+               :Any :any}}))
 
 ;;; Registry
 

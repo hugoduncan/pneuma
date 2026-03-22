@@ -13,7 +13,8 @@
 (def lean-ex-operations
      "The ILeanConnection ->lean-conn contract for ExistentialMorphism."
      (es/effect-signature
-      {:operations
+      {:label "Lean Existential Operations"
+       :operations
        {:->lean-conn
         {:input {:morphism :ExistentialMorphism
                  :source :IReferenceable
@@ -22,14 +23,16 @@
 
 (def lean-ex-caps
      (cap/capability-set
-      {:id :lean-ex
+      {:label "Lean Existential Capabilities"
+       :id :lean-ex
        :dispatch #{:->lean-conn}}))
 
 (def lean-ex-types
      (ts/type-schema
-      {:ExistentialMorphism :any
-       :IReferenceable :any
-       :LeanSource :string}))
+      {:label "Lean Existential Type Registry"
+       :types {:ExistentialMorphism :any
+               :IReferenceable :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

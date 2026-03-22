@@ -13,20 +13,23 @@
 (def lean-resolver-operations
      "The ILeanProjectable ->lean contract for ResolverGraph."
      (es/effect-signature
-      {:operations
+      {:label "Lean Resolver Operations"
+       :operations
        {:->lean
         {:input {:formalism :ResolverGraph}
          :output :LeanSource}}}))
 
 (def lean-resolver-caps
      (cap/capability-set
-      {:id :lean-resolver
+      {:label "Lean Resolver Capabilities"
+       :id :lean-resolver
        :dispatch #{:->lean}}))
 
 (def lean-resolver-types
      (ts/type-schema
-      {:ResolverGraph :any
-       :LeanSource :string}))
+      {:label "Lean Resolver Type Registry"
+       :types {:ResolverGraph :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

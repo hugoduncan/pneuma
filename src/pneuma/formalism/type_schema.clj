@@ -8,7 +8,13 @@
               [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
 
-(defrecord TypeSchema [types]
+(def type-schema-input-schema
+     "Malli schema for the type-schema constructor input."
+     [:map
+      [:label :string]
+      [:types [:map-of :keyword :any]]])
+
+(defrecord TypeSchema [label types]
            p/IProjectable
            (->schema [_]
                      (into [:enum] (sort (keys types))))
@@ -34,7 +40,8 @@
                       (mg/generator :keyword)))
 
            (->gap-type [_]
-                       {:formalism :type-schema
+                       {:label label
+                        :formalism :type-schema
                         :gap-kinds #{:unknown-type}
                         :statuses #{:conforms :absent :diverges}})
 
@@ -44,7 +51,7 @@
                                              :schema (str schema)})
                                         types)]
                        (doc/section
-                        :type-schema/root "Type Schema"
+                        :type-schema/root label
                         [(doc/table :type-schema/types
                                     [:type :schema]
                                     type-rows)])))
@@ -56,11 +63,15 @@
                                #{})))
 
 (defn type-schema
-      "Creates a TypeSchema from a map of type-keyword → Malli schema.
-  Validates that every value is a valid Malli schema."
-      [types-map]
-      (doseq [[kw schema] types-map]
+      "Creates a TypeSchema from a map with :label and :types.
+  :label is a display string. :types is a map of type-keyword → Malli schema.
+  Validates input structure and that every type value is a valid Malli schema."
+      [m]
+      (when-not (m/validate type-schema-input-schema m)
+                (throw (ex-info "Invalid type-schema input"
+                                {:explanation (m/explain type-schema-input-schema m)})))
+      (doseq [[kw schema] (:types m)]
              (when-not (try (m/schema schema) true (catch Exception _ false))
                        (throw (ex-info "Invalid Malli schema for type"
                                        {:type-kw kw :schema schema}))))
-      (->TypeSchema types-map))
+      (->TypeSchema (:label m) (:types m)))

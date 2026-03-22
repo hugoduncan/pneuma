@@ -15,7 +15,8 @@
 (def reg-api-operations
      "Public API of the registry namespace."
      (es/effect-signature
-      {:operations
+      {:label "Registry API Operations"
+       :operations
        {:default-registry
         {:input {}
          :output :Registry}
@@ -33,14 +34,16 @@
 (def reg-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :reg-api
+      {:label "Registry API Capabilities"
+       :id :reg-api
        :dispatch #{:default-registry :morphisms-involving :morphisms-of-kind}}))
 
 (def reg-types
      "Type universe for the registry namespace."
      (ts/type-schema
-      {:Registry :any
-       :Keyword :keyword}))
+      {:label "Registry Type Registry"
+       :types {:Registry :any
+               :Keyword :keyword}}))
 
 ;;; Registry
 

@@ -14,7 +14,8 @@
 (def resolver-api-operations
      "Public API of the resolver namespace."
      (es/effect-signature
-      {:operations
+      {:label "Resolver API Operations"
+       :operations
        {:resolver-graph
         {:input {:declarations :DeclarationVec}
          :output :ResolverGraph}
@@ -27,7 +28,8 @@
 (def resolver-ref-operations
      "The extract-refs dispatch table for ResolverGraph."
      (es/effect-signature
-      {:operations
+      {:label "Resolver Ref Operations"
+       :operations
        {:resolver-ids
         {:input {:formalism :ResolverGraph}
          :output :KeywordSet}
@@ -47,23 +49,26 @@
 (def resolver-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :resolver-api
+      {:label "Resolver API Capabilities"
+       :id :resolver-api
        :dispatch #{:resolver-graph :reachable-attributes}}))
 
 (def resolver-ref-kind-caps
      "The ref-kinds that ResolverGraph's IReferenceable supports."
      (cap/capability-set
-      {:id :resolver-ref-kinds
+      {:label "Resolver Ref Kind Capabilities"
+       :id :resolver-ref-kinds
        :dispatch #{:resolver-ids :input-attributes
                    :output-attributes :external-sources}}))
 
 (def resolver-types
      "Type universe for the resolver namespace."
      (ts/type-schema
-      {:ResolverGraph :any
-       :DeclarationVec :any
-       :DeclarationMap :any
-       :KeywordSet [:set :keyword]}))
+      {:label "Resolver Type Registry"
+       :types {:ResolverGraph :any
+               :DeclarationVec :any
+               :DeclarationMap :any
+               :KeywordSet [:set :keyword]}}))
 
 ;;; Registry
 

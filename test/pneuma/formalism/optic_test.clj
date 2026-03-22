@@ -10,7 +10,8 @@
 ;; Three optic declarations: a lens, a fold, and a derived subscription.
 ;; Exercises all three optic-type branches.
 (def sample-declarations
-     {:declarations
+     {:label "test optics"
+      :declarations
       [{:id         :session-msgs
         :optic-type :Lens
         :params     [{:name :sid :type :String}]
@@ -35,37 +36,43 @@
 
                   (testing "accepts single minimal lens"
                            (is (some? (optic/optic-declaration
-                                       {:declarations [{:id :x :optic-type :Lens :path [:a]}]}))))
+                                       {:label "test optics"
+                                        :declarations [{:id :x :optic-type :Lens :path [:a]}]}))))
 
                   (testing "accepts single derived optic"
                            (is (some? (optic/optic-declaration
-                                       {:declarations [{:id :d :optic-type :Derived
+                                       {:label "test optics"
+                                        :declarations [{:id :d :optic-type :Derived
                                                         :sources {:a [:x]}
                                                         :derivations {:n [:length :a]}}]}))))
 
                   (testing "rejects missing :declarations key"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (optic/optic-declaration {}))))
+                                        (optic/optic-declaration {:label "test optics"}))))
 
                   (testing "rejects declaration missing :id"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (optic/optic-declaration
-                                         {:declarations [{:optic-type :Lens :path [:a]}]}))))
+                                         {:label "test optics"
+                                          :declarations [{:optic-type :Lens :path [:a]}]}))))
 
                   (testing "rejects declaration missing :optic-type"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (optic/optic-declaration
-                                         {:declarations [{:id :x :path [:a]}]}))))
+                                         {:label "test optics"
+                                          :declarations [{:id :x :path [:a]}]}))))
 
                   (testing "rejects unknown :optic-type"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (optic/optic-declaration
-                                         {:declarations [{:id :x :optic-type :Bogus :path [:a]}]}))))
+                                         {:label "test optics"
+                                          :declarations [{:id :x :optic-type :Bogus :path [:a]}]}))))
 
                   (testing "rejects duplicate optic ids"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (optic/optic-declaration
-                                         {:declarations [{:id :x :optic-type :Lens :path [:a]}
+                                         {:label "test optics"
+                                          :declarations [{:id :x :optic-type :Lens :path [:a]}
                                                          {:id :x :optic-type :Fold :path [:b]}]}))))))
 
 (deftest schema-projection-test

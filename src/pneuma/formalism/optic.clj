@@ -36,7 +36,9 @@
 
 (def optic-declaration-input-schema
      "Malli schema for the optic-declaration constructor input."
-     [:map [:declarations [:vector optic-declaration-schema]]])
+     [:map
+      [:label :string]
+      [:declarations [:vector optic-declaration-schema]]])
 
 ;;; Path resolution
 
@@ -165,7 +167,7 @@
 
 ;;; Record
 
-(defrecord OpticDeclaration [declarations]
+(defrecord OpticDeclaration [label declarations]
            p/IProjectable
            (->schema [_]
                      (build-optic-multi-schema declarations))
@@ -217,7 +219,8 @@
                                                  []))))))))
 
            (->gap-type [_]
-                       {:formalism :optic
+                       {:label label
+                        :formalism :optic
                         :gap-kinds #{:broken-path :wrong-derivation :missing-subscription}
                         :statuses  #{:conforms :absent :diverges}})
 
@@ -231,7 +234,7 @@
                                                    (str (:path decl)))})
                               declarations)]
                        (doc/section
-                        :optic/root "Optic Declarations"
+                        :optic/root label
                         [(doc/table :optic/catalog
                                     [:id :optic-type :path]
                                     optic-rows)])))
@@ -261,10 +264,10 @@
 ;;; Public constructor
 
 (defn optic-declaration
-      "Creates a validated OpticDeclaration from a map with :declarations.
-  Each declaration has :id, :optic-type (:Lens/:Traversal/:Fold/:Derived),
-  optional :params, and type-specific fields (:path or :sources/:derivations).
-  Throws ex-info on invalid input or duplicate ids."
+      "Creates a validated OpticDeclaration from a map with :label and :declarations.
+  :label is a display string. Each declaration has :id, :optic-type
+  (:Lens/:Traversal/:Fold/:Derived), optional :params, and type-specific fields
+  (:path or :sources/:derivations). Throws ex-info on invalid input or duplicate ids."
       [m]
       (when-not (m/validate optic-declaration-input-schema m)
                 (throw (ex-info "Invalid optic-declaration input"
@@ -279,4 +282,4 @@
                  (throw (ex-info "Duplicate optic ids"
                                  {:duplicate-ids duplicates})))
            (let [indexed (into {} (map (fn [decl] [(:id decl) decl])) declarations)]
-                (->OpticDeclaration indexed))))
+                (->OpticDeclaration (:label m) indexed))))

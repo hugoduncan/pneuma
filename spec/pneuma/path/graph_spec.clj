@@ -14,7 +14,8 @@
 (def graph-api-operations
      "Public API of the path.graph namespace."
      (es/effect-signature
-      {:operations
+      {:label "Graph API Operations"
+       :operations
        {:registry->graph
         {:input {:registry :Registry}
          :output :AdjacencyMap}
@@ -30,17 +31,19 @@
 (def graph-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :graph-api
+      {:label "Graph API Capabilities"
+       :id :graph-api
        :dispatch #{:registry->graph :registry->edge-index
                    :elementary-circuits}}))
 
 (def graph-types
      "Type universe for the path.graph namespace."
      (ts/type-schema
-      {:Registry :any
-       :AdjacencyMap :any
-       :EdgeIndex :any
-       :CircuitVec :any}))
+      {:label "Graph Type Registry"
+       :types {:Registry :any
+               :AdjacencyMap :any
+               :EdgeIndex :any
+               :CircuitVec :any}}))
 
 ;;; Registry
 

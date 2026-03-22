@@ -13,10 +13,12 @@
 (deftest containment-lean-emission-test
          (testing "ContainmentMorphism ->lean-conn"
                   (let [caps (cap/capability-set
-                              {:id :agent
+                              {:label "test caps"
+                               :id :agent
                                :dispatch #{:start :stop}})
                         chart (sc/statechart
-                               {:states #{:idle :active}
+                               {:label "test SC"
+                                :states #{:idle :active}
                                 :hierarchy {:root #{:idle :active}}
                                 :initial {:root :idle}
                                 :transitions [{:source :idle :event :start :target :active}

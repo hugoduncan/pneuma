@@ -15,7 +15,8 @@
 (def core-constructor-operations
      "Formalism and morphism constructor re-exports."
      (es/effect-signature
-      {:operations
+      {:label "Constructor Operations"
+       :operations
        {:effect-signature
         {:input {:config :FormalismConfig}
          :output :EffectSignature}
@@ -67,7 +68,8 @@
 (def core-gap-operations
      "Gap report and diffing operations."
      (es/effect-signature
-      {:operations
+      {:label "Gap Operations"
+       :operations
        {:gap-report
         {:input {:config :GapReportConfig}
          :output :GapReport}
@@ -101,7 +103,8 @@
 (def core-check-operations
      "Per-formalism checking convenience functions."
      (es/effect-signature
-      {:operations
+      {:label "Check Operations"
+       :operations
        {:check-schema
         {:input {:formalism :IProjectable
                  :state :Any}
@@ -125,7 +128,8 @@
 
 (def core-constructor-caps
      (cap/capability-set
-      {:id :core-constructors
+      {:label "Core Constructor Capabilities"
+       :id :core-constructors
        :dispatch #{:effect-signature :capability-set :statechart
                    :mealy-handler-set :optic-declaration :resolver-graph
                    :type-schema :existential-morphism :structural-morphism
@@ -133,49 +137,52 @@
 
 (def core-gap-caps
      (cap/capability-set
-      {:id :core-gap
+      {:label "Core Gap Capabilities"
+       :id :core-gap
        :dispatch #{:gap-report :failures :has-failures?
                    :diff-reports :has-changes? :gaps-involving
                    :find-paths}}))
 
 (def core-check-caps
      (cap/capability-set
-      {:id :core-check
+      {:label "Core Check Capabilities"
+       :id :core-check
        :dispatch #{:check-schema :check-trace :check-gen :check-morphism}}))
 
 (def core-types
      "Type universe for the core namespace."
      (ts/type-schema
-      {:FormalismConfig :any
-       :MorphismConfig :any
-       :RefinementConfig :any
-       :EffectSignature :any
-       :CapabilitySet :any
-       :Statechart :any
-       :MealyHandlerSet :any
-       :OpticDeclaration :any
-       :ResolverGraph :any
-       :TypeSchema :any
-       :ExistentialMorphism :any
-       :StructuralMorphism :any
-       :ContainmentMorphism :any
-       :OrderingMorphism :any
-       :RefinementMap :any
-       :GapReportConfig :any
-       :GapReport :any
-       :DiffReport :any
-       :Boolean :boolean
-       :Keyword :keyword
-       :Registry :any
-       :ComposedPathVec :any
-       :IProjectable :any
-       :IConnection :any
-       :Formalism :any
-       :Any :any
-       :EventLog :any
-       :GenOpts :any
-       :Verdict :any
-       :GapVec :any}))
+      {:label "Core Type Registry"
+       :types {:FormalismConfig :any
+               :MorphismConfig :any
+               :RefinementConfig :any
+               :EffectSignature :any
+               :CapabilitySet :any
+               :Statechart :any
+               :MealyHandlerSet :any
+               :OpticDeclaration :any
+               :ResolverGraph :any
+               :TypeSchema :any
+               :ExistentialMorphism :any
+               :StructuralMorphism :any
+               :ContainmentMorphism :any
+               :OrderingMorphism :any
+               :RefinementMap :any
+               :GapReportConfig :any
+               :GapReport :any
+               :DiffReport :any
+               :Boolean :boolean
+               :Keyword :keyword
+               :Registry :any
+               :ComposedPathVec :any
+               :IProjectable :any
+               :IConnection :any
+               :Formalism :any
+               :Any :any
+               :EventLog :any
+               :GenOpts :any
+               :Verdict :any
+               :GapVec :any}}))
 
 ;;; Registry
 

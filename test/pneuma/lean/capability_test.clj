@@ -11,7 +11,8 @@
   ;; ->lean produces syntactically structured Lean 4 source.
          (testing "CapabilitySet ->lean"
                   (let [caps (cap/capability-set
-                              {:id :test-caps
+                              {:label "test caps"
+                               :id :test-caps
                                :dispatch #{:alpha :beta}})
                         lean-src (lp/->lean caps)]
 
@@ -44,7 +45,8 @@
   ;; Real dogfood instance: the protocol-spec's formalism-record-caps.
          (testing "protocol formalism-record-caps ->lean"
                   (let [caps (cap/capability-set
-                              {:id :formalism-record
+                              {:label "test caps"
+                               :id :formalism-record
                                :dispatch #{:->schema :->monitor :->gen
                                            :->gap-type :extract-refs}})
                         lean-src (lp/->lean caps)]

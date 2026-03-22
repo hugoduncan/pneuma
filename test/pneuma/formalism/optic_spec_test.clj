@@ -57,7 +57,8 @@
 (deftest optic-gap-report-detects-missing-ref-kind-test
          (testing "gap report detects simulated missing ref-kind"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-ref-kinds
+                                  {:label "test caps"
+                                   :id :bad-ref-kinds
                                    :dispatch #{:optic-ids :paths
                                                :source-optic-refs :bogus-refs}})
                         report (gap/gap-report

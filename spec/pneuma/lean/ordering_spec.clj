@@ -13,7 +13,8 @@
 (def lean-ord-operations
      "The ILeanConnection ->lean-conn contract for OrderingMorphism."
      (es/effect-signature
-      {:operations
+      {:label "Lean Ordering Operations"
+       :operations
        {:->lean-conn
         {:input {:morphism :OrderingMorphism
                  :source :IReferenceable
@@ -22,14 +23,16 @@
 
 (def lean-ord-caps
      (cap/capability-set
-      {:id :lean-ord
+      {:label "Lean Ordering Capabilities"
+       :id :lean-ord
        :dispatch #{:->lean-conn}}))
 
 (def lean-ord-types
      (ts/type-schema
-      {:OrderingMorphism :any
-       :IReferenceable :any
-       :LeanSource :string}))
+      {:label "Lean Ordering Type Registry"
+       :types {:OrderingMorphism :any
+               :IReferenceable :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

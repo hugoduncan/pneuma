@@ -13,7 +13,8 @@
 (def lean-ct-operations
      "The ILeanConnection ->lean-conn contract for ContainmentMorphism."
      (es/effect-signature
-      {:operations
+      {:label "Lean Containment Operations"
+       :operations
        {:->lean-conn
         {:input {:morphism :ContainmentMorphism
                  :source :IReferenceable
@@ -22,14 +23,16 @@
 
 (def lean-ct-caps
      (cap/capability-set
-      {:id :lean-ct
+      {:label "Lean Containment Capabilities"
+       :id :lean-ct
        :dispatch #{:->lean-conn}}))
 
 (def lean-ct-types
      (ts/type-schema
-      {:ContainmentMorphism :any
-       :IReferenceable :any
-       :LeanSource :string}))
+      {:label "Lean Containment Type Registry"
+       :types {:ContainmentMorphism :any
+               :IReferenceable :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

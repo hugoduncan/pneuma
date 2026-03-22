@@ -14,7 +14,8 @@
 (def st-api-operations
      "Public API of the structural morphism namespace."
      (es/effect-signature
-      {:operations
+      {:label "Structural API Operations"
+       :operations
        {:structural-morphism
         {:input {:id :Keyword
                  :from :Keyword
@@ -27,7 +28,8 @@
      "The IConnection check contract for StructuralMorphism.
   Validates that source outputs conform to target schema."
      (es/effect-signature
-      {:operations
+      {:label "Structural Check Operations"
+       :operations
        {:check
         {:input {:morphism :StructuralMorphism
                  :source :IReferenceable
@@ -38,24 +40,27 @@
 (def st-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :st-api
+      {:label "Structural API Capabilities"
+       :id :st-api
        :dispatch #{:structural-morphism}}))
 
 (def st-check-caps
      "The IConnection check capability."
      (cap/capability-set
-      {:id :st-check
+      {:label "Structural Check Capabilities"
+       :id :st-check
        :dispatch #{:check}}))
 
 (def st-types
      "Type universe for the structural morphism namespace."
      (ts/type-schema
-      {:Keyword :keyword
-       :StructuralMorphism :any
-       :IReferenceable :any
-       :IProjectable :any
-       :RefinementMap :any
-       :GapSeq :any}))
+      {:label "Structural Type Registry"
+       :types {:Keyword :keyword
+               :StructuralMorphism :any
+               :IReferenceable :any
+               :IProjectable :any
+               :RefinementMap :any
+               :GapSeq :any}}))
 
 ;;; Registry
 

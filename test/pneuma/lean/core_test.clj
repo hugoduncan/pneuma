@@ -14,13 +14,15 @@
 
 (def test-ops
      (es/effect-signature
-      {:operations
+      {:label "test ES"
+       :operations
        {:read {:input {:key :Keyword} :output :String}
         :write {:input {:val :String} :output :Boolean}}}))
 
 (def test-caps
      (cap/capability-set
-      {:id :test-caps
+      {:label "test caps"
+       :id :test-caps
        :dispatch #{:read :write}}))
 
 (def test-morphism
@@ -35,12 +37,14 @@
 
 (def cycle-ops
      (es/effect-signature
-      {:operations
+      {:label "test ES"
+       :operations
        {:dispatch {:input {:event :Keyword} :output :Boolean}}}))
 
 (def cycle-caps
      (cap/capability-set
-      {:id :cycle-caps
+      {:label "test caps"
+       :id :cycle-caps
        :dispatch #{:dispatch}}))
 
 (def cycle-registry

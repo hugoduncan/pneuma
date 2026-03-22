@@ -13,20 +13,23 @@
 (def lean-sc-operations
      "The ILeanProjectable ->lean contract for Statechart."
      (es/effect-signature
-      {:operations
+      {:label "Lean SC Operations"
+       :operations
        {:->lean
         {:input {:formalism :Statechart}
          :output :LeanSource}}}))
 
 (def lean-sc-caps
      (cap/capability-set
-      {:id :lean-sc
+      {:label "Lean SC Capabilities"
+       :id :lean-sc
        :dispatch #{:->lean}}))
 
 (def lean-sc-types
      (ts/type-schema
-      {:Statechart :any
-       :LeanSource :string}))
+      {:label "Lean SC Type Registry"
+       :types {:Statechart :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

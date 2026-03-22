@@ -11,7 +11,8 @@
 
 (def sc-with-events
      (sc/statechart
-      {:states #{:idle :active}
+      {:label "test SC"
+       :states #{:idle :active}
        :hierarchy {:root #{:idle :active}}
        :initial {:root :idle}
        :transitions [{:source :idle :event :start :target :active}
@@ -20,12 +21,14 @@
 
 (def caps-within-bounds
      (cap/capability-set
-      {:id :agent
+      {:label "test caps"
+       :id :agent
        :dispatch #{:start :stop}}))
 
 (def caps-out-of-bounds
      (cap/capability-set
-      {:id :bad-agent
+      {:label "test caps"
+       :id :bad-agent
        :dispatch #{:start :stop :fly}}))
 
 (def morphism

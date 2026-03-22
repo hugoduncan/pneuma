@@ -14,7 +14,8 @@
 (def ct-api-operations
      "Public API of the containment morphism namespace."
      (es/effect-signature
-      {:operations
+      {:label "Containment API Operations"
+       :operations
        {:containment-morphism
         {:input {:id :Keyword
                  :from :Keyword
@@ -27,7 +28,8 @@
      "The IConnection check contract for ContainmentMorphism.
   Checks that all source refs are within target bounds."
      (es/effect-signature
-      {:operations
+      {:label "Containment Check Operations"
+       :operations
        {:check
         {:input {:morphism :ContainmentMorphism
                  :source :IReferenceable
@@ -38,23 +40,26 @@
 (def ct-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :ct-api
+      {:label "Containment API Capabilities"
+       :id :ct-api
        :dispatch #{:containment-morphism}}))
 
 (def ct-check-caps
      "The IConnection check capability."
      (cap/capability-set
-      {:id :ct-check
+      {:label "Containment Check Capabilities"
+       :id :ct-check
        :dispatch #{:check}}))
 
 (def ct-types
      "Type universe for the containment morphism namespace."
      (ts/type-schema
-      {:Keyword :keyword
-       :ContainmentMorphism :any
-       :IReferenceable :any
-       :RefinementMap :any
-       :GapSeq :any}))
+      {:label "Containment Type Registry"
+       :types {:Keyword :keyword
+               :ContainmentMorphism :any
+               :IReferenceable :any
+               :RefinementMap :any
+               :GapSeq :any}}))
 
 ;;; Registry
 

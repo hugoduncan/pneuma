@@ -27,7 +27,9 @@
 
 (def resolver-graph-input-schema
      "Malli schema for the resolver-graph constructor input."
-     [:map [:declarations [:vector resolver-declaration-schema]]])
+     [:map
+      [:label :string]
+      [:declarations [:vector resolver-declaration-schema]]])
 
 ;;; Chase algorithm
 
@@ -91,7 +93,7 @@
 
 ;;; Record
 
-(defrecord ResolverGraph [declarations]
+(defrecord ResolverGraph [label declarations]
            p/IProjectable
            (->schema [_]
                      (build-resolver-multi-schema declarations))
@@ -133,7 +135,8 @@
                                                                  attr-gens))))))))))
 
            (->gap-type [_]
-                       {:formalism :resolver
+                       {:label label
+                        :formalism :resolver
                         :gap-kinds #{:missing-resolver :unreachable-attribute :wrong-output}
                         :statuses  #{:conforms :absent :diverges}})
 
@@ -154,7 +157,7 @@
                                                            [in out (name (:id decl))])))
                                           declarations)]
                        (doc/section
-                        :resolver/root "Resolver Graph"
+                        :resolver/root label
                         [(doc/table :resolver/resolvers
                                     [:id :input :output :source]
                                     resolver-rows)
@@ -187,8 +190,8 @@
 ;;; Public constructor
 
 (defn resolver-graph
-      "Creates a validated ResolverGraph from a map with :declarations.
-  Each declaration has :id, :input (set of attribute keywords),
+      "Creates a validated ResolverGraph from a map with :label and :declarations.
+  :label is a display string. Each declaration has :id, :input (set of attribute keywords),
   :output (set of attribute keywords), and optional :source.
   Throws ex-info on invalid input or duplicate ids."
       [m]
@@ -205,4 +208,4 @@
                  (throw (ex-info "Duplicate resolver ids"
                                  {:duplicate-ids duplicates})))
            (let [indexed (into {} (map (fn [decl] [(:id decl) decl])) declarations)]
-                (->ResolverGraph indexed))))
+                (->ResolverGraph (:label m) indexed))))

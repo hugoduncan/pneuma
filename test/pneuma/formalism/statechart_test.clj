@@ -9,7 +9,8 @@
 
 ;; Hierarchical chart with parallel composition — the session/conversation model.
 (def example-chart
-     {:states #{:idle :generating :awaiting-approval
+     {:label "test SC"
+      :states #{:idle :generating :awaiting-approval
                 :tool-executing :tool-error
                 :extensions-idle :extension-running}
       :hierarchy {:session/root #{:conversation :extensions}
@@ -36,7 +37,8 @@
 
 ;; Flat chart with a virtual root wrapper to keep the algorithm uniform.
 (def flat-chart
-     {:states #{:a :b :c}
+     {:label "test SC"
+      :states #{:a :b :c}
       :hierarchy {:_root #{:a :b :c}}
       :initial {:_root :a}
       :transitions [{:source :a :event :go :target :b}
@@ -54,20 +56,21 @@
 
                   (testing "rejects missing :states"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (sc/statechart {:initial {} :transitions []}))))
+                                        (sc/statechart {:label "test SC" :initial {} :transitions []}))))
 
                   (testing "rejects missing :transitions"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (sc/statechart {:states #{:a} :initial {}}))))
+                                        (sc/statechart {:label "test SC" :states #{:a} :initial {}}))))
 
                   (testing "rejects missing :initial"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (sc/statechart {:states #{:a} :transitions []}))))
+                                        (sc/statechart {:label "test SC" :states #{:a} :transitions []}))))
 
                   (testing "rejects hierarchy child not in states"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (sc/statechart
-                                         {:states #{:a}
+                                         {:label "test SC"
+                                          :states #{:a}
                                           :hierarchy {:root #{:a :unknown}}
                                           :initial {:root :a}
                                           :transitions []}))))
@@ -75,7 +78,8 @@
                   (testing "rejects parallel member not a hierarchy key"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (sc/statechart
-                                         {:states #{:a :b}
+                                         {:label "test SC"
+                                          :states #{:a :b}
                                           :hierarchy {:root #{:a :b}}
                                           :parallel #{:not-a-key}
                                           :initial {:root :a}
@@ -84,7 +88,8 @@
                   (testing "rejects initial key not in hierarchy"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (sc/statechart
-                                         {:states #{:a :b}
+                                         {:label "test SC"
+                                          :states #{:a :b}
                                           :hierarchy {:root #{:a :b}}
                                           :initial {:root :a :no-such :b}
                                           :transitions []}))))
@@ -92,7 +97,8 @@
                   (testing "rejects transition source not in states"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (sc/statechart
-                                         {:states #{:a :b}
+                                         {:label "test SC"
+                                          :states #{:a :b}
                                           :hierarchy {:root #{:a :b}}
                                           :initial {:root :a}
                                           :transitions [{:source :ghost :event :go :target :b}]}))))
@@ -100,7 +106,8 @@
                   (testing "rejects transition target not in states"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (sc/statechart
-                                         {:states #{:a :b}
+                                         {:label "test SC"
+                                          :states #{:a :b}
                                           :hierarchy {:root #{:a :b}}
                                           :initial {:root :a}
                                           :transitions [{:source :a :event :go :target :ghost}]}))))))
@@ -326,7 +333,8 @@
 
                        (let [raise-chart
                              (sc/statechart
-                              {:states #{:a :b :c}
+                              {:label "test SC"
+                               :states #{:a :b :c}
                                :hierarchy {:root #{:a :b :c}}
                                :initial {:root :a}
                                :transitions [{:source :a :event :go :target :b

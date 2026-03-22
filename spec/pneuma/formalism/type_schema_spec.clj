@@ -14,7 +14,8 @@
 (def ts-api-operations
      "Public API of the type-schema namespace."
      (es/effect-signature
-      {:operations
+      {:label "TS API Operations"
+       :operations
        {:type-schema
         {:input {:types-map :TypesMap}
          :output :TypeSchema}}}))
@@ -22,7 +23,8 @@
 (def ts-ref-operations
      "The extract-refs dispatch table for TypeSchema."
      (es/effect-signature
-      {:operations
+      {:label "TS Ref Operations"
+       :operations
        {:type-ids
         {:input {:formalism :TypeSchema}
          :output :KeywordSet}}}))
@@ -30,21 +32,24 @@
 (def ts-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :ts-api
+      {:label "TS API Capabilities"
+       :id :ts-api
        :dispatch #{:type-schema}}))
 
 (def ts-ref-kind-caps
      "The ref-kinds that TypeSchema's IReferenceable supports."
      (cap/capability-set
-      {:id :ts-ref-kinds
+      {:label "TS Ref Kind Capabilities"
+       :id :ts-ref-kinds
        :dispatch #{:type-ids}}))
 
 (def ts-types
      "Type universe for the type-schema namespace."
      (ts/type-schema
-      {:TypeSchema :any
-       :TypesMap :any
-       :KeywordSet [:set :keyword]}))
+      {:label "TS Type Registry"
+       :types {:TypeSchema :any
+               :TypesMap :any
+               :KeywordSet [:set :keyword]}}))
 
 ;;; Registry
 

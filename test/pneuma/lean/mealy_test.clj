@@ -9,7 +9,8 @@
   ;; ->lean emits HandlerId inductive and completeness.
          (testing "MealyHandlerSet ->lean"
                   (let [handlers (mealy/mealy-handler-set
-                                  {:declarations
+                                  {:label "test mealy"
+                                   :declarations
                                    [{:id :submit
                                      :params [{:name :sid :type :String}]
                                      :guards [{:check :in-state? :args [:sid :idle]}]

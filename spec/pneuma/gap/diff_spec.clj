@@ -14,7 +14,8 @@
 (def diff-api-operations
      "Public API of the gap.diff namespace."
      (es/effect-signature
-      {:operations
+      {:label "Diff API Operations"
+       :operations
        {:diff-reports
         {:input {:old-report :GapReport
                  :new-report :GapReport}
@@ -32,16 +33,18 @@
 (def diff-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :diff-api
+      {:label "Diff API Capabilities"
+       :id :diff-api
        :dispatch #{:diff-reports :has-changes? :gaps-involving}}))
 
 (def diff-types
      "Type universe for the gap.diff namespace."
      (ts/type-schema
-      {:GapReport :any
-       :DiffReport :any
-       :Boolean :boolean
-       :Keyword :keyword}))
+      {:label "Diff Type Registry"
+       :types {:GapReport :any
+               :DiffReport :any
+               :Boolean :boolean
+               :Keyword :keyword}}))
 
 ;;; Registry
 

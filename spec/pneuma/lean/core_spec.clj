@@ -15,7 +15,8 @@
 (def lean-core-operations
      "Public API of the lean.core namespace."
      (es/effect-signature
-      {:operations
+      {:label "Lean Core Operations"
+       :operations
        {:emit-lean
         {:input {:formalism :ILeanProjectable}
          :output :LeanSource}
@@ -54,7 +55,8 @@
 (def lean-core-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :lean-core
+      {:label "Lean Core Capabilities"
+       :id :lean-core
        :dispatch #{:emit-lean :emit-lean-conn :emit-lean-system
                    :emit-lean-path :emit-lean-paths :emit-lean-all
                    :emit-lean-file}}))
@@ -62,18 +64,19 @@
 (def lean-core-types
      "Type universe for the lean.core namespace."
      (ts/type-schema
-      {:ILeanProjectable :any
-       :ILeanConnection :any
-       :Formalism :any
-       :LeanSource :string
-       :String :string
-       :SystemConfig :any
-       :ComposedPath :any
-       :FormalismMap :any
-       :Registry :any
-       :PathResultVec :any
-       :EmissionMap :any
-       :SectionVec :any}))
+      {:label "Lean Core Type Registry"
+       :types {:ILeanProjectable :any
+               :ILeanConnection :any
+               :Formalism :any
+               :LeanSource :string
+               :String :string
+               :SystemConfig :any
+               :ComposedPath :any
+               :FormalismMap :any
+               :Registry :any
+               :PathResultVec :any
+               :EmissionMap :any
+               :SectionVec :any}}))
 
 ;;; Registry
 

@@ -10,7 +10,8 @@
 ;; Three handler declarations: one minimal, one with params only,
 ;; one with guards/updates/effects like the submit-prompt example.
 (def sample-declarations
-     {:declarations
+     {:label "test mealy"
+      :declarations
       [{:id :ping}
 
        {:id :set-name
@@ -39,25 +40,26 @@
 
                   (testing "accepts single minimal handler"
                            (is (some? (mealy/mealy-handler-set
-                                       {:declarations [{:id :ping}]}))))
+                                       {:label "test mealy" :declarations [{:id :ping}]}))))
 
                   (testing "rejects missing :declarations key"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (mealy/mealy-handler-set {}))))
+                                        (mealy/mealy-handler-set {:label "test mealy"}))))
 
                   (testing "rejects non-vector :declarations"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (mealy/mealy-handler-set {:declarations "bad"}))))
+                                        (mealy/mealy-handler-set {:label "test mealy" :declarations "bad"}))))
 
                   (testing "rejects declaration missing :id"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (mealy/mealy-handler-set
-                                         {:declarations [{:params []}]}))))
+                                         {:label "test mealy" :declarations [{:params []}]}))))
 
                   (testing "rejects duplicate handler ids"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (mealy/mealy-handler-set
-                                         {:declarations [{:id :ping}
+                                         {:label "test mealy"
+                                          :declarations [{:id :ping}
                                                          {:id :ping}]}))))))
 
 (deftest schema-projection-test

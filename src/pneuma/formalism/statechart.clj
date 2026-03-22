@@ -25,6 +25,7 @@
 (def statechart-input-schema
      "Malli schema for the statechart constructor input."
      [:map
+      [:label       :string]
       [:states      [:set :keyword]]
       [:hierarchy   {:optional true} [:map-of :keyword [:set :keyword]]]
       [:parallel    {:optional true} [:set :keyword]]
@@ -150,7 +151,7 @@
 
 ;;; Record
 
-(defrecord Statechart [states hierarchy parallel initial transitions]
+(defrecord Statechart [label states hierarchy parallel initial transitions]
            p/IProjectable
            (->schema [_]
                      (let [leaves (leaf-states states hierarchy)]
@@ -183,7 +184,8 @@
                            (gen/elements (vec all-configs)))))
 
            (->gap-type [_]
-                       {:formalism :statechart
+                       {:label label
+                        :formalism :statechart
                         :gap-kinds #{:missing-state :missing-transition
                                      :unreachable-state :invalid-config}
                         :statuses  #{:conforms :absent :diverges}})
@@ -211,7 +213,7 @@
                                    ", "
                                    (mapv str (sort-by str all-cfgs)))]
                        (doc/section
-                        :statechart/root "Statechart"
+                        :statechart/root label
                         (filterv some?
                                  [(doc/diagram-spec :statechart/diagram :mermaid-state diag-data)
                                   (doc/table :statechart/transitions
@@ -243,15 +245,15 @@
 
 (defn statechart
       "Creates a validated Statechart from a map.
-  Required keys: :states (set of keywords), :initial (map of composite→child),
-  :transitions (vector of transition maps).
+  Required keys: :label (display string), :states (set of keywords),
+  :initial (map of composite→child), :transitions (vector of transition maps).
   Optional keys: :hierarchy (map of parent→#{children}), :parallel (set of parallel states).
   Throws ex-info on invalid input or domain invariant violations."
       [m]
       (when-not (m/validate statechart-input-schema m)
                 (throw (ex-info "Invalid statechart input"
                                 {:explanation (m/explain statechart-input-schema m)})))
-      (let [{:keys [states transitions initial]
+      (let [{:keys [label states transitions initial]
              hierarchy :hierarchy
              parallel  :parallel
              :or       {hierarchy {} parallel #{}}} m]
@@ -282,4 +284,4 @@
                        (when-not (contains? known-nodes target)
                                  (throw (ex-info "Transition target not in states"
                                                  {:target target})))))
-           (->Statechart states hierarchy parallel initial transitions)))
+           (->Statechart label states hierarchy parallel initial transitions)))

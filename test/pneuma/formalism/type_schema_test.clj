@@ -12,21 +12,22 @@
 
 (def test-types
      (ts/type-schema
-      {:String :string
-       :Keyword :keyword
-       :Any :any
-       :EventRef :keyword
-       :KeywordSet [:set :keyword]}))
+      {:label "test types"
+       :types {:String :string
+               :Keyword :keyword
+               :Any :any
+               :EventRef :keyword
+               :KeywordSet [:set :keyword]}}))
 
 (deftest constructor-test
   ;; type-schema validates that values are valid Malli schemas.
          (testing "type-schema"
                   (testing "accepts valid type map"
-                           (is (some? (ts/type-schema {:Foo :string :Bar :int}))))
+                           (is (some? (ts/type-schema {:label "test types" :types {:Foo :string :Bar :int}}))))
 
                   (testing "rejects invalid Malli schema value"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (ts/type-schema {:Bad "not-a-schema"}))))))
+                                        (ts/type-schema {:label "test types" :types {:Bad "not-a-schema"}}))))))
 
 (deftest schema-projection-test
   ;; ->schema produces an enum of registered type keywords.
@@ -75,7 +76,8 @@
               (testing "structural morphism to TypeSchema"
                        (testing "conforms when all output types are registered"
                                 (let [sig (es/effect-signature
-                                           {:operations
+                                           {:label "test ES"
+                                            :operations
                                             {:op-a {:input {:x :Keyword} :output :String}
                                              :op-b {:input {:y :Keyword} :output :EventRef}}})
                                       gaps (p/check morphism sig test-types {})]
@@ -83,7 +85,8 @@
 
                        (testing "diverges when an output type is not registered"
                                 (let [sig (es/effect-signature
-                                           {:operations
+                                           {:label "test ES"
+                                            :operations
                                             {:op-a {:input {:x :Keyword} :output :String}
                                              :op-b {:input {:y :Keyword} :output :UnknownType}}})
                                       gaps (p/check morphism sig test-types {})]

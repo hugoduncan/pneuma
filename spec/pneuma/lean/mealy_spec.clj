@@ -13,20 +13,23 @@
 (def lean-mealy-operations
      "The ILeanProjectable ->lean contract for MealyHandlerSet."
      (es/effect-signature
-      {:operations
+      {:label "Lean Mealy Operations"
+       :operations
        {:->lean
         {:input {:formalism :MealyHandlerSet}
          :output :LeanSource}}}))
 
 (def lean-mealy-caps
      (cap/capability-set
-      {:id :lean-mealy
+      {:label "Lean Mealy Capabilities"
+       :id :lean-mealy
        :dispatch #{:->lean}}))
 
 (def lean-mealy-types
      (ts/type-schema
-      {:MealyHandlerSet :any
-       :LeanSource :string}))
+      {:label "Lean Mealy Type Registry"
+       :types {:MealyHandlerSet :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

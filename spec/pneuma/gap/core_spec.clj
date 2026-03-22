@@ -14,7 +14,8 @@
 (def gap-api-operations
      "Public API of the gap.core namespace."
      (es/effect-signature
-      {:operations
+      {:label "Gap Core API Operations"
+       :operations
        {:check-object-gaps
         {:input {:formalism :IProjectable}
          :output :GapVec}
@@ -39,20 +40,22 @@
 (def gap-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :gap-api
+      {:label "Gap Core API Capabilities"
+       :id :gap-api
        :dispatch #{:check-object-gaps :check-morphism-gaps
                    :gap-report :failures :has-failures?}}))
 
 (def gap-types
      "Type universe for the gap.core namespace."
      (ts/type-schema
-      {:IProjectable :any
-       :GapVec :any
-       :Registry :any
-       :FormalismMap :any
-       :GapReportConfig :any
-       :GapReport :any
-       :Boolean :boolean}))
+      {:label "Gap Core Type Registry"
+       :types {:IProjectable :any
+               :GapVec :any
+               :Registry :any
+               :FormalismMap :any
+               :GapReportConfig :any
+               :GapReport :any
+               :Boolean :boolean}}))
 
 ;;; Registry
 

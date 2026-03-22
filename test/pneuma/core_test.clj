@@ -8,13 +8,15 @@
 
 (def test-ops
      (p/effect-signature
-      {:operations
+      {:label "test ES"
+       :operations
        {:read {:input {:key :Keyword} :output :String}
         :write {:input {:key :Keyword :val :String} :output :Boolean}}}))
 
 (def test-caps
      (p/capability-set
-      {:id :test-caps
+      {:label "test caps"
+       :id :test-caps
        :dispatch #{:read :write}}))
 
 (def test-registry

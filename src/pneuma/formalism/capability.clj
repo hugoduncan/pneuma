@@ -14,6 +14,7 @@
 (def capability-set-input-schema
      "Malli schema for the capability-set constructor input."
      [:map
+      [:label :string]
       [:id :keyword]
       [:dispatch [:set :keyword]]
       [:subscribe {:optional true} [:set :keyword]]
@@ -48,7 +49,7 @@
 
 ;;; Record
 
-(defrecord CapabilitySet [id dispatch subscribe query]
+(defrecord CapabilitySet [label id dispatch subscribe query]
            p/IProjectable
            (->schema [_]
                      (sets->malli-schema {:dispatch dispatch
@@ -87,13 +88,14 @@
                            (gen/return nil))))
 
            (->gap-type [_]
-                       {:formalism :capability-set
+                       {:label label
+                        :formalism :capability-set
                         :gap-kinds #{:unauthorized :empty-set}
                         :statuses #{:conforms :absent :diverges}})
 
            (->doc [_]
                   (doc/section
-                   :capability/root "Capability Set"
+                   :capability/root label
                    [(doc/table :capability/permissions
                                [:kind :operations]
                                [{:kind "dispatch"  :operations (str dispatch)}
@@ -116,14 +118,15 @@
 ;;; Public constructor
 
 (defn capability-set
-      "Creates a validated CapabilitySet from a map with :id, :dispatch,
-  and optionally :subscribe and :query. Each is a set of keywords.
-  Throws on invalid input."
+      "Creates a validated CapabilitySet from a map with :label, :id, :dispatch,
+  and optionally :subscribe and :query. :label is a display string.
+  Each capability set is a set of keywords. Throws on invalid input."
       [m]
       (when-not (m/validate capability-set-input-schema m)
                 (throw (ex-info "Invalid capability set"
                                 {:explanation (m/explain capability-set-input-schema m)})))
-      (->CapabilitySet (:id m)
+      (->CapabilitySet (:label m)
+                       (:id m)
                        (:dispatch m)
                        (or (:subscribe m) #{})
                        (or (:query m) #{})))

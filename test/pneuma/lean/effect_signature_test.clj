@@ -11,7 +11,8 @@
   ;; ->lean produces structured Lean 4 source for an effect signature.
          (testing "EffectSignature ->lean"
                   (let [sig (es/effect-signature
-                             {:operations
+                             {:label "test ES"
+                              :operations
                               {:alpha {:input {:x :String :y :Nat}
                                        :output :Bool}
                                :beta {:input {:z :Keyword}
@@ -52,7 +53,8 @@
   ;; Real dogfood: the protocol-spec's six protocol operations.
          (testing "protocol-operations ->lean"
                   (let [sig (es/effect-signature
-                             {:operations
+                             {:label "test ES"
+                              :operations
                               {:->schema {:input {:formalism :Formalism}
                                           :output :MalliSchema}
                                :->monitor {:input {:formalism :Formalism}

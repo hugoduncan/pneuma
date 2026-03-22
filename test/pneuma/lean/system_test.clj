@@ -39,7 +39,8 @@
   ;; A failing spec emits `sorry` for broken morphisms.
          (testing "failing spec"
                   (let [bad-caps (cap/capability-set
-                                  {:id :formalism-record
+                                  {:label "test caps"
+                                   :id :formalism-record
                                    :dispatch #{:->schema :->monitor :->gen
                                                :->gap-type :extract-refs
                                                :bogus-method}})

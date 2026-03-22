@@ -14,7 +14,8 @@
 (def ord-api-operations
      "Public API of the ordering morphism namespace."
      (es/effect-signature
-      {:operations
+      {:label "Ordering API Operations"
+       :operations
        {:ordering-morphism
         {:input {:id :Keyword
                  :from :Keyword
@@ -28,7 +29,8 @@
      "The IConnection check contract for OrderingMorphism.
   Checks that source ref precedes target ref in the chain."
      (es/effect-signature
-      {:operations
+      {:label "Ordering Check Operations"
+       :operations
        {:check
         {:input {:morphism :OrderingMorphism
                  :source :IReferenceable
@@ -39,24 +41,27 @@
 (def ord-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :ord-api
+      {:label "Ordering API Capabilities"
+       :id :ord-api
        :dispatch #{:ordering-morphism}}))
 
 (def ord-check-caps
      "The IConnection check capability."
      (cap/capability-set
-      {:id :ord-check
+      {:label "Ordering Check Capabilities"
+       :id :ord-check
        :dispatch #{:check}}))
 
 (def ord-types
      "Type universe for the ordering morphism namespace."
      (ts/type-schema
-      {:Keyword :keyword
-       :OrderedSeq :any
-       :OrderingMorphism :any
-       :IReferenceable :any
-       :RefinementMap :any
-       :GapSeq :any}))
+      {:label "Ordering Type Registry"
+       :types {:Keyword :keyword
+               :OrderedSeq :any
+               :OrderingMorphism :any
+               :IReferenceable :any
+               :RefinementMap :any
+               :GapSeq :any}}))
 
 ;;; Registry
 

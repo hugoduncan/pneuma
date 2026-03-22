@@ -14,7 +14,8 @@
 (def ex-api-operations
      "Public API of the existential morphism namespace."
      (es/effect-signature
-      {:operations
+      {:label "Existential API Operations"
+       :operations
        {:existential-morphism
         {:input {:id :Keyword
                  :from :Keyword
@@ -27,7 +28,8 @@
      "The IConnection check contract for ExistentialMorphism.
   Checks that all source refs exist in target refs."
      (es/effect-signature
-      {:operations
+      {:label "Existential Check Operations"
+       :operations
        {:check
         {:input {:morphism :ExistentialMorphism
                  :source :IReferenceable
@@ -38,23 +40,26 @@
 (def ex-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :ex-api
+      {:label "Existential API Capabilities"
+       :id :ex-api
        :dispatch #{:existential-morphism}}))
 
 (def ex-check-caps
      "The IConnection check capability."
      (cap/capability-set
-      {:id :ex-check
+      {:label "Existential Check Capabilities"
+       :id :ex-check
        :dispatch #{:check}}))
 
 (def ex-types
      "Type universe for the existential morphism namespace."
      (ts/type-schema
-      {:Keyword :keyword
-       :ExistentialMorphism :any
-       :IReferenceable :any
-       :RefinementMap :any
-       :GapSeq :any}))
+      {:label "Existential Type Registry"
+       :types {:Keyword :keyword
+               :ExistentialMorphism :any
+               :IReferenceable :any
+               :RefinementMap :any
+               :GapSeq :any}}))
 
 ;;; Registry
 

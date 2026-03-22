@@ -67,7 +67,8 @@
                         (assert-compiles
                          "CapabilitySet"
                          (lp/->lean (cap/capability-set
-                                     {:id :test-caps
+                                     {:label "test caps"
+                                      :id :test-caps
                                       :dispatch #{:alpha :beta :gamma}}))))))
 
 (deftest ^:lean effect-signature-lean-compiles-test
@@ -77,7 +78,8 @@
                         (assert-compiles
                          "EffectSignature"
                          (lp/->lean (es/effect-signature
-                                     {:operations
+                                     {:label "test ES"
+                                      :operations
                                       {:op-a {:input {:x :String} :output :Bool}
                                        :op-b {:input {:y :Nat :z :Keyword}
                                               :output :String}}}))))))
@@ -89,7 +91,8 @@
                         (assert-compiles
                          "TypeSchema"
                          (lp/->lean (ts/type-schema
-                                     {:Foo :string :Bar :int :Baz :any}))))))
+                                     {:label "test types"
+                                      :types {:Foo :string :Bar :int :Baz :any}}))))))
 
 (deftest ^:lean statechart-lean-compiles-test
   ;; Statechart ->lean produces valid Lean 4.
@@ -98,7 +101,8 @@
                         (assert-compiles
                          "Statechart"
                          (lp/->lean (sc/statechart
-                                     {:states #{:idle :running :done}
+                                     {:label "test SC"
+                                      :states #{:idle :running :done}
                                       :initial {:root :idle}
                                       :hierarchy {:root #{:idle :running :done}}
                                       :transitions
@@ -113,7 +117,8 @@
                         (assert-compiles
                          "MealyHandlerSet"
                          (lp/->lean (mealy/mealy-handler-set
-                                     {:declarations
+                                     {:label "test mealy"
+                                      :declarations
                                       [{:id :handle-a
                                         :guards [{:check :in-state? :args [:sid :idle]}]
                                         :effects [{:op :do-thing
@@ -127,7 +132,8 @@
                         (assert-compiles
                          "OpticDeclaration"
                          (lp/->lean (optic/optic-declaration
-                                     {:declarations
+                                     {:label "test optics"
+                                      :declarations
                                       [{:id :session-msgs
                                         :optic-type :Lens
                                         :path [:sessions :sid :messages]}
@@ -146,7 +152,8 @@
                         (assert-compiles
                          "ResolverGraph"
                          (lp/->lean (resolver/resolver-graph
-                                     {:declarations
+                                     {:label "test resolver"
+                                      :declarations
                                       [{:id     :fetch-msgs
                                         :input  #{:session/id}
                                         :output #{:session/messages}

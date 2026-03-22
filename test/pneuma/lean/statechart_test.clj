@@ -9,7 +9,8 @@
   ;; ->lean emits State/Event inductives, step function, and safety theorem.
          (testing "Statechart ->lean"
                   (let [chart (sc/statechart
-                               {:states #{:idle :running :done}
+                               {:label "test SC"
+                                :states #{:idle :running :done}
                                 :initial {:root :idle}
                                 :hierarchy {:root #{:idle :running :done}}
                                 :transitions

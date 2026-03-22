@@ -17,7 +17,8 @@
 (deftest statechart-doc-test
          (testing "Statechart ->doc"
                   (let [sc  (statechart/statechart
-                             {:states      #{:a :b}
+                             {:label "test SC"
+                              :states      #{:a :b}
                               :initial     {}
                               :transitions [{:source :a :event :go :target :b}]})
                         doc (p/->doc sc)]
@@ -41,7 +42,8 @@
 (deftest effect-signature-doc-test
          (testing "EffectSignature ->doc"
                   (let [es  (effect-sig/effect-signature
-                             {:operations {:do-thing {:input {:x :String} :output :Bool}}})
+                             {:label "test ES"
+                              :operations {:do-thing {:input {:x :String} :output :Bool}}})
                         doc (p/->doc es)]
                        (testing "returns a section"
                                 (is (= :section (:kind doc))))
@@ -54,7 +56,8 @@
 (deftest mealy-handler-set-doc-test
          (testing "MealyHandlerSet ->doc"
                   (let [mhs (mealy/mealy-handler-set
-                             {:declarations [{:id      :handle-it
+                             {:label "test mealy"
+                              :declarations [{:id      :handle-it
                                               :params  [{:name :x :type :String}]
                                               :guards  [{:check :ok? :args [:x]}]
                                               :updates [{:path [:data] :op :assoc :value 1}]
@@ -71,7 +74,8 @@
 (deftest optic-declaration-doc-test
          (testing "OpticDeclaration ->doc"
                   (let [od  (optic/optic-declaration
-                             {:declarations [{:id :my-lens :optic-type :Lens :path [:data :field]}]})
+                             {:label "test optics"
+                              :declarations [{:id :my-lens :optic-type :Lens :path [:data :field]}]})
                         doc (p/->doc od)]
                        (testing "returns a section"
                                 (is (= :section (:kind doc))))
@@ -84,7 +88,8 @@
 (deftest resolver-graph-doc-test
          (testing "ResolverGraph ->doc"
                   (let [rg  (resolver/resolver-graph
-                             {:declarations [{:id :fetch :input #{:a} :output #{:b}}]})
+                             {:label "test resolver"
+                              :declarations [{:id :fetch :input #{:a} :output #{:b}}]})
                         doc (p/->doc rg)]
                        (testing "returns a section"
                                 (is (= :section (:kind doc))))
@@ -106,7 +111,8 @@
 (deftest capability-set-doc-test
          (testing "CapabilitySet ->doc"
                   (let [cs  (capability/capability-set
-                             {:id       :test-caps
+                             {:label "test caps"
+                              :id       :test-caps
                               :dispatch #{:do-thing}
                               :subscribe #{:watch-it}
                               :query   #{:get-stuff}})
@@ -121,7 +127,7 @@
 
 (deftest type-schema-doc-test
          (testing "TypeSchema ->doc"
-                  (let [ts  (type-schema/type-schema {:String :string :Bool :boolean})
+                  (let [ts  (type-schema/type-schema {:label "test types" :types {:String :string :Bool :boolean}})
                         doc (p/->doc ts)]
                        (testing "returns a section"
                                 (is (= :section (:kind doc))))

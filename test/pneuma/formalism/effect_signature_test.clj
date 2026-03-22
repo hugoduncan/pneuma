@@ -13,7 +13,8 @@
 
 (def dogfood-ops
      "The dogfood instance: pneuma protocol methods as operations."
-     {:operations
+     {:label "test ES"
+      :operations
       {:->schema
        {:input {:formalism :Keyword}
         :output :Any}
@@ -44,7 +45,8 @@
 
 (def minimal-ops
      "Minimal two-operation signature for focused tests."
-     {:operations
+     {:label "test ES"
+      :operations
       {:ai/generate
        {:input {:session-id :String
                 :model :Keyword}
@@ -67,21 +69,21 @@
 
                   (testing "rejects missing :operations key"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (es/effect-signature {}))))
+                                        (es/effect-signature {:label "test ES"}))))
 
                   (testing "rejects non-map operations"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (es/effect-signature {:operations "bad"}))))
+                                        (es/effect-signature {:label "test ES" :operations "bad"}))))
 
                   (testing "rejects operation missing :input"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (es/effect-signature
-                                         {:operations {:foo {:output :Any}}}))))
+                                         {:label "test ES" :operations {:foo {:output :Any}}}))))
 
                   (testing "rejects operation missing :output"
                            (is (thrown? clojure.lang.ExceptionInfo
                                         (es/effect-signature
-                                         {:operations {:foo {:input {:x :String}}}}))))))
+                                         {:label "test ES" :operations {:foo {:input {:x :String}}}}))))))
 
 (deftest schema-projection-test
   ;; ->schema produces a Malli :multi schema that validates effect

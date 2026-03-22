@@ -13,7 +13,8 @@
 (def lean-st-operations
      "The ILeanConnection ->lean-conn contract for StructuralMorphism."
      (es/effect-signature
-      {:operations
+      {:label "Lean Structural Operations"
+       :operations
        {:->lean-conn
         {:input {:morphism :StructuralMorphism
                  :source :IReferenceable
@@ -22,15 +23,17 @@
 
 (def lean-st-caps
      (cap/capability-set
-      {:id :lean-st
+      {:label "Lean Structural Capabilities"
+       :id :lean-st
        :dispatch #{:->lean-conn}}))
 
 (def lean-st-types
      (ts/type-schema
-      {:StructuralMorphism :any
-       :IReferenceable :any
-       :IProjectable :any
-       :LeanSource :string}))
+      {:label "Lean Structural Type Registry"
+       :types {:StructuralMorphism :any
+               :IReferenceable :any
+               :IProjectable :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

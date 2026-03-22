@@ -8,7 +8,7 @@
 (deftest type-schema-lean-emission-test
   ;; ->lean produces a TypeId inductive and completeness proof.
          (testing "TypeSchema ->lean"
-                  (let [schema (ts/type-schema {:Foo :string :Bar :int})
+                  (let [schema (ts/type-schema {:label "test types" :types {:Foo :string :Bar :int}})
                         lean-src (lp/->lean schema)]
 
                        (testing "contains inductive TypeId"

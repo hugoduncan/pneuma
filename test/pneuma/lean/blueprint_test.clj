@@ -14,7 +14,8 @@
   ;; blueprint-entries for CapabilitySet produces definition and theorem entries.
          (testing "CapabilitySet blueprint-entries"
                   (let [caps (cap/capability-set
-                              {:id :test-caps
+                              {:label "test caps"
+                               :id :test-caps
                                :dispatch #{:alpha :beta}})
                         entries (bp/blueprint-entries caps)]
 
@@ -40,7 +41,8 @@
   ;; blueprint-entries for Statechart produces the full set of entries.
          (testing "Statechart blueprint-entries"
                   (let [chart (sc/statechart
-                               {:states #{:idle :running :done}
+                               {:label "test SC"
+                                :states #{:idle :running :done}
                                 :initial {:root :idle}
                                 :hierarchy {:root #{:idle :running :done}}
                                 :transitions
@@ -104,7 +106,8 @@
   ;; emit-blueprint produces a complete LaTeX document.
          (testing "emit-blueprint"
                   (let [caps (cap/capability-set
-                              {:id :my-caps :dispatch #{:read :write}})
+                              {:label "test caps"
+                               :id :my-caps :dispatch #{:read :write}})
                         config {:formalisms {:my-caps caps} :registry {}}
                         latex (bp/emit-blueprint "test-spec" config)]
 
@@ -124,7 +127,8 @@
   ;; blueprint-entries for EffectSignature includes per-op structures.
          (testing "EffectSignature blueprint-entries"
                   (let [sig (es/effect-signature
-                             {:operations {:alpha {:input {:x :String} :output :Bool}
+                             {:label "test ES"
+                              :operations {:alpha {:input {:x :String} :output :Bool}
                                            :beta {:input {:y :Nat} :output :String}}})
                         entries (bp/blueprint-entries sig)]
 
@@ -142,7 +146,8 @@
   ;; blueprint-entries for MealyHandlerSet produces handler entries.
          (testing "MealyHandlerSet blueprint-entries"
                   (let [mhs (mealy/mealy-handler-set
-                             {:declarations
+                             {:label "test mealy"
+                              :declarations
                               [{:id :on-click}
                                {:id :on-submit}]})
                         entries (bp/blueprint-entries mhs)]
@@ -156,7 +161,7 @@
 (deftest type-schema-blueprint-entries-test
   ;; blueprint-entries for TypeSchema produces type entries.
          (testing "TypeSchema blueprint-entries"
-                  (let [ts-val (ts/type-schema {:User :string :Role :int})
+                  (let [ts-val (ts/type-schema {:label "test types" :types {:User :string :Role :int}})
                         entries (bp/blueprint-entries ts-val)]
 
                        (testing "contains TypeId definition"

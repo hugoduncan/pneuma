@@ -13,20 +13,23 @@
 (def lean-es-operations
      "The ILeanProjectable ->lean contract for EffectSignature."
      (es/effect-signature
-      {:operations
+      {:label "Lean ES Operations"
+       :operations
        {:->lean
         {:input {:formalism :EffectSignature}
          :output :LeanSource}}}))
 
 (def lean-es-caps
      (cap/capability-set
-      {:id :lean-es
+      {:label "Lean ES Capabilities"
+       :id :lean-es
        :dispatch #{:->lean}}))
 
 (def lean-es-types
      (ts/type-schema
-      {:EffectSignature :any
-       :LeanSource :string}))
+      {:label "Lean ES Type Registry"
+       :types {:EffectSignature :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

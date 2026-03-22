@@ -18,7 +18,8 @@
   Each method is an operation with typed input fields and a typed
   output."
      (es/effect-signature
-      {:operations
+      {:label "Lean Protocol Operations"
+       :operations
        {;; ILeanProjectable
         :->lean
         {:input {:formalism :Formalism}
@@ -34,21 +35,24 @@
 (def lean-formalism-caps
      "Every formalism record with a lean extension must implement these."
      (cap/capability-set
-      {:id :lean-formalism
+      {:label "Lean Formalism Capabilities"
+       :id :lean-formalism
        :dispatch #{:->lean}}))
 
 (def lean-morphism-caps
      "Every morphism record with a lean extension must implement these."
      (cap/capability-set
-      {:id :lean-morphism
+      {:label "Lean Morphism Capabilities"
+       :id :lean-morphism
        :dispatch #{:->lean-conn}}))
 
 (def lean-types
      "The type universe for lean method signatures."
      (ts/type-schema
-      {:Formalism :any
-       :Morphism :any
-       :LeanSource :string}))
+      {:label "Lean Type Registry"
+       :types {:Formalism :any
+               :Morphism :any
+               :LeanSource :string}}))
 
 ;;; Registry
 

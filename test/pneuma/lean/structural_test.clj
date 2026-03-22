@@ -12,13 +12,15 @@
   ;; checking that source outputs validate against the target schema.
          (testing "StructuralMorphism ->lean-conn"
                   (let [sig (es/effect-signature
-                             {:operations
+                             {:label "test ES"
+                              :operations
                               {:alpha {:input {:x :String} :output :Bool}
                                :beta  {:input {:y :Nat} :output :String}}})
                         ts (ts/type-schema
-                            {:Bool   :boolean
-                             :String :string
-                             :Nat    nat-int?})
+                            {:label "test types"
+                             :types {:Bool   :boolean
+                                     :String :string
+                                     :Nat    nat-int?}})
                         morph (st/structural-morphism
                                {:id              :sig->types
                                 :from            :effect-signature

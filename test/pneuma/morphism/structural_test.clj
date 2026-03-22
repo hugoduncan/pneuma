@@ -10,13 +10,15 @@
 
 (def protocol-ops
      (es/effect-signature
-      {:operations
+      {:label "test ES"
+       :operations
        {:->schema {:input {:formalism :Keyword} :output :Any}
         :check {:input {:morphism :Keyword} :output :Any}}}))
 
 (def caps-with-matching-ops
      (cap/capability-set
-      {:id :matching
+      {:label "test caps"
+       :id :matching
        :dispatch #{:->schema :check}}))
 
 (def morphism
@@ -44,11 +46,13 @@
          (testing "structural morphism"
                   (testing "conforms when outputs are members of target schema"
                            (let [sig (es/effect-signature
-                                      {:operations
+                                      {:label "test ES"
+                                       :operations
                                        {:op-a {:input {:x :Keyword} :output :Keyword}
                                         :op-b {:input {:y :Keyword} :output :Keyword}}})
                                  caps (cap/capability-set
-                                       {:id :kw-caps
+                                       {:label "test caps"
+                                        :id :kw-caps
                                         :dispatch #{:Keyword}})
                                  m (st/structural-morphism
                                     {:id :test-match
@@ -65,11 +69,13 @@
          (testing "structural morphism"
                   (testing "diverges with shape mismatches"
                            (let [sig (es/effect-signature
-                                      {:operations
+                                      {:label "test ES"
+                                       :operations
                                        {:op-a {:input {:x :Keyword} :output :Keyword}
                                         :op-b {:input {:y :Keyword} :output :BadType}}})
                                  caps (cap/capability-set
-                                       {:id :narrow
+                                       {:label "test caps"
+                                        :id :narrow
                                         :dispatch #{:Keyword}})
                                  m (st/structural-morphism
                                     {:id :test-mismatch

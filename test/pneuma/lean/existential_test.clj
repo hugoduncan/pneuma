@@ -12,10 +12,12 @@
   ;; checking that source refs embed into target refs.
          (testing "ExistentialMorphism ->lean-conn"
                   (let [caps (cap/capability-set
-                              {:id :agent
+                              {:label "test caps"
+                               :id :agent
                                :dispatch #{:send-prompt :load-ctx}})
                         sig (es/effect-signature
-                             {:operations
+                             {:label "test ES"
+                              :operations
                               {:send-prompt {:input {:text :String} :output :Bool}
                                :load-ctx    {:input {:id :Nat} :output :String}
                                :get-status  {:input {:id :Nat} :output :String}}})

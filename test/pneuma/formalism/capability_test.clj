@@ -12,18 +12,21 @@
 
 (def dogfood-formalism-caps
      "Dogfood: formalism records must implement these operations."
-     {:id :formalism-record
+     {:label "test caps"
+      :id :formalism-record
       :dispatch #{:->schema :->monitor :->gen :->gap-type
                   :extract-refs}})
 
 (def dogfood-morphism-caps
      "Dogfood: morphism records must implement these operations."
-     {:id :morphism-record
+     {:label "test caps"
+      :id :morphism-record
       :dispatch #{:check}})
 
 (def full-caps
      "A full capability set with all three dimensions."
-     {:id :test-runner
+     {:label "test caps"
+      :id :test-runner
       :dispatch #{:session/inject :session/request}
       :subscribe #{:session/messages :session/states}
       :query #{:session/git-status}})
@@ -48,15 +51,16 @@
 
                   (testing "rejects missing :id"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (cap/capability-set {:dispatch #{:foo}}))))
+                                        (cap/capability-set {:label "test caps" :dispatch #{:foo}}))))
 
                   (testing "rejects missing :dispatch"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (cap/capability-set {:id :bad}))))
+                                        (cap/capability-set {:label "test caps" :id :bad}))))
 
                   (testing "rejects non-set dispatch"
                            (is (thrown? clojure.lang.ExceptionInfo
-                                        (cap/capability-set {:id :bad
+                                        (cap/capability-set {:label "test caps"
+                                                             :id :bad
                                                              :dispatch [:foo]}))))))
 
 (deftest schema-projection-test

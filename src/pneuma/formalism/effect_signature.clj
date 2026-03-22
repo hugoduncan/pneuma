@@ -48,6 +48,7 @@
 (def effect-signature-input-schema
      "Malli schema for the effect-signature constructor input."
      [:map
+      [:label :string]
       [:operations [:map-of :keyword operation-schema]]])
 
 ;;; Schema projection helpers
@@ -97,7 +98,7 @@
 
 ;;; Record
 
-(defrecord EffectSignature [operations]
+(defrecord EffectSignature [label operations]
            p/IProjectable
            (->schema [_]
                      (build-multi-schema operations))
@@ -120,7 +121,8 @@
                   (mg/generator (p/->schema this)))
 
            (->gap-type [_]
-                       {:formalism :effect-signature
+                       {:label label
+                        :formalism :effect-signature
                         :gap-kinds #{:missing-operation :malformed-fields
                                      :missing-op-key :unknown-type}
                         :statuses #{:conforms :absent :diverges}})
@@ -132,7 +134,7 @@
                                            :output    (name output)})
                                       operations)]
                        (doc/section
-                        :effect-signature/root "Effect Signature"
+                        :effect-signature/root label
                         [(doc/table :effect-signature/operations
                                     [:operation :fields :output]
                                     op-rows)])))
@@ -148,11 +150,11 @@
 ;;; Public constructor
 
 (defn effect-signature
-      "Creates a validated EffectSignature from a map with :operations.
-  Each operation is a map of {:input {field type-kw}, :output type-kw}.
+      "Creates a validated EffectSignature from a map with :label and :operations.
+  :label is a display string. Each operation is a map of {:input {field type-kw}, :output type-kw}.
   Throws on invalid input."
       [m]
       (when-not (m/validate effect-signature-input-schema m)
                 (throw (ex-info "Invalid effect signature"
                                 {:explanation (m/explain effect-signature-input-schema m)})))
-      (->EffectSignature (:operations m)))
+      (->EffectSignature (:label m) (:operations m)))

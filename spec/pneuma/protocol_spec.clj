@@ -18,7 +18,8 @@
   Each method is an operation with typed input fields and a typed
   output."
      (es/effect-signature
-      {:operations
+      {:label "Protocol Operations"
+       :operations
        {;; IProjectable
         :->schema
         {:input {:formalism :Formalism}
@@ -53,29 +54,32 @@
 (def formalism-record-caps
      "Every formalism record must implement these operations."
      (cap/capability-set
-      {:id :formalism-record
+      {:label "Formalism Record Capabilities"
+       :id :formalism-record
        :dispatch #{:->schema :->monitor :->gen :->gap-type
                    :extract-refs}}))
 
 (def morphism-record-caps
      "Every morphism kind record must implement these operations."
      (cap/capability-set
-      {:id :morphism-record
+      {:label "Morphism Record Capabilities"
+       :id :morphism-record
        :dispatch #{:check}}))
 
 (def protocol-types
      "The type universe for protocol method signatures."
      (ts/type-schema
-      {:Formalism :any
-       :Morphism :any
-       :RefinementMap :any
-       :MalliSchema :any
-       :MonitorFn :any
-       :Generator :any
-       :GapTypeDesc :any
-       :GapSequence :any
-       :Keyword :keyword
-       :KeywordSet [:set :keyword]}))
+      {:label "Protocol Type Registry"
+       :types {:Formalism :any
+               :Morphism :any
+               :RefinementMap :any
+               :MalliSchema :any
+               :MonitorFn :any
+               :Generator :any
+               :GapTypeDesc :any
+               :GapSequence :any
+               :Keyword :keyword
+               :KeywordSet [:set :keyword]}}))
 
 ;;; Registry
 

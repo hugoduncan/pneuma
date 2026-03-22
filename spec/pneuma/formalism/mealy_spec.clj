@@ -14,7 +14,8 @@
 (def mealy-api-operations
      "Public API of the mealy namespace."
      (es/effect-signature
-      {:operations
+      {:label "Mealy API Operations"
+       :operations
        {:mealy-handler-set
         {:input {:declarations :DeclarationVec}
          :output :MealyHandlerSet}}}))
@@ -22,7 +23,8 @@
 (def mealy-ref-operations
      "The extract-refs dispatch table for MealyHandlerSet."
      (es/effect-signature
-      {:operations
+      {:label "Mealy Ref Operations"
+       :operations
        {:handler-ids
         {:input {:formalism :MealyHandlerSet}
          :output :KeywordSet}
@@ -46,23 +48,26 @@
 (def mealy-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :mealy-api
+      {:label "Mealy API Capabilities"
+       :id :mealy-api
        :dispatch #{:mealy-handler-set}}))
 
 (def mealy-ref-kind-caps
      "The ref-kinds that MealyHandlerSet's IReferenceable supports."
      (cap/capability-set
-      {:id :mealy-ref-kinds
+      {:label "Mealy Ref Kind Capabilities"
+       :id :mealy-ref-kinds
        :dispatch #{:handler-ids :guard-state-refs :emission-op-refs
                    :callback-refs :update-path-refs}}))
 
 (def mealy-types
      "Type universe for the mealy namespace."
      (ts/type-schema
-      {:MealyHandlerSet :any
-       :DeclarationVec :any
-       :KeywordSet [:set :keyword]
-       :PathSet :any}))
+      {:label "Mealy Type Registry"
+       :types {:MealyHandlerSet :any
+               :DeclarationVec :any
+               :KeywordSet [:set :keyword]
+               :PathSet :any}}))
 
 ;;; Registry
 

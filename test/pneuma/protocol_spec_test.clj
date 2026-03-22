@@ -58,7 +58,8 @@
   ;; have a dangling ref. Simulate by adding an unknown operation.
          (testing "gap report detects simulated rename"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-formalism
+                                  {:label "test caps"
+                                   :id :bad-formalism
                                    :dispatch #{:->schema :->monitor :->gen
                                                :->gap-type :extract-refs
                                                :renamed-method}})

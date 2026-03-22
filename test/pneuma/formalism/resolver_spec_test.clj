@@ -57,7 +57,8 @@
 (deftest resolver-gap-report-detects-missing-ref-kind-test
          (testing "gap report detects simulated missing ref-kind"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-ref-kinds
+                                  {:label "test caps"
+                                   :id :bad-ref-kinds
                                    :dispatch #{:resolver-ids :input-attributes
                                                :output-attributes :external-sources
                                                :bogus-refs}})

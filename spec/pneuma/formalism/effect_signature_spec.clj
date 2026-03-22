@@ -16,7 +16,8 @@
      "Public API of the effect-signature namespace as an effect
   signature. Models the constructor and type registry functions."
      (es/effect-signature
-      {:operations
+      {:label "ES API Operations"
+       :operations
        {:effect-signature
         {:input {:operations-map :OperationsMap}
          :output :EffectSignature}
@@ -34,7 +35,8 @@
      "The extract-refs dispatch table modeled as an effect signature.
   Each ref-kind is an operation returning a KeywordSet."
      (es/effect-signature
-      {:operations
+      {:label "ES Ref Operations"
+       :operations
        {:operation-ids
         {:input {:formalism :EffectSignature}
          :output :KeywordSet}
@@ -50,24 +52,27 @@
 (def es-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :es-api
+      {:label "ES API Capabilities"
+       :id :es-api
        :dispatch #{:effect-signature :register-type! :resolve-type}}))
 
 (def es-ref-kind-caps
      "The ref-kinds that EffectSignature's IReferenceable supports."
      (cap/capability-set
-      {:id :es-ref-kinds
+      {:label "ES Ref Kind Capabilities"
+       :id :es-ref-kinds
        :dispatch #{:operation-ids :callback-refs :operation-outputs}}))
 
 (def es-types
      "Type universe for the effect-signature namespace."
      (ts/type-schema
-      {:OperationsMap :any
-       :EffectSignature :any
-       :Keyword :keyword
-       :MalliSchema :any
-       :Nil :any
-       :KeywordSet [:set :keyword]}))
+      {:label "ES Type Registry"
+       :types {:OperationsMap :any
+               :EffectSignature :any
+               :Keyword :keyword
+               :MalliSchema :any
+               :Nil :any
+               :KeywordSet [:set :keyword]}}))
 
 ;;; Registry
 

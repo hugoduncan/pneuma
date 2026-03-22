@@ -14,7 +14,8 @@
 (def path-api-operations
      "Public API of the path.core namespace."
      (es/effect-signature
-      {:operations
+      {:label "Path Core API Operations"
+       :operations
        {:circuit->paths
         {:input {:edge-index :EdgeIndex
                  :circuit :NodeVec}
@@ -43,20 +44,22 @@
 (def path-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :path-api
+      {:label "Path Core API Capabilities"
+       :id :path-api
        :dispatch #{:circuit->paths :check-closure :check-adjacency
                    :check-path :find-paths :check-all-paths}}))
 
 (def path-types
      "Type universe for the path.core namespace."
      (ts/type-schema
-      {:EdgeIndex :any
-       :NodeVec :any
-       :ComposedPathVec :any
-       :ComposedPath :any
-       :GapMap :any
-       :GapVec :any
-       :Registry :any}))
+      {:label "Path Core Type Registry"
+       :types {:EdgeIndex :any
+               :NodeVec :any
+               :ComposedPathVec :any
+               :ComposedPath :any
+               :GapMap :any
+               :GapVec :any
+               :Registry :any}}))
 
 ;;; Registry
 

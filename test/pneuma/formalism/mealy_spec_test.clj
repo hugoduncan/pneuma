@@ -57,7 +57,8 @@
 (deftest mealy-gap-report-detects-missing-ref-kind-test
          (testing "gap report detects simulated missing ref-kind"
                   (let [bad-caps (cap/capability-set
-                                  {:id :bad-ref-kinds
+                                  {:label "test caps"
+                                   :id :bad-ref-kinds
                                    :dispatch #{:handler-ids :guard-state-refs
                                                :emission-op-refs :callback-refs
                                                :update-path-refs :bogus-refs}})

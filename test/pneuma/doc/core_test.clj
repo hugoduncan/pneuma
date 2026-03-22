@@ -20,11 +20,13 @@
 
 (def test-effect-sig
      (effect-sig/effect-signature
-      {:operations {:do-thing {:input {:x :String} :output :Bool}}}))
+      {:label "test ES"
+       :operations {:do-thing {:input {:x :String} :output :Bool}}}))
 
 (def test-caps
      (capability/capability-set
-      {:id :test-caps :dispatch #{:do-thing}}))
+      {:label "test caps"
+       :id :test-caps :dispatch #{:do-thing}}))
 
 (deftest morphism-doc-test
   ;; morphism-doc returns a section fragment with a diagram and a table child.
@@ -111,8 +113,8 @@
                                          {:formalisms [test-effect-sig test-caps]
                                           :registry   test-registry
                                           :format     :markdown})]
-                                (is (str/includes? result "Effect Signature") result)
-                                (is (str/includes? result "Capability Set") result)))
+                                (is (str/includes? result "test ES") result)
+                                (is (str/includes? result "test caps") result)))
 
                   (testing "rendered string includes morphism section"
                            (let [result (core/render-doc

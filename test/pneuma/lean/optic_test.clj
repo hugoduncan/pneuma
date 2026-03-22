@@ -9,7 +9,8 @@
   ;; ->lean emits OpticId inductive, classification, paths, and completeness.
          (testing "OpticDeclaration ->lean"
                   (let [od (optic/optic-declaration
-                            {:declarations
+                            {:label "test optics"
+                             :declarations
                              [{:id :session-msgs
                                :optic-type :Lens
                                :params [{:name :sid :type :String}]

@@ -14,7 +14,8 @@
 (def optic-api-operations
      "Public API of the optic namespace."
      (es/effect-signature
-      {:operations
+      {:label "Optic API Operations"
+       :operations
        {:optic-declaration
         {:input {:declarations :DeclarationVec}
          :output :OpticDeclaration}}}))
@@ -22,7 +23,8 @@
 (def optic-ref-operations
      "The extract-refs dispatch table for OpticDeclaration."
      (es/effect-signature
-      {:operations
+      {:label "Optic Ref Operations"
+       :operations
        {:optic-ids
         {:input {:formalism :OpticDeclaration}
          :output :KeywordSet}
@@ -38,22 +40,25 @@
 (def optic-api-caps
      "The namespace's public API functions."
      (cap/capability-set
-      {:id :optic-api
+      {:label "Optic API Capabilities"
+       :id :optic-api
        :dispatch #{:optic-declaration}}))
 
 (def optic-ref-kind-caps
      "The ref-kinds that OpticDeclaration's IReferenceable supports."
      (cap/capability-set
-      {:id :optic-ref-kinds
+      {:label "Optic Ref Kind Capabilities"
+       :id :optic-ref-kinds
        :dispatch #{:optic-ids :paths :source-optic-refs}}))
 
 (def optic-types
      "Type universe for the optic namespace."
      (ts/type-schema
-      {:OpticDeclaration :any
-       :DeclarationVec :any
-       :KeywordSet [:set :keyword]
-       :PathSet :any}))
+      {:label "Optic Type Registry"
+       :types {:OpticDeclaration :any
+               :DeclarationVec :any
+               :KeywordSet [:set :keyword]
+               :PathSet :any}}))
 
 ;;; Registry
 
