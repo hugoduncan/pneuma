@@ -1,6 +1,8 @@
 (ns pneuma.formalism.capability-test
     (:require [clojure.test :refer [deftest testing is]]
+              [clojure.test.check :as tc]
               [clojure.test.check.generators :as gen]
+              [clojure.test.check.properties :as prop]
               [malli.core :as m]
               [pneuma.protocol :as p]
               [pneuma.formalism.capability :as cap]))
@@ -148,6 +150,26 @@
                                 (doseq [sample samples]
                                        (is (m/validate schema sample)
                                            (str "sample out of bounds: " (pr-str sample))))))))
+
+(deftest a24-property-test
+  ;; Axiom A24: for all generated values, the value conforms to the
+  ;; schema projected by the same formalism. Tested as a proper
+  ;; generative property with shrinking.
+         (testing "A24: ->gen output conforms to ->schema"
+                  (doseq [[label caps-data] [["full" full-caps]
+                                             ["formalism" dogfood-formalism-caps]
+                                             ["morphism" dogfood-morphism-caps]]]
+                         (testing (str "for " label " capability set")
+                                  (let [cs     (cap/capability-set caps-data)
+                                        g      (p/->gen cs)
+                                        schema (p/->schema cs)
+                                        result (tc/quick-check
+                                                100
+                                                (prop/for-all [v g]
+                                                              (m/validate schema v)))]
+                                       (is (:pass? result)
+                                           (str label " A24 failure: "
+                                                (pr-str (:shrunk result)))))))))
 
 (deftest gap-type-projection-test
   ;; ->gap-type returns the failure taxonomy for capability sets.

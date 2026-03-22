@@ -1,6 +1,8 @@
 (ns pneuma.formalism.statechart-test
     (:require [clojure.test :refer [deftest testing is]]
+              [clojure.test.check :as tc]
               [clojure.test.check.generators :as gen]
+              [clojure.test.check.properties :as prop]
               [malli.core :as m]
               [pneuma.protocol :as p]
               [pneuma.formalism.statechart :as sc]))
@@ -264,6 +266,25 @@
                                 (doseq [s samples]
                                        (is (m/validate schema s)
                                            (str "config failed: " (pr-str s))))))))
+
+(deftest a24-property-test
+  ;; Axiom A24: for all generated values, the value conforms to the
+  ;; schema projected by the same formalism. Tested as a proper
+  ;; generative property with shrinking.
+         (testing "A24: ->gen output conforms to ->schema"
+                  (doseq [[label chart-data] [["flat" flat-chart]
+                                              ["hierarchical" example-chart]]]
+                         (testing (str "for " label " chart")
+                                  (let [chart  (sc/statechart chart-data)
+                                        g      (p/->gen chart)
+                                        schema (p/->schema chart)
+                                        result (tc/quick-check
+                                                100
+                                                (prop/for-all [v g]
+                                                              (m/validate schema v)))]
+                                       (is (:pass? result)
+                                           (str label " A24 failure: "
+                                                (pr-str (:shrunk result)))))))))
 
 (deftest gap-type-projection-test
   ;; ->gap-type returns the failure taxonomy for statecharts.

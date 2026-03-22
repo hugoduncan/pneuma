@@ -77,7 +77,9 @@ target.
 ### Phase 2a — Remaining formalisms
 
 Build order within this phase is flexible. Each is independently
-testable.
+testable. Every formalism test must include an A24 property test:
+`∀ v ∈ ->gen(f), m/validate(->schema(f), v)` using `tc/quick-check`
+with 100 trials and shrinking.
 
 - [x] `pneuma.formalism.statechart` — Statechart record + IProjectable
   - Harel statechart tuple (S, ≤, T, C, H, δ)
