@@ -72,3 +72,28 @@
                            (let [tree (frag/section :doc/root "Doc" [])
                                  html (page/render-page tree {:title "Custom Title"})]
                                 (is (str/includes? html "<title>Custom Title</title>"))))))
+
+(deftest render-page-controls-test
+         (testing "render-page"
+                  (let [tree (frag/section :doc/root "Doc"
+                                           [(frag/section :sc "SC" [])])
+                        html (page/render-page tree {})]
+                       (testing "includes expand/collapse buttons"
+                                (is (str/includes? html "expandAll()"))
+                                (is (str/includes? html "collapseAll()")))
+                       (testing "includes summary/detail intent buttons"
+                                (is (str/includes? html "setAllIntent")))
+                       (testing "includes toggleIntent JS function"
+                                (is (str/includes? html "toggleIntent")))
+                       (testing "includes intent-toggle buttons in sections"
+                                (is (str/includes? html "intent-toggle"))))))
+
+(deftest render-page-unique-ids-test
+         (testing "render-page"
+                  (testing "namespaced ids produce unique anchors"
+                           (let [tree (frag/section :doc/root "Doc"
+                                                    [(frag/section :morphism/root "Morphisms" [])
+                                                     (frag/section :path/root "Paths" [])])
+                                 html (page/render-page tree {})]
+                                (is (str/includes? html "morphism--root"))
+                                (is (str/includes? html "path--root"))))))

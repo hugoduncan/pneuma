@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Generate browsable HTML architecture documentation from pneuma's own specs.
+
+OUTPUT_DIR="${1:-doc/generated}"
+mkdir -p "$OUTPUT_DIR"
+
+echo "Generating HTML architecture documentation..."
+
+clojure -M:dev -e '
+(require (quote [pneuma.protocol-spec :as protocol-spec])
+         (quote [pneuma.lean-spec :as lean-spec])
+         (quote [pneuma.formalism.effect-signature-spec :as es-spec])
+         (quote [pneuma.formalism.capability-spec :as cap-spec])
+         (quote [pneuma.formalism.statechart-spec :as sc-spec])
+         (quote [pneuma.formalism.mealy-spec :as mealy-spec])
+         (quote [pneuma.formalism.optic-spec :as optic-spec])
+         (quote [pneuma.formalism.resolver-spec :as resolver-spec])
+         (quote [pneuma.formalism.type-schema-spec :as ts-spec])
+         (quote [pneuma.morphism.existential-spec :as ex-spec])
+         (quote [pneuma.morphism.structural-spec :as st-spec])
+         (quote [pneuma.morphism.containment-spec :as ct-spec])
+         (quote [pneuma.morphism.ordering-spec :as ord-spec])
+         (quote [pneuma.morphism.registry-spec :as reg-spec])
+         (quote [pneuma.gap.core-spec :as gap-spec])
+         (quote [pneuma.gap.diff-spec :as diff-spec])
+         (quote [pneuma.path.graph-spec :as pgraph-spec])
+         (quote [pneuma.path.core-spec :as pcore-spec])
+         (quote [pneuma.lean.statechart-spec :as lsc-spec])
+         (quote [pneuma.lean.effect-signature-spec :as les-spec])
+         (quote [pneuma.lean.mealy-spec :as lmealy-spec])
+         (quote [pneuma.lean.optic-spec :as loptic-spec])
+         (quote [pneuma.lean.resolver-spec :as lresolver-spec])
+         (quote [pneuma.lean.capability-spec :as lcap-spec])
+         (quote [pneuma.lean.existential-spec :as lex-spec])
+         (quote [pneuma.lean.structural-spec :as lst-spec])
+         (quote [pneuma.lean.containment-spec :as lct-spec])
+         (quote [pneuma.lean.ordering-spec :as lord-spec])
+         (quote [pneuma.lean.core-spec :as lcore-spec])
+         (quote [pneuma.core-spec :as core-spec])
+         (quote [pneuma.refinement-spec :as rm-spec])
+         (quote [pneuma.doc.core :as dc])
+         (quote [pneuma.gap.core :as gap]))
+
+(let [specs {"capability"      cap-spec/spec-system
+             "containment"     ct-spec/spec-system
+             "core"            core-spec/spec-system
+             "effect-sig"      es-spec/spec-system
+             "existential"     ex-spec/spec-system
+             "gap-core"        gap-spec/spec-system
+             "gap-diff"        diff-spec/spec-system
+             "lean"            lean-spec/spec-system
+             "lean-capability" lcap-spec/spec-system
+             "lean-containment" lct-spec/spec-system
+             "lean-core"       lcore-spec/spec-system
+             "lean-effect-sig" les-spec/spec-system
+             "lean-existential" lex-spec/spec-system
+             "lean-mealy"      lmealy-spec/spec-system
+             "lean-optic"      loptic-spec/spec-system
+             "lean-ordering"   lord-spec/spec-system
+             "lean-resolver"   lresolver-spec/spec-system
+             "lean-statechart" lsc-spec/spec-system
+             "lean-structural" lst-spec/spec-system
+             "mealy"           mealy-spec/spec-system
+             "optic"           optic-spec/spec-system
+             "ordering"        ord-spec/spec-system
+             "path-core"       pcore-spec/spec-system
+             "path-graph"      pgraph-spec/spec-system
+             "protocol"        protocol-spec/spec-system
+             "refinement"      rm-spec/spec-system
+             "registry"        reg-spec/spec-system
+             "resolver"        resolver-spec/spec-system
+             "statechart"      sc-spec/spec-system
+             "structural"      st-spec/spec-system
+             "type-schema"     ts-spec/spec-system}
+      dir "'"$OUTPUT_DIR"'"]
+  (doseq [[spec-name system] (sort specs)]
+    (let [report (gap/gap-report system)
+          html   (dc/render-doc (assoc system
+                                       :formalisms (vals (:formalisms system))
+                                       :gap-report report
+                                       :format :html))
+          path   (str dir "/" spec-name ".html")]
+      (spit path html)
+      (println (str "  OK " spec-name " -> " path)))))
+'
+
+echo "Done."

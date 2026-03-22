@@ -7,13 +7,20 @@
 
 ;; Tests for HTML fragment rendering.
 ;; Contracts: each fragment kind produces correct hiccup structure;
-;; section rendering varies by depth and intent; semantic attributes
-;; propagate correctly.
+;; sections are collapsible details elements with intent toggles;
+;; semantic attributes propagate correctly.
 
 (defn- hiccup->str
        "Converts hiccup to a string for content assertions."
        [hiccup]
        (pr-str hiccup))
+
+(deftest full-id-test
+         (testing "full-id"
+                  (testing "preserves namespace with -- separator"
+                           (is (= "morphism--root" (hfrag/full-id :morphism/root))))
+                  (testing "returns name for unnamespaced keywords"
+                           (is (= "statechart" (hfrag/full-id :statechart))))))
 
 (deftest render-prose-test
          (testing "render-fragment"
@@ -37,22 +44,25 @@
                                  h (hfrag/render-fragment f (ctx/default-ctx {:frame :morphism}))]
                                 (is (= "morphism" (get-in h [1 :data-frame])))))))
 
-(deftest render-section-depth-test
+(deftest render-section-collapsible-test
          (testing "render-fragment"
-                  (testing "section at depth 0 produces :section with :h2"
+                  (testing "sections render as :details at all depths"
+                           (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])]
+                                (doseq [depth [0 1 2 3]]
+                                       (let [h (hfrag/render-fragment f (ctx/default-ctx {:depth depth}))]
+                                            (is (= :details (first h))
+                                                (str "depth " depth " should produce :details"))))))
+                  (testing "section has open attribute"
                            (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])
-                                 h (hfrag/render-fragment f (ctx/default-ctx {:depth 0}))]
-                                (is (= :section (first h)))
-                                (is (= :h2 (first (nth h 2))))))
-                  (testing "section at depth 1 produces :section with :h3"
+                                 h (hfrag/render-fragment f (ctx/default-ctx))]
+                                (is (true? (:open (second h))))))
+                  (testing "section has intent toggle button in summary"
                            (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])
-                                 h (hfrag/render-fragment f (ctx/default-ctx {:depth 1}))]
-                                (is (= :section (first h)))
-                                (is (= :h3 (first (nth h 2))))))
-                  (testing "section at depth 2 produces :details"
-                           (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])
-                                 h (hfrag/render-fragment f (ctx/default-ctx {:depth 2}))]
-                                (is (= :details (first h)))))))
+                                 h (hfrag/render-fragment f (ctx/default-ctx))
+                                 summary (nth h 2)]
+                                (is (= :summary (first summary)))
+                                (is (some #(and (vector? %) (= :button (first %)))
+                                          (rest summary)))))))
 
 (deftest render-section-priority-test
          (testing "render-fragment"
@@ -73,6 +83,14 @@
                                 (is (= :header (first h)))
                                 (is (= "hero" (get-in h [1 :data-intent])))))))
 
+(deftest render-section-namespaced-id-test
+         (testing "render-fragment"
+                  (testing "namespaced section id includes namespace"
+                           (let [f (frag/section :morphism/root "Morphisms" [])
+                                 h (hfrag/render-fragment f (ctx/default-ctx))
+                                 attrs (second h)]
+                                (is (= "morphism--root" (:id attrs)))))))
+
 (deftest render-diagram-spec-test
          (testing "render-fragment"
                   (testing "diagram-spec produces :pre with mermaid class"
@@ -90,7 +108,11 @@
                                  h (hfrag/render-fragment f (ctx/default-ctx))]
                                 (is (= :a (first h)))
                                 (is (= "#target" (get-in h [1 :href])))
-                                (is (= "See Target" (last h)))))))
+                                (is (= "See Target" (last h)))))
+                  (testing "cross-ref with namespaced target uses full id"
+                           (let [f (frag/cross-ref :morphism/root "Morphisms")
+                                 h (hfrag/render-fragment f (ctx/default-ctx))]
+                                (is (= "#morphism--root" (get-in h [1 :href])))))))
 
 (deftest render-status-annotation-test
          (testing "render-fragment"

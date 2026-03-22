@@ -38,5 +38,8 @@
   gen-doc    {:doc  "Generate architecture docs from dogfood specs"
               :task (shell "bin/gen-doc")}
 
+  gen-html   {:doc  "Generate browsable HTML docs from dogfood specs"
+              :task (shell "bin/gen-html")}
+
   ci        {:doc  "Run lint + fmt check + all tests + lean proofs"
              :depends [lint fmt test-all lake]}}}

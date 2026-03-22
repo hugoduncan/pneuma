@@ -13,6 +13,13 @@
 
 ;;; Helpers
 
+(defn full-id
+      "Returns the full string id for a keyword, preserving namespace."
+      [kw]
+      (if-let [ns (namespace kw)]
+              (str ns "--" (name kw))
+              (name kw)))
+
 (defn- heading-tag
        "Returns the heading keyword for the given depth.
   Depth 0 → :h2, depth 1 → :h3, capped at :h6."
@@ -22,7 +29,7 @@
 (defn- section-attrs
        "Builds the attribute map for a section element."
        [fragment ctx]
-       (cond-> {:id (name (:id fragment))}
+       (cond-> {:id (full-id (:id fragment))}
                (:intent ctx)   (assoc :data-intent (name (:intent ctx)))
                (:priority ctx) (assoc :data-priority (name (:priority ctx)))
                (:frame ctx)    (assoc :data-frame (name (:frame ctx)))))
@@ -42,7 +49,15 @@
        [children]
        (filterv #(= :status-annotation (:kind %)) children))
 
-;;; Section
+(defn- intent-toggle
+       "Returns a hiccup toggle button for switching section intent."
+       []
+       [:button {:class "intent-toggle"
+                 :title "Toggle detail/summary"
+                 :onclick "toggleIntent(this.parentElement)"}
+        "\u25C9"])
+
+;;; Section — all sections use <details> for collapsibility
 
 (defmethod render-fragment :section [fragment ctx]
            (let [child-ctx   (ctx/section-ctx fragment ctx)
@@ -56,19 +71,18 @@
                     (into [:header attrs
                            (into [(heading-tag (:depth ctx)) (:title fragment)] badges)]
                           body)
-                    (if (>= (:depth ctx) 2)
-                        (into [:details (assoc attrs :open true)
-                               (into [:summary (:title fragment)] badges)]
-                              body)
-                        (into [:section attrs
-                               (into [(heading-tag (:depth ctx)) (:title fragment)] badges)]
-                              body)))))
+                    (into [:details (merge attrs {:open true :class "section"})
+                           (into [:summary
+                                  (intent-toggle)
+                                  [:span {:class "section-title"} (:title fragment)]]
+                                 badges)]
+                          body))))
 
 ;;; Table
 
 (defmethod render-fragment :table [{:keys [id columns rows]} ctx]
            (let [attrs  (cond-> {}
-                                id         (assoc :id (name id))
+                                id         (assoc :id (full-id id))
                                 (:frame ctx) (assoc :data-frame (name (:frame ctx))))
                  header [:thead (into [:tr] (mapv (fn [c] [:th (name c)]) columns))]
                  tbody  (into [:tbody]
@@ -81,7 +95,7 @@
 
 (defmethod render-fragment :prose [{:keys [id text]} _ctx]
            (if id
-               [:p {:id (name id)} text]
+               [:p {:id (full-id id)} text]
                [:p text]))
 
 ;;; Diagram spec
@@ -92,7 +106,7 @@
 ;;; Cross-ref
 
 (defmethod render-fragment :cross-ref [{:keys [target-id label]} ctx]
-           [:a {:href (str (:base-url ctx) "#" (name target-id))
+           [:a {:href (str (:base-url ctx) "#" (full-id target-id))
                 :class "cross-ref"}
             label])
 
