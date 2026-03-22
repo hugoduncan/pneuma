@@ -10,7 +10,8 @@ Pneuma embeds mathematical formalisms — statecharts, effect signatures, optics
 ;; Define the math. It lives in your runtime.
 (def session-chart
   (p/statechart
-    {:states #{:idle :generating :awaiting-approval :tool-executing :tool-error}
+    {:label "Session Lifecycle"
+     :states #{:idle :generating :awaiting-approval :tool-executing :tool-error}
      :initial {:root :idle}
      :transitions
      [{:source :idle :event :user-submit :target :generating}
@@ -22,7 +23,8 @@ Pneuma embeds mathematical formalisms — statecharts, effect signatures, optics
 
 (def effect-sig
   (p/effect-signature
-    {:operations
+    {:label "AI Operations"
+     :operations
      {:ai/generate  {:input {:session-id :SessionId :model :ModelId}
                      :output :String}
       :tool/execute {:input {:session-id :SessionId :tool :ToolId}
@@ -30,7 +32,8 @@ Pneuma embeds mathematical formalisms — statecharts, effect signatures, optics
 
 (def caps
   (p/capability-set
-    {:id :test-runner
+    {:label "Test Runner"
+     :id :test-runner
      :dispatch #{:ai/generate :tool/execute}}))
 
 ;; Connect formalisms with morphisms
@@ -67,13 +70,14 @@ Everything is accessed through `pneuma.core`.
 ### Formalism constructors
 
 ```clojure
-(p/statechart {...})         ;; Harel statechart (S, ≤, T, C, H, δ)
-(p/effect-signature {...})   ;; Algebraic effect signature
-(p/mealy-handler-set {...})  ;; Handler contracts (guards, updates, effects)
-(p/optic-declaration {...})  ;; Lenses, traversals, folds, derived subs
-(p/resolver-graph {...})     ;; Functional dependency hypergraph
-(p/capability-set {...})     ;; Dispatch/subscribe/query bounds
-(p/type-schema {...})        ;; Named type definitions
+;; All constructors require :label — a human-readable name for the instance
+(p/statechart {:label "..." ...})         ;; Harel statechart (S, ≤, T, C, H, δ)
+(p/effect-signature {:label "..." ...})   ;; Algebraic effect signature
+(p/mealy-handler-set {:label "..." ...})  ;; Handler contracts (guards, updates, effects)
+(p/optic-declaration {:label "..." ...})  ;; Lenses, traversals, folds, derived subs
+(p/resolver-graph {:label "..." ...})     ;; Functional dependency hypergraph
+(p/capability-set {:label "..." ...})     ;; Dispatch/subscribe/query bounds
+(p/type-schema {:label "..." :types {...}})  ;; Named type definitions
 ```
 
 ### Morphism constructors
@@ -239,7 +243,8 @@ Pneuma includes a formal model of [integrant](https://github.com/weavejester/int
 ;; Lifecycle as a Harel statechart
 (def lifecycle
   (p/statechart
-    {:states    #{:uninitialized :expanded :running :suspended :halted}
+    {:label "Integrant Lifecycle"
+     :states    #{:uninitialized :expanded :running :suspended :halted}
      :hierarchy {:root #{:uninitialized :expanded :running :suspended :halted}}
      :initial   {:root :uninitialized}
      :transitions
@@ -254,7 +259,8 @@ Pneuma includes a formal model of [integrant](https://github.com/weavejester/int
 ;; Seven multimethods as an effect signature
 (def multimethod-sig
   (p/effect-signature
-    {:operations
+    {:label "Integrant Multimethods"
+     :operations
      {:init-key    {:input {:key :ConfigKey :value :ConfigValue}
                     :output :InitializedValue}
       :halt-key!   {:input {:key :ConfigKey :value :InitializedValue}
@@ -268,7 +274,8 @@ Pneuma includes a formal model of [integrant](https://github.com/weavejester/int
 ;; Per-phase capability bounds
 (def init-phase-caps
   (p/capability-set
-    {:id :init-phase
+    {:label "Init Phase"
+     :id :init-phase
      :dispatch #{:assert-key :expand-key :init-key :resolve-key}}))
 
 ;; Morphisms connect the formalisms
@@ -289,6 +296,21 @@ bb test-regression-lean  # lean proof emission + compilation
 
 ---
 
+## Browsable HTML documentation
+
+Pneuma generates browsable HTML for its own specifications:
+
+```bash
+bb gen-html              # generates doc/generated/index.html
+open doc/generated/index.html
+```
+
+Each spec page shows formalisms, morphism connection graphs, gap reports,
+and the generated Lean 4 proof code — with collapsible sections and
+summary/detail toggle.
+
+---
+
 ## Development
 
 ```bash
@@ -298,6 +320,7 @@ bb test-lean             # lean compilation tests only
 bb test-regression       # regression tests (external project models)
 bb test-regression-lean  # regression lean compilation tests
 bb lake                  # build Lean proofs
+bb gen-html              # generate browsable HTML docs
 bb lint                  # clj-kondo
 bb fmt                   # check formatting
 bb ci                    # lint + fmt + test-all + lake build
