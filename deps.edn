@@ -10,14 +10,16 @@
   {:extra-paths ["dev" "spec"]}
 
   :test
-  {:extra-paths ["test" "spec" "test-regression"]
-   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
+  {:extra-paths ["test" "spec" "test-regression" "test-regression-lean"]
+   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.91.1392"}
+                 integrant/integrant {:mvn/version "1.0.1"}}
    :main-opts   ["-m" "kaocha.runner"]}
 
   :test/all
-  {:extra-paths ["test" "spec" "test-regression"]
-   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.91.1392"}}
-   :main-opts   ["-m" "kaocha.runner" "unit" "lean" "regression"]}
+  {:extra-paths ["test" "spec" "test-regression" "test-regression-lean"]
+   :extra-deps  {lambdaisland/kaocha {:mvn/version "1.91.1392"}
+                 integrant/integrant {:mvn/version "1.0.1"}}
+   :main-opts   ["-m" "kaocha.runner" "unit" "lean" "regression" "regression-lean"]}
 
   :nrepl
   {:extra-deps {nrepl/nrepl        {:mvn/version "1.6.0"}

@@ -229,16 +229,78 @@ Path-level gaps tell you *why* the system misbehaves end-to-end.
 
 ---
 
+## Example: modelling integrant
+
+Pneuma includes a formal model of [integrant](https://github.com/weavejester/integrant)'s architecture as a regression test. The model captures integrant's lifecycle state machine, multimethod contracts, and per-phase capability bounds — then verifies the model against integrant's actual code and emits machine-checked Lean 4 proofs.
+
+```clojure
+;; test-regression/pneuma/integrant/integrant_spec.clj
+
+;; Lifecycle as a Harel statechart
+(def lifecycle
+  (p/statechart
+    {:states    #{:uninitialized :expanded :running :suspended :halted}
+     :hierarchy {:root #{:uninitialized :expanded :running :suspended :halted}}
+     :initial   {:root :uninitialized}
+     :transitions
+     [{:source :uninitialized :event :expand  :target :expanded}
+      {:source :expanded      :event :init    :target :running}
+      {:source :uninitialized :event :init    :target :running}
+      {:source :running       :event :halt    :target :halted}
+      {:source :running       :event :suspend :target :suspended}
+      {:source :suspended     :event :resume  :target :running}
+      {:source :suspended     :event :halt    :target :halted}]}))
+
+;; Seven multimethods as an effect signature
+(def multimethod-sig
+  (p/effect-signature
+    {:operations
+     {:init-key    {:input {:key :ConfigKey :value :ConfigValue}
+                    :output :InitializedValue}
+      :halt-key!   {:input {:key :ConfigKey :value :InitializedValue}
+                    :output :UnitResult}
+      :resume-key  {:input {:key :ConfigKey :value :ConfigValue
+                            :old-value :ConfigValue :old-impl :InitializedValue}
+                    :output :InitializedValue}
+      ;; ... + suspend-key!, resolve-key, expand-key, assert-key
+      }}))
+
+;; Per-phase capability bounds
+(def init-phase-caps
+  (p/capability-set
+    {:id :init-phase
+     :dispatch #{:assert-key :expand-key :init-key :resolve-key}}))
+
+;; Morphisms connect the formalisms
+;; e.g. every phase's dispatch set ⊆ declared operations
+```
+
+The model-based tests exercise integrant's real code against the spec:
+- **Statechart monitor**: real `ig/init` → `ig/suspend!` → `ig/resume` → `ig/halt!` traced through `->monitor`
+- **Effect signature monitor**: multimethod calls verified against declared operations
+- **Capability monitors**: per-phase operation checks for all 5 lifecycle phases
+- **Property-based testing**: `check-gen` generates valid configs, `check-schema` validates them
+- **Lean verification**: system proof emits with no `sorry`, all `decide`, compiles clean
+
+```bash
+bb test-regression       # model-based tests (fast)
+bb test-regression-lean  # lean proof emission + compilation
+```
+
+---
+
 ## Development
 
 ```bash
-bb test          # unit tests (fast, skips lean compilation)
-bb test-all      # unit + lean compilation tests
-bb test-lean     # lean compilation tests only
-bb lake          # build Lean proofs
-bb lint          # clj-kondo
-bb fmt           # check formatting
-bb ci            # lint + fmt + test-all + lake build
+bb test                  # unit tests (fast, skips lean compilation)
+bb test-all              # unit + lean + regression + regression-lean
+bb test-lean             # lean compilation tests only
+bb test-regression       # regression tests (external project models)
+bb test-regression-lean  # regression lean compilation tests
+bb lake                  # build Lean proofs
+bb lint                  # clj-kondo
+bb fmt                   # check formatting
+bb ci                    # lint + fmt + test-all + lake build
 ```
 
 ---

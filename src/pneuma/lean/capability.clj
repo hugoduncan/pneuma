@@ -50,9 +50,8 @@
             (str
              (str/join "\n" lines)
              "\n"
-             (when (seq dispatch)
-                   (str (emit-set-def (str id-str "_dispatch") type-name dispatch)
-                        "\n"))
+             (emit-set-def (str id-str "_dispatch") type-name dispatch)
+             "\n"
              (when (seq subscribe)
                    (str (emit-set-def (str id-str "_subscribe") type-name subscribe)
                         "\n"))

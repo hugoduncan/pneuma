@@ -21,7 +21,8 @@
   expand-key is a separate multimethod with distinct contracts."
      (chart/statechart
       {:states      #{:uninitialized :expanded :running :suspended :halted}
-       :initial     {}
+       :hierarchy   {:root #{:uninitialized :expanded :running :suspended :halted}}
+       :initial     {:root :uninitialized}
        :transitions [{:source :uninitialized :event :expand  :target :expanded}
                      {:source :expanded      :event :init    :target :running}
                      {:source :uninitialized :event :init    :target :running}
@@ -41,7 +42,7 @@
 
         :halt-key!
         {:input  {:key :ConfigKey :value :InitializedValue}
-         :output :Void}
+         :output :UnitResult}
 
         :resume-key
         {:input  {:key :ConfigKey :value :ConfigValue
@@ -50,7 +51,7 @@
 
         :suspend-key!
         {:input  {:key :ConfigKey :value :InitializedValue}
-         :output :Void}
+         :output :UnitResult}
 
         :resolve-key
         {:input  {:key :ConfigKey :value :InitializedValue}
@@ -62,7 +63,7 @@
 
         :assert-key
         {:input  {:key :ConfigKey :value :ConfigValue}
-         :output :Void}}}))
+         :output :UnitResult}}}))
 
 (def init-phase-caps
      "Operations permitted during the init phase."
@@ -105,7 +106,7 @@
        :ConfigMap        [:map-of :keyword :any]
        :InitializedValue :any
        :ResolvedValue    :any
-       :Void             :nil}))
+       :UnitResult             :nil}))
 
 ;;; Registry
 

@@ -14,6 +14,9 @@
   test-regression {:doc  "Run regression tests (external project specs)"
                    :task (clojure "-M:test" "regression")}
 
+  test-regression-lean {:doc  "Run regression lean compilation tests"
+                        :task (clojure "-M:test" "regression-lean")}
+
   lint      {:doc  "Lint with clj-kondo"
              :task (clojure "-M:lint")}
 
