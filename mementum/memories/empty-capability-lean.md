@@ -1,0 +1,1 @@
+The capability set lean emitter must always emit the dispatch list definition, even when dispatch is empty. The dispatch theorem references the list by name, so omitting the definition for empty sets causes a Lean compilation error (unresolved identifier). Fixed in pneuma.lean.capability by unconditionally emitting `def x_dispatch : List XOp := []`.
