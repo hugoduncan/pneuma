@@ -1,54 +1,10 @@
 (ns pneuma.doc.render
     "Rendering of format-agnostic document fragment trees to concrete
-  output formats. Markdown is the primary format; HTML and docx are stubs."
-    (:require [clojure.string :as str]))
-
-;;; Mermaid dialect rendering
-
-(defn- render-mermaid-state
-       "Renders :mermaid-state dialect data to mermaid stateDiagram-v2 text.
-  Data map keys: :states (seq of state names), :transitions (seq of [from to label])."
-       [{:keys [states transitions]}]
-       (let [state-lines (mapv #(str "  " (name %)) (or states []))
-             trans-lines (mapv (fn [[from to label]]
-                                   (if label
-                                       (str "  " (name from) " --> " (name to) " : " label)
-                                       (str "  " (name from) " --> " (name to))))
-                               (or transitions []))]
-            (str "stateDiagram-v2\n"
-                 (str/join "\n" (into state-lines trans-lines)))))
-
-(defn- render-mermaid-graph
-       "Renders :mermaid-graph dialect data to mermaid graph LR text.
-  Data map keys: :edges (seq of [from to label])."
-       [{:keys [edges]}]
-       (let [edge-lines (mapv (fn [[from to label]]
-                                  (if label
-                                      (str "  " (name from) " -->|" label "| " (name to))
-                                      (str "  " (name from) " --> " (name to))))
-                              (or edges []))]
-            (str "graph LR\n"
-                 (str/join "\n" edge-lines))))
-
-(defn- render-mermaid-sequence
-       "Renders :mermaid-sequence dialect data to mermaid sequenceDiagram text.
-  Data map keys: :participants (seq of names), :interactions (seq of [from to message])."
-       [{:keys [participants interactions]}]
-       (let [part-lines (mapv #(str "  participant " (name %)) (or participants []))
-             int-lines  (mapv (fn [[from to msg]]
-                                  (str "  " (name from) "->>" (name to) ": " msg))
-                              (or interactions []))]
-            (str "sequenceDiagram\n"
-                 (str/join "\n" (into part-lines int-lines)))))
-
-(defn- render-mermaid
-       "Dispatches mermaid dialect data to the appropriate renderer."
-       [dialect data]
-       (case dialect
-             :mermaid-state    (render-mermaid-state data)
-             :mermaid-graph    (render-mermaid-graph data)
-             :mermaid-sequence (render-mermaid-sequence data)
-             (throw (ex-info "Unknown mermaid dialect" {:dialect dialect}))))
+  output formats. Markdown is the primary format; HTML produces a
+  self-contained static page."
+    (:require [clojure.string :as str]
+              [pneuma.doc.html.mermaid :as mermaid]
+              [pneuma.doc.html.page :as html.page]))
 
 ;;; Markdown table helpers
 
@@ -99,7 +55,7 @@
        "Renders a diagram-spec fragment to a fenced mermaid code block."
        [{:keys [dialect data]}]
        (str "```mermaid\n"
-            (render-mermaid dialect data)
+            (mermaid/render-mermaid dialect data)
             "\n```\n\n"))
 
 (defn- render-cross-ref
@@ -138,9 +94,9 @@
       (render-fragment fragment 0))
 
 (defn render-html
-      "Renders a fragment tree to an HTML string."
-      [_fragment]
-      (throw (ex-info "HTML rendering not yet implemented" {})))
+      "Renders a fragment tree to a self-contained HTML string."
+      [fragment]
+      (html.page/render-page fragment {}))
 
 (defn render-docx
       "Renders a fragment tree to docx bytes."
