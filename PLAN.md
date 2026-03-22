@@ -307,15 +307,16 @@ Augment the lean emission with human-readable proof artifacts. See
 
 **Phase 12b — Lean Blueprint integration:**
 
-- [ ] `pneuma.lean.blueprint` — emit LaTeX blueprint alongside .lean files
+- [x] `pneuma.lean.blueprint` — emit LaTeX blueprint alongside .lean files
   - `\lean{...}` macros linking theorems to Lean declarations
   - `\leanok` status flags for formalized proofs
   - `\uses{...}` dependency annotations for the dependency graph
   - Blueprint renders to browsable HTML with color-coded proof status
-- [ ] Update `pneuma.lean.core` API:
+  - Multimethod dispatch: `blueprint-entries` per formalism, `blueprint-conn-entries` per morphism
+- [x] Update `pneuma.lean.core` API:
   - emit-lean-blueprint: generate blueprint/src/content.tex
   - emit-lean-all updated to include blueprint output
-- [ ] `proofs/blueprint/` directory structure with web output
+- [x] `proofs/blueprint/` directory structure with web output
 
 **Phase 12c — Structured proof style:**
 

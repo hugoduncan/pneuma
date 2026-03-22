@@ -1,0 +1,14 @@
+# Lean Blueprint configuration for Pneuma
+# See https://github.com/PatrickMassot/leanblueprint
+
+[project]
+name = "Pneuma Proof Blueprint"
+home_url = ""
+
+[paths]
+# LaTeX source directory
+src = "src"
+# Output directory for the web build
+web = "web"
+# Lean project root (relative to this file)
+lean_project = ".."

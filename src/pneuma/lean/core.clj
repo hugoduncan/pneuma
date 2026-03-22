@@ -5,6 +5,7 @@
   lean extension namespaces to ensure extend-protocol registrations
   are loaded."
     (:require [clojure.string :as str]
+              [pneuma.lean.blueprint :as bp]
               [pneuma.lean.doc :as doc]
               [pneuma.lean.protocol :as lp]
               [pneuma.lean.system :as sys]
@@ -150,6 +151,16 @@
                            :lean-src (emit-lean-path p formalisms)}))
                  paths)))
 
+;;; Blueprint emission
+
+(defn emit-lean-blueprint
+      "Emits a LaTeX blueprint for a specification.
+  Returns a string suitable for writing to blueprint/src/content.tex.
+  The Blueprint tool (Patrick Massot) renders this to a browsable HTML
+  dependency graph with color-coded proof status."
+      [spec-name config]
+      (bp/emit-blueprint spec-name config))
+
 ;;; Full emission
 
 (defn emit-lean-all
@@ -157,7 +168,8 @@
   Returns a map of {:formalisms {kind lean-src}
                     :morphisms  {id lean-src}
                     :paths      [{:id path-id :lean-src string}]
-                    :system     lean-src}."
+                    :system     lean-src
+                    :blueprint  latex-src}."
       [spec-name {:keys [formalisms registry] :as config}]
       {:formalisms
        (into {}
@@ -175,7 +187,9 @@
        :paths
        (emit-lean-paths formalisms registry)
        :system
-       (sys/emit-system-lean spec-name config)})
+       (sys/emit-system-lean spec-name config)
+       :blueprint
+       (bp/emit-blueprint spec-name config)})
 
 (defn emit-lean-file
       "Composes multiple Lean emission strings into a single file
