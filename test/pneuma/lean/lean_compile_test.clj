@@ -9,12 +9,14 @@
               [pneuma.formalism.capability :as cap]
               [pneuma.formalism.effect-signature :as es]
               [pneuma.formalism.mealy :as mealy]
+              [pneuma.formalism.optic :as optic]
               [pneuma.formalism.statechart :as sc]
               [pneuma.formalism.type-schema :as ts]
               [pneuma.lean.protocol :as lp]
               [pneuma.lean.capability]
               [pneuma.lean.effect-signature]
               [pneuma.lean.mealy]
+              [pneuma.lean.optic]
               [pneuma.lean.statechart]
               [pneuma.lean.type-schema]
               [pneuma.lean.system :as sys]
@@ -115,6 +117,25 @@
                                         :effects [{:op :do-thing
                                                    :fields {:cb [:event-ref :done]}}]}
                                        {:id :handle-b}]}))))))
+
+(deftest ^:lean optic-lean-compiles-test
+  ;; OpticDeclaration ->lean produces valid Lean 4.
+         (when (lean-available?)
+               (testing "OpticDeclaration ->lean compiles"
+                        (assert-compiles
+                         "OpticDeclaration"
+                         (lp/->lean (optic/optic-declaration
+                                     {:declarations
+                                      [{:id :session-msgs
+                                        :optic-type :Lens
+                                        :path [:sessions :sid :messages]}
+                                       {:id :all-ids
+                                        :optic-type :Fold
+                                        :path [:session-ids]}
+                                       {:id :msg-count
+                                        :optic-type :Derived
+                                        :sources {:msgs [:sessions :sid :messages]}
+                                        :derivations {:count [:length :msgs]}}]}))))))
 
 ;;; System-level compilation test
 
