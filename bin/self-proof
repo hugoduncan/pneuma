@@ -20,7 +20,12 @@ clojure -M:dev -e '
          (quote [pneuma.formalism.mealy-spec :as mealy-spec])
          (quote [pneuma.formalism.optic-spec :as optic-spec])
          (quote [pneuma.formalism.resolver-spec :as resolver-spec])
-         (quote [pneuma.formalism.type-schema-spec :as ts-spec]))
+         (quote [pneuma.formalism.type-schema-spec :as ts-spec])
+         (quote [pneuma.morphism.existential-spec :as ex-spec])
+         (quote [pneuma.morphism.structural-spec :as st-spec])
+         (quote [pneuma.morphism.containment-spec :as ct-spec])
+         (quote [pneuma.morphism.ordering-spec :as ord-spec])
+         (quote [pneuma.morphism.registry-spec :as reg-spec]))
 
 (let [specs {"Protocol"        {:formalisms protocol-spec/protocol-formalisms
                                  :registry   protocol-spec/protocol-registry}
@@ -39,7 +44,17 @@ clojure -M:dev -e '
              "Resolver"        {:formalisms resolver-spec/resolver-formalisms
                                  :registry   resolver-spec/resolver-registry}
              "TypeSchema"      {:formalisms ts-spec/ts-formalisms
-                                 :registry   ts-spec/ts-registry}}
+                                 :registry   ts-spec/ts-registry}
+             "Existential"     {:formalisms ex-spec/ex-formalisms
+                                 :registry   ex-spec/ex-registry}
+             "Structural"      {:formalisms st-spec/st-formalisms
+                                 :registry   st-spec/st-registry}
+             "Containment"     {:formalisms ct-spec/ct-formalisms
+                                 :registry   ct-spec/ct-registry}
+             "Ordering"        {:formalisms ord-spec/ord-formalisms
+                                 :registry   ord-spec/ord-registry}
+             "Registry"        {:formalisms reg-spec/reg-formalisms
+                                 :registry   reg-spec/reg-registry}}
       dir "proofs/Pneuma"
       failed (atom false)]
   (doseq [[spec-name config] (sort specs)]

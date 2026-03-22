@@ -206,11 +206,11 @@ methods) and TypeSchema (for its data shapes).
 Formal specs for each morphism record's `check` contract —
 inputs, outputs, and gap shapes.
 
-- [ ] `spec/pneuma/morphism/existential_spec.clj` — spec for ExistentialMorphism
-- [ ] `spec/pneuma/morphism/structural_spec.clj` — spec for StructuralMorphism
-- [ ] `spec/pneuma/morphism/containment_spec.clj` — spec for ContainmentMorphism
-- [ ] `spec/pneuma/morphism/ordering_spec.clj` — spec for OrderingMorphism
-- [ ] `spec/pneuma/morphism/registry_spec.clj` — spec for connection registry
+- [x] `spec/pneuma/morphism/existential_spec.clj` — spec for ExistentialMorphism
+- [x] `spec/pneuma/morphism/structural_spec.clj` — spec for StructuralMorphism
+- [x] `spec/pneuma/morphism/containment_spec.clj` — spec for ContainmentMorphism
+- [x] `spec/pneuma/morphism/ordering_spec.clj` — spec for OrderingMorphism
+- [x] `spec/pneuma/morphism/registry_spec.clj` — spec for connection registry
 
 ### Phase 8 — Dogfood: gap and path layers
 
