@@ -1,13 +1,15 @@
 # Pneuma — Working Memory
 
 ## Status
-All implementation phases (0–5) complete. PLAN.md fully checked off.
-139 unit tests, 767 assertions, 0 failures + 8 lean compilation tests.
+All implementation phases (0–12c) complete. PLAN.md fully checked off.
+203 unit tests, 1079 assertions, 0 failures + lean compilation tests.
 CI: `bb ci` runs lint + fmt + test-all + lake build.
 
 ## Active Intent
-System feature-complete. Next is application to real targets
-beyond the dogfood spec.
+System feature-complete. All planned phases delivered including
+dogfood specs, living documentation, and Lean human-readable proofs.
+Next is application to real targets beyond the dogfood spec, or
+writing real Lean proofs to replace `sorry` scaffolding.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
@@ -18,8 +20,6 @@ beyond the dogfood spec.
 - 🎯 Specs go in spec/ source tree with -spec suffix. Not packaged
   in production jar.
 - 🎯 TypeSchema formalism added to fix structural morphism wiring.
-- 🎯 Defer specs for implementation namespaces until after Phase 2a —
-  more value with richer cross-references.
 - 🎯 Lean protocols (ILeanProjectable, ILeanConnection) isolated in
   pneuma.lean namespace layer — separate from core protocols. Extended
   onto existing records via extend-protocol.
@@ -30,6 +30,14 @@ beyond the dogfood spec.
   :unit suite skips them via :lean metadata. CI runs both.
 - 🎯 Skip opaque declarations for Lean builtins (Bool, Nat, String,
   etc.) to avoid redeclaration errors.
+- 🎯 spec-system added to all 31 spec files for consistent spec
+  registration and discovery.
+- 🎯 ->doc projection is format-agnostic data (fragments) rendered
+  to markdown/HTML/docx. Gap status overlaid as second pass.
+- 🎯 Lean blueprint emits LaTeX with \lean{}, \leanok, \uses{}
+  macros for browsable HTML proof status.
+- 🎯 Structured proof style: calc chains, have steps, suffices,
+  decide for finite-state properties.
 
 ## Completed
 - Phase 0: pneuma.protocol — IProjectable, IConnection, IReferenceable
@@ -42,26 +50,39 @@ beyond the dogfood spec.
 - Phase 3: pneuma.path.graph (Johnson's algorithm), pneuma.path.core
   (ComposedPath record, A13/A14 axiom checking, wired into gap.core)
 - Phase 4: gap.diff, refinement, pneuma.core public API
-  (check-schema, check-trace, check-gen, check-morphism, diff-reports)
 - Phase 5: Lean projections for all formalisms + morphisms + lean.core
-  - pneuma.lean.protocol, lean.system, proofs/Pneuma/System.lean
-  - pneuma.lean.core: emit-lean, emit-lean-conn, emit-lean-system, emit-lean-all
-  - Path-level Lean emission: emit-lean-path, emit-lean-paths
-    (per-step boundaries + composition theorem along cycles)
-  - Lean compilation tests (separate :lean kaocha suite)
-- 139 unit tests, 767 assertions + 8 lean compilation tests
+  - Path-level Lean emission, lean compilation tests
+- Phase 6: Dogfood specs for all 7 formalism namespaces
+- Phase 7: Dogfood specs for all 5 morphism namespaces
+- Phase 8: Dogfood specs for gap and path layers
+- Phase 9: Dogfood specs for all 11 lean emitters
+- Phase 10: Dogfood specs for core API and refinement
+- Phase 11: Living documentation (->doc projection)
+  - 11a: DocFragment data model and rendering (markdown/HTML/docx)
+  - 11b: Per-formalism ->doc implementations
+  - 11c: Cross-formalism docs (morphism map, path guide, status dashboard)
+  - 11d: Document assembly and REPL API (render-doc, explain)
+- Phase 12: Lean human-readable proofs
+  - 12a: Lean 4 docstrings on all emitters
+  - 12b: Lean Blueprint LaTeX emission
+  - 12c: Structured proof style guidelines and scaffolding
+- 203 unit tests, 1079 assertions, 0 failures
 
 ## Next
+- Write real Lean proofs to replace `sorry` scaffolding
 - Application to real targets beyond the dogfood spec
+- Runtime monitoring using ->monitor projections
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
 - src/pneuma/core.clj — public API entry point
 - src/pneuma/lean/core.clj — Lean emission public API
-- spec/pneuma/protocol_spec.clj — protocol layer specification
-- spec/pneuma/lean_spec.clj — lean projection layer specification
-- doc/pneuma-lean4-extension.md — Lean integration design
+- src/pneuma/lean/blueprint.clj — LaTeX blueprint emission
+- src/pneuma/doc/core.clj — living documentation API
+- spec/ — 31 dogfood spec files
 - proofs/Pneuma/System.lean — generated system proof
+- proofs/blueprint/ — generated LaTeX blueprint
+- doc/proof-style-guidelines.md — structured proof style
 
 ## Related
 - memories/dogfood-intent.md
