@@ -1,8 +1,8 @@
 # Pneuma — Working Memory
 
 ## Status
-Phase 4 complete — full gap report, public API, and RefinementMap.
-All core phases (0–4) done. Phase 5 (Lean) partially complete.
+Phase 5 nearly complete — lean.core public API done. All phases 0–4
+done. Only CI integration remains.
 
 ## Active Intent
 Build pneuma bottom-up, sequenced for earliest dogfooding. Lean
@@ -42,13 +42,16 @@ proof emission is a parallel track alongside core implementation.
   (ComposedPath record, A13/A14 axiom checking, wired into gap.core)
 - Phase 4: gap.diff, refinement, pneuma.core public API
   (check-schema, check-trace, check-gen, check-morphism, diff-reports)
-- Phase 5 (partial): Lean projections for all formalisms + morphisms
+- Phase 5: Lean projections for all formalisms + morphisms + lean.core
   - pneuma.lean.protocol, lean.system, proofs/Pneuma/System.lean
+  - pneuma.lean.core: emit-lean, emit-lean-conn, emit-lean-system, emit-lean-all
+  - Path-level Lean emission: emit-lean-path, emit-lean-paths
+    (per-step boundaries + composition theorem along cycles)
   - Lean compilation tests (separate :lean kaocha suite)
-- 132 unit tests, 734 assertions + 8 lean compilation tests
+- 139 unit tests, 767 assertions + 8 lean compilation tests
 
 ## Next
-- Phase 5 (remaining): lean.core, proofs/ project structure, CI
+- CI integration: `lake build` alongside `clojure -M:test`
 
 ## Key Files
 - PLAN.md — full implementation plan and build order

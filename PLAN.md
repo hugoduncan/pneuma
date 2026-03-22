@@ -178,8 +178,12 @@ Build order within this phase follows §9.1 of the extension document.
 - [x] `pneuma.lean.structural` — extend StructuralMorphism (ILeanConnection)
 - [x] `pneuma.lean.containment` — extend ContainmentMorphism (ILeanConnection)
 - [x] `pneuma.lean.ordering` — extend OrderingMorphism (ILeanConnection)
-- [ ] `pneuma.lean.core` — public API (emit-lean, emit-lean-cycle, emit-lean-bisim)
-- [ ] `proofs/` Lean project structure with `lakefile.lean` and Mathlib dependency
+- [x] `pneuma.lean.core` — public API
+  - emit-lean, emit-lean-conn, emit-lean-system, emit-lean-all
+  - emit-lean-path: per-step boundary emission + composition theorem
+  - emit-lean-paths: discover all cycles, emit path-level Lean for each
+  - Requires all lean extension namespaces for extend-protocol loading
+- [x] `proofs/` Lean project structure with `lakefile.lean`
 - [ ] CI integration: `lake build` alongside `clojure -M:test`
 
 ## Namespace Dependency Graph
