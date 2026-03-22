@@ -40,7 +40,9 @@ clojure -M:dev -e '
          (quote [pneuma.lean.structural-spec :as lst-spec])
          (quote [pneuma.lean.containment-spec :as lct-spec])
          (quote [pneuma.lean.ordering-spec :as lord-spec])
-         (quote [pneuma.lean.core-spec :as lcore-spec]))
+         (quote [pneuma.lean.core-spec :as lcore-spec])
+         (quote [pneuma.core-spec :as core-spec])
+         (quote [pneuma.refinement-spec :as rm-spec]))
 
 (let [specs {"Protocol"        {:formalisms protocol-spec/protocol-formalisms
                                  :registry   protocol-spec/protocol-registry}
@@ -99,7 +101,11 @@ clojure -M:dev -e '
              "LeanOrdering"    {:formalisms lord-spec/lean-ord-formalisms
                                  :registry   lord-spec/lean-ord-registry}
              "LeanCore"        {:formalisms lcore-spec/lean-core-formalisms
-                                 :registry   lcore-spec/lean-core-registry}}
+                                 :registry   lcore-spec/lean-core-registry}
+             "Core"            {:formalisms core-spec/core-formalisms
+                                 :registry   core-spec/core-registry}
+             "Refinement"      {:formalisms rm-spec/rm-formalisms
+                                 :registry   rm-spec/rm-registry}}
       dir "proofs/Pneuma"
       failed (atom false)]
   (doseq [[spec-name config] (sort specs)]

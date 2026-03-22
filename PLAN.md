@@ -245,8 +245,8 @@ per-morphism emitters.
 
 Public API surface and refinement map contracts.
 
-- [ ] `spec/pneuma/core_spec.clj` — spec for public API
-- [ ] `spec/pneuma/refinement_spec.clj` — spec for RefinementMap
+- [x] `spec/pneuma/core_spec.clj` — spec for public API
+- [x] `spec/pneuma/refinement_spec.clj` — spec for RefinementMap
 
 ## Namespace Dependency Graph
 
