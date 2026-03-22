@@ -1,9 +1,8 @@
 # Pneuma — Working Memory
 
 ## Status
-Phase 2a: six of six formalisms complete (optic added). All six
-implement ILeanProjectable. System-level emission is gap-report-driven.
-Lean compilation tests verify all emissions.
+Phase 2a complete — all six formalisms done (optic, resolver added).
+All implement ILeanProjectable. Phase 2b (remaining morphisms) is next.
 
 ## Active Intent
 Build pneuma bottom-up, sequenced for earliest dogfooding. Lean
@@ -51,16 +50,18 @@ proof emission is a parallel track alongside remaining formalisms.
 - pneuma.lean.mealy — ->lean for MealyHandlerSet
 - pneuma.lean.type-schema — ->lean for TypeSchema
 - pneuma.formalism.optic — OpticDeclaration record (Phase 2a)
+- pneuma.formalism.resolver — ResolverGraph record (Phase 2a)
 - pneuma.lean.optic — ->lean for OpticDeclaration
+- pneuma.lean.resolver — ->lean for ResolverGraph
 - pneuma.lean.system — gap-report-driven system-level Lean emission
 - proofs/Pneuma/System.lean — verified by lake build (Lean 4.28.0)
-- Lean compilation tests for all 6 formalisms + system
-- 82 unit tests, 491 assertions + 7 lean compilation tests
+- Lean compilation tests for all 7 formalisms + system
+- 92 unit tests, 565 assertions + 8 lean compilation tests
 
 ## Next
-- Phase 2a remaining: resolver formalism
+- Phase 2b: containment and ordering morphisms
+- Phase 3: composed paths (cycles)
 - Phase 5: ->lean-conn for morphisms (cross-formalism proofs)
-- Phase 5: emit system proof from lean-spec (lean layer's own proof)
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
