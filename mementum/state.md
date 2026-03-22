@@ -1,9 +1,8 @@
 # Pneuma — Working Memory
 
 ## Status
-Phase 3 complete — generic cycle detection via Johnson's algorithm.
-ComposedPath discovery and axiom checking (A13, A14) wired into
-gap.core. All phases through 3 done.
+Phase 4 complete — full gap report, public API, and RefinementMap.
+All core phases (0–4) done. Phase 5 (Lean) partially complete.
 
 ## Active Intent
 Build pneuma bottom-up, sequenced for earliest dogfooding. Lean
@@ -41,13 +40,14 @@ proof emission is a parallel track alongside core implementation.
 - Phase 2b: ContainmentMorphism, OrderingMorphism
 - Phase 3: pneuma.path.graph (Johnson's algorithm), pneuma.path.core
   (ComposedPath record, A13/A14 axiom checking, wired into gap.core)
+- Phase 4: gap.diff, refinement, pneuma.core public API
+  (check-schema, check-trace, check-gen, check-morphism, diff-reports)
 - Phase 5 (partial): Lean projections for all formalisms + morphisms
   - pneuma.lean.protocol, lean.system, proofs/Pneuma/System.lean
   - Lean compilation tests (separate :lean kaocha suite)
-- 118 unit tests, 692 assertions + 8 lean compilation tests
+- 132 unit tests, 734 assertions + 8 lean compilation tests
 
 ## Next
-- Phase 4: full gap report + public API
 - Phase 5 (remaining): lean.core, proofs/ project structure, CI
 
 ## Key Files

@@ -141,13 +141,17 @@ cycles.
 
 ### Phase 4 — Full gap report and public API
 
-- [ ] `pneuma.gap.diff` — diff-reports, failures, gaps-involving
-- [ ] `pneuma.refinement` — RefinementMap record
-- [ ] `pneuma.core` — public API
-  - Constructor functions for all formalisms
-  - gap-report entry point
-  - check-schema, check-trace, check-gen convenience fns
-  - check-morphism, diff-reports, failures
+- [x] `pneuma.gap.diff` — diff-reports, has-changes?, gaps-involving
+  - Per-layer diffing (introduced, resolved, changed)
+  - Filtering by formalism kind
+- [x] `pneuma.refinement` — RefinementMap record
+  - Bridges formalisms to implementation state via var refs
+  - deref-state, deref-event-log, access
+- [x] `pneuma.core` — public API
+  - Constructor re-exports for all 7 formalisms + 4 morphisms
+  - gap-report, failures, has-failures? entry points
+  - check-schema, check-trace, check-gen per-formalism convenience fns
+  - check-morphism, diff-reports, has-changes?, gaps-involving, find-paths
 
 ### Phase 5 — Lean 4 proof integration
 
@@ -198,8 +202,8 @@ pneuma.protocol (no deps)
   ├── pneuma.path.graph ── (no deps)
   ├── pneuma.path.core ── (path.graph + morphism.*)
   │
-  ├── pneuma.gap.core ── (protocol + formalism/* + morphism/*)
-  ├── pneuma.gap.diff ── (gap.core)
+  ├── pneuma.gap.core ── (protocol + path.core)
+  ├── pneuma.gap.diff ── (no deps)
   │
   ├── pneuma.refinement ── (protocol)
   │
