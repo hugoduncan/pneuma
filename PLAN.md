@@ -97,7 +97,7 @@ with 100 trials and shrinking.
   - →monitor: check db-before/db-after diffs match declared updates
   - →gen: (db, event) pairs satisfying guards
   - →gap-type: :absent-handler, :missing-guard, :wrong-update, :wrong-emission
-- [ ] `pneuma.formalism.optic` — OpticDeclaration record + IProjectable
+- [x] `pneuma.formalism.optic` — OpticDeclaration record + IProjectable
   - Lens/traversal/fold/derived declarations
   - Path resolution checking via Specter
   - →schema: return types of optic application
@@ -162,6 +162,7 @@ Build order within this phase follows §9.1 of the extension document.
 - [ ] `pneuma.lean.effect-signature` — extend EffectSignature
 - [ ] `pneuma.lean.mealy` — extend MealyHandlerSet
 - [ ] `pneuma.lean.capability` — extend CapabilitySet
+- [x] `pneuma.lean.optic` — extend OpticDeclaration
 - [ ] `pneuma.lean.existential` — extend ExistentialMorphism
 - [ ] `pneuma.lean.structural` — extend StructuralMorphism
 - [ ] `pneuma.lean.core` — public API (emit-lean, emit-lean-cycle, emit-lean-bisim)
@@ -200,6 +201,7 @@ pneuma.lean.protocol (no deps)
   ├── pneuma.lean.effect-signature ── (lean.protocol + formalism.effect-signature)
   ├── pneuma.lean.mealy ── (lean.protocol + formalism.mealy)
   ├── pneuma.lean.capability ── (lean.protocol + formalism.capability)
+  ├── pneuma.lean.optic ── (lean.protocol + formalism.optic)
   ├── pneuma.lean.existential ── (lean.protocol + morphism.existential)
   ├── pneuma.lean.structural ── (lean.protocol + morphism.structural)
   └── pneuma.lean.core ── (all lean.* namespaces)
