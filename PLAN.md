@@ -229,17 +229,17 @@ Lean 4 syntax/structure). The lean protocol layer is already
 modeled in Phase 5; this covers the per-formalism and
 per-morphism emitters.
 
-- [ ] `spec/pneuma/lean/statechart_spec.clj` — spec for Statechart lean emission
-- [ ] `spec/pneuma/lean/effect_signature_spec.clj` — spec for EffectSignature lean emission
-- [ ] `spec/pneuma/lean/mealy_spec.clj` — spec for MealyHandlerSet lean emission
-- [ ] `spec/pneuma/lean/optic_spec.clj` — spec for OpticDeclaration lean emission
-- [ ] `spec/pneuma/lean/resolver_spec.clj` — spec for ResolverGraph lean emission
-- [ ] `spec/pneuma/lean/capability_spec.clj` — spec for CapabilitySet lean emission
-- [ ] `spec/pneuma/lean/existential_spec.clj` — spec for ExistentialMorphism lean emission
-- [ ] `spec/pneuma/lean/structural_spec.clj` — spec for StructuralMorphism lean emission
-- [ ] `spec/pneuma/lean/containment_spec.clj` — spec for ContainmentMorphism lean emission
-- [ ] `spec/pneuma/lean/ordering_spec.clj` — spec for OrderingMorphism lean emission
-- [ ] `spec/pneuma/lean/core_spec.clj` — spec for lean orchestration API
+- [x] `spec/pneuma/lean/statechart_spec.clj` — spec for Statechart lean emission
+- [x] `spec/pneuma/lean/effect_signature_spec.clj` — spec for EffectSignature lean emission
+- [x] `spec/pneuma/lean/mealy_spec.clj` — spec for MealyHandlerSet lean emission
+- [x] `spec/pneuma/lean/optic_spec.clj` — spec for OpticDeclaration lean emission
+- [x] `spec/pneuma/lean/resolver_spec.clj` — spec for ResolverGraph lean emission
+- [x] `spec/pneuma/lean/capability_spec.clj` — spec for CapabilitySet lean emission
+- [x] `spec/pneuma/lean/existential_spec.clj` — spec for ExistentialMorphism lean emission
+- [x] `spec/pneuma/lean/structural_spec.clj` — spec for StructuralMorphism lean emission
+- [x] `spec/pneuma/lean/containment_spec.clj` — spec for ContainmentMorphism lean emission
+- [x] `spec/pneuma/lean/ordering_spec.clj` — spec for OrderingMorphism lean emission
+- [x] `spec/pneuma/lean/core_spec.clj` — spec for lean orchestration API
 
 ### Phase 10 — Dogfood: core and refinement
 

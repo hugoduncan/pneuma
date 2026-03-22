@@ -29,7 +29,18 @@ clojure -M:dev -e '
          (quote [pneuma.gap.core-spec :as gap-spec])
          (quote [pneuma.gap.diff-spec :as diff-spec])
          (quote [pneuma.path.graph-spec :as pgraph-spec])
-         (quote [pneuma.path.core-spec :as pcore-spec]))
+         (quote [pneuma.path.core-spec :as pcore-spec])
+         (quote [pneuma.lean.statechart-spec :as lsc-spec])
+         (quote [pneuma.lean.effect-signature-spec :as les-spec])
+         (quote [pneuma.lean.mealy-spec :as lmealy-spec])
+         (quote [pneuma.lean.optic-spec :as loptic-spec])
+         (quote [pneuma.lean.resolver-spec :as lresolver-spec])
+         (quote [pneuma.lean.capability-spec :as lcap-spec])
+         (quote [pneuma.lean.existential-spec :as lex-spec])
+         (quote [pneuma.lean.structural-spec :as lst-spec])
+         (quote [pneuma.lean.containment-spec :as lct-spec])
+         (quote [pneuma.lean.ordering-spec :as lord-spec])
+         (quote [pneuma.lean.core-spec :as lcore-spec]))
 
 (let [specs {"Protocol"        {:formalisms protocol-spec/protocol-formalisms
                                  :registry   protocol-spec/protocol-registry}
@@ -66,7 +77,29 @@ clojure -M:dev -e '
              "PathGraph"       {:formalisms pgraph-spec/graph-formalisms
                                  :registry   pgraph-spec/graph-registry}
              "PathCore"        {:formalisms pcore-spec/path-formalisms
-                                 :registry   pcore-spec/path-registry}}
+                                 :registry   pcore-spec/path-registry}
+             "LeanStatechart"  {:formalisms lsc-spec/lean-sc-formalisms
+                                 :registry   lsc-spec/lean-sc-registry}
+             "LeanEffectSig"   {:formalisms les-spec/lean-es-formalisms
+                                 :registry   les-spec/lean-es-registry}
+             "LeanMealy"       {:formalisms lmealy-spec/lean-mealy-formalisms
+                                 :registry   lmealy-spec/lean-mealy-registry}
+             "LeanOptic"       {:formalisms loptic-spec/lean-optic-formalisms
+                                 :registry   loptic-spec/lean-optic-registry}
+             "LeanResolver"    {:formalisms lresolver-spec/lean-resolver-formalisms
+                                 :registry   lresolver-spec/lean-resolver-registry}
+             "LeanCapability"  {:formalisms lcap-spec/lean-cap-formalisms
+                                 :registry   lcap-spec/lean-cap-registry}
+             "LeanExistential" {:formalisms lex-spec/lean-ex-formalisms
+                                 :registry   lex-spec/lean-ex-registry}
+             "LeanStructural"  {:formalisms lst-spec/lean-st-formalisms
+                                 :registry   lst-spec/lean-st-registry}
+             "LeanContainment" {:formalisms lct-spec/lean-ct-formalisms
+                                 :registry   lct-spec/lean-ct-registry}
+             "LeanOrdering"    {:formalisms lord-spec/lean-ord-formalisms
+                                 :registry   lord-spec/lean-ord-registry}
+             "LeanCore"        {:formalisms lcore-spec/lean-core-formalisms
+                                 :registry   lcore-spec/lean-core-registry}}
       dir "proofs/Pneuma"
       failed (atom false)]
   (doseq [[spec-name config] (sort specs)]
