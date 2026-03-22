@@ -34,16 +34,22 @@
             "-- Proofs are mechanically generated from Pneuma's conformance check.\n"
             "-- Conforming morphisms get `decide` proofs; failing ones get `sorry`.\n\n"))
 
+(def ^:private lean-builtins
+     "Lean 4 built-in type names that must not be redeclared."
+     #{"Bool" "Nat" "Int" "String" "Unit" "Prop" "Type" "List" "Option" "Char" "Float" "UInt8" "UInt16" "UInt32" "UInt64"})
+
 (defn- emit-opaque-types
-       "Emits opaque type declarations for all referenced types."
+       "Emits opaque type declarations for all referenced types,
+  skipping Lean builtins."
        [operations]
        (let [type-kws (into (sorted-set)
                             (mapcat (fn [[_ {:keys [input output]}]]
                                         (conj (vec (vals input)) output)))
-                            operations)]
+                            operations)
+             non-builtin (remove #(lean-builtins (kw->lean-type %)) type-kws)]
             (str (str/join "\n"
                            (mapv #(str "opaque " (kw->lean-type %) " : Type := Unit")
-                                 type-kws))
+                                 non-builtin))
                  "\n")))
 
 (defn- emit-op-type
