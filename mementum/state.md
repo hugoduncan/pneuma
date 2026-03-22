@@ -1,12 +1,12 @@
 # Pneuma — Working Memory
 
 ## Status
-Phase 5 nearly complete — lean.core public API done. All phases 0–4
-done. Only CI integration remains.
+All implementation phases (0–5) complete except CI integration.
+139 unit tests, 767 assertions, 0 failures + 8 lean compilation tests.
 
 ## Active Intent
-Build pneuma bottom-up, sequenced for earliest dogfooding. Lean
-proof emission is a parallel track alongside core implementation.
+Core system complete. Remaining work is CI integration and
+application to real targets beyond the dogfood spec.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
@@ -52,15 +52,16 @@ proof emission is a parallel track alongside core implementation.
 
 ## Next
 - CI integration: `lake build` alongside `clojure -M:test`
+- Application to real targets beyond the dogfood spec
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
+- src/pneuma/core.clj — public API entry point
+- src/pneuma/lean/core.clj — Lean emission public API
 - spec/pneuma/protocol_spec.clj — protocol layer specification
 - spec/pneuma/lean_spec.clj — lean projection layer specification
 - doc/pneuma-lean4-extension.md — Lean integration design
-- doc/dogfood-lean.md — lean layer dogfood document
 - proofs/Pneuma/System.lean — generated system proof
-- test/pneuma/lean/lean_compile_test.clj — Lean compilation tests
 
 ## Related
 - memories/dogfood-intent.md
