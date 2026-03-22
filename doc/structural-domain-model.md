@@ -459,6 +459,12 @@ Each variant has a distinct formal structure:
   emits the strongest theorems: cycle closure, precondition chaining,
   and callback re-entry safety.
 
+  Every generated type definition and theorem includes a `/-- ... -/`
+  docstring linking it to the source Pneuma formalism. A Lean Blueprint
+  document provides human-readable parallel proofs, browsable as a
+  static website with a dependency graph showing proof status. See
+  [pneuma-lean4-extension.md](pneuma-lean4-extension.md) §11.
+
 The five variants correspond to the five projection functors (§6.1).
 The first four are methods of `IProjectable`; the fifth (`→lean`) is
 on the separate `ILeanProjectable` protocol. Each formalism produces

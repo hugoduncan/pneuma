@@ -239,6 +239,9 @@ layer. It does not check:
   (see pneuma-lean4-extension.md §8).
 - **Proof completeness** — whether the `sorry` placeholders can be
   filled in. This is a Lean-side concern.
+- **Human-readable proof content** — whether docstrings, Blueprint
+  entries, and structured proof scaffolding are generated correctly.
+  See pneuma-lean4-extension.md §11.
 - **State machine** — no lifecycle in the lean layer.
 - **Event handling** — no events in the lean layer.
 - **Composed paths** — no cycles in the lean formalism graph.

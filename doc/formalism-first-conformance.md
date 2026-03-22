@@ -295,7 +295,7 @@ See [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the
 full design and [dogfood-lean.md](dogfood-lean.md) for how Pneuma
 checks its own lean projection layer.
 
-`->lean` produces a string of Lean 4 source code — type definitions, property statements with `sorry` placeholders, and proof scaffolding. The output is not a compiled Lean term; it is source code that must be fed to the Lean compiler and may require human guidance to complete proofs.
+`->lean` produces a string of Lean 4 source code — type definitions, property statements with `sorry` placeholders, and proof scaffolding. The output is not a compiled Lean term; it is source code that must be fed to the Lean compiler and may require human guidance to complete proofs. Every generated theorem and type definition includes a docstring linking it back to the Pneuma formalism. A Lean Blueprint document provides a human-readable parallel of each proof, browsable as a static website with a dependency graph showing proof status. See [pneuma-lean4-extension.md](pneuma-lean4-extension.md) §11 for the readability contract.
 
 What each formalism projects as Lean source:
 
