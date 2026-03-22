@@ -1,0 +1,16 @@
+repos:
+  - repo: local
+    hooks:
+      - id: cljfmt
+        name: cljfmt
+        language: script
+        entry: bin/cljfmt-and-restage
+        types: [clojure]
+        pass_filenames: true
+
+      - id: clj-kondo
+        name: clj-kondo
+        language: script
+        entry: bin/clj-kondo-quiet
+        types: [clojure]
+        pass_filenames: true

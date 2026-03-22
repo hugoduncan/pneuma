@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Emit Lean proofs from pneuma's own dogfood specs, then build them.
+# Exit 0 if all proofs pass, non-zero otherwise.
+
+PROOFS_DIR="proofs/Pneuma"
+mkdir -p "$PROOFS_DIR"
+
+echo "Emitting Lean proofs from dogfood specs..."
+
+clojure -M:dev -e '
+(require (quote [pneuma.lean.core :as lean])
+         (quote [pneuma.gap.core :as gap])
+         (quote [pneuma.protocol-spec :as protocol-spec])
+         (quote [pneuma.lean-spec :as lean-spec])
+         (quote [pneuma.formalism.effect-signature-spec :as es-spec])
+         (quote [pneuma.formalism.capability-spec :as cap-spec])
+         (quote [pneuma.formalism.statechart-spec :as sc-spec])
+         (quote [pneuma.formalism.mealy-spec :as mealy-spec])
+         (quote [pneuma.formalism.optic-spec :as optic-spec])
+         (quote [pneuma.formalism.resolver-spec :as resolver-spec])
+         (quote [pneuma.formalism.type-schema-spec :as ts-spec])
+         (quote [pneuma.morphism.existential-spec :as ex-spec])
+         (quote [pneuma.morphism.structural-spec :as st-spec])
+         (quote [pneuma.morphism.containment-spec :as ct-spec])
+         (quote [pneuma.morphism.ordering-spec :as ord-spec])
+         (quote [pneuma.morphism.registry-spec :as reg-spec])
+         (quote [pneuma.gap.core-spec :as gap-spec])
+         (quote [pneuma.gap.diff-spec :as diff-spec])
+         (quote [pneuma.path.graph-spec :as pgraph-spec])
+         (quote [pneuma.path.core-spec :as pcore-spec])
+         (quote [pneuma.lean.statechart-spec :as lsc-spec])
+         (quote [pneuma.lean.effect-signature-spec :as les-spec])
+         (quote [pneuma.lean.mealy-spec :as lmealy-spec])
+         (quote [pneuma.lean.optic-spec :as loptic-spec])
+         (quote [pneuma.lean.resolver-spec :as lresolver-spec])
+         (quote [pneuma.lean.capability-spec :as lcap-spec])
+         (quote [pneuma.lean.existential-spec :as lex-spec])
+         (quote [pneuma.lean.structural-spec :as lst-spec])
+         (quote [pneuma.lean.containment-spec :as lct-spec])
+         (quote [pneuma.lean.ordering-spec :as lord-spec])
+         (quote [pneuma.lean.core-spec :as lcore-spec])
+         (quote [pneuma.core-spec :as core-spec])
+         (quote [pneuma.refinement-spec :as rm-spec]))
+
+(let [specs {"Protocol"        protocol-spec/spec-system
+             "Lean"            lean-spec/spec-system
+             "EffectSignature" es-spec/spec-system
+             "Capability"      cap-spec/spec-system
+             "Statechart"      sc-spec/spec-system
+             "Mealy"           mealy-spec/spec-system
+             "Optic"           optic-spec/spec-system
+             "Resolver"        resolver-spec/spec-system
+             "TypeSchema"      ts-spec/spec-system
+             "Existential"     ex-spec/spec-system
+             "Structural"      st-spec/spec-system
+             "Containment"     ct-spec/spec-system
+             "Ordering"        ord-spec/spec-system
+             "Registry"        reg-spec/spec-system
+             "GapCore"         gap-spec/spec-system
+             "GapDiff"         diff-spec/spec-system
+             "PathGraph"       pgraph-spec/spec-system
+             "PathCore"        pcore-spec/spec-system
+             "LeanStatechart"  lsc-spec/spec-system
+             "LeanEffectSig"   les-spec/spec-system
+             "LeanMealy"       lmealy-spec/spec-system
+             "LeanOptic"       loptic-spec/spec-system
+             "LeanResolver"    lresolver-spec/spec-system
+             "LeanCapability"  lcap-spec/spec-system
+             "LeanExistential" lex-spec/spec-system
+             "LeanStructural"  lst-spec/spec-system
+             "LeanContainment" lct-spec/spec-system
+             "LeanOrdering"    lord-spec/spec-system
+             "LeanCore"        lcore-spec/spec-system
+             "Core"            core-spec/spec-system
+             "Refinement"      rm-spec/spec-system}
+      dir "proofs/Pneuma"
+      failed (atom false)]
+  (doseq [[spec-name config] (sort specs)]
+    (let [report (gap/gap-report config)]
+      (if (gap/has-failures? report)
+        (do (println (str "FAIL " spec-name ": " (count (gap/failures report)) " failures"))
+            (reset! failed true))
+        (let [lean-src (lean/emit-lean-system spec-name config)
+              path (str dir "/" spec-name ".lean")]
+          (spit path lean-src)
+          (println (str "  OK " spec-name " -> " path))))))
+  (when @failed
+    (System/exit 1)))
+'
+
+echo ""
+echo "Building Lean proofs..."
+export PATH="$HOME/.elan/bin:$PATH"
+cd proofs && lake build

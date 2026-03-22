@@ -1,0 +1,45 @@
+{:tasks
+ {repl      {:doc  "Start nREPL with CIDER middleware"
+             :task (clojure "-M:dev:nrepl")}
+
+  test      {:doc  "Run unit tests (skips lean compilation)"
+             :task (clojure "-M:test")}
+
+  test-all  {:doc  "Run all tests including lean compilation"
+             :task (clojure "-M:test/all")}
+
+  test-lean {:doc  "Run lean compilation tests only"
+             :task (clojure "-M:test" "--focus" "pneuma.lean.lean-compile-test")}
+
+  test-regression {:doc  "Run regression tests (external project specs)"
+                   :task (clojure "-M:test" "regression")}
+
+  test-regression-lean {:doc  "Run regression lean compilation tests"
+                        :task (clojure "-M:test" "regression-lean")}
+
+  lint      {:doc  "Lint with clj-kondo"
+             :task (clojure "-M:lint")}
+
+  fmt       {:doc  "Check formatting with cljfmt"
+             :task (clojure "-M:fmt")}
+
+  fmt-fix   {:doc  "Fix formatting with cljfmt"
+             :task (clojure "-M:fmt/fix")}
+
+  lake      {:doc  "Build Lean proofs"
+             :task (shell {:dir "proofs"} "lake" "build")}
+
+  outdated  {:doc  "Check for outdated dependencies"
+             :task (clojure "-M:outdated")}
+
+  self-proof {:doc  "Emit and build Lean proofs from pneuma's own specs"
+              :task (shell "bin/self-proof")}
+
+  gen-doc    {:doc  "Generate architecture docs from dogfood specs"
+              :task (shell "bin/gen-doc")}
+
+  gen-html   {:doc  "Generate browsable HTML docs from dogfood specs"
+              :task (shell "bin/gen-html")}
+
+  ci        {:doc  "Run lint + fmt check + all tests + lean proofs"
+             :depends [lint fmt test-all lake]}}}

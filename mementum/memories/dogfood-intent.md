@@ -1,0 +1,3 @@
+🎯 pneuma is intended to dogfood itself — the project's own architecture (statecharts, effect signatures, mealy transitions, morphisms) should be specified and checked using pneuma as it is built. Build the tool by using the tool on itself.
+
+🎯 The dogfooding intent reversed the build order. The original plan was Statechart first (richest formalism). But pneuma.protocol — the first implemented code — can only be described by EffectSignature (typed operations) + CapabilitySet (required implementations). So those two formalisms come first, enabling a dogfood checkpoint before the remaining four are built. See doc/dogfood-protocol.md.

@@ -1,0 +1,132 @@
+(ns pneuma.lean.effect-signature
+    "Lean 4 emission for EffectSignature formalisms.
+  Extends EffectSignature with ILeanProjectable via extend-protocol."
+    (:require [clojure.string :as str]
+              [pneuma.lean.doc :as doc]
+              [pneuma.lean.protocol :as lp])
+    (:import [pneuma.formalism.effect_signature EffectSignature]))
+
+(defn- kw->lean-name
+       "Converts a Clojure keyword to a valid Lean identifier."
+       [kw]
+       (-> (name kw)
+           (str/replace #"^->" "")
+           (str/replace "-" "_")
+           (str/replace "/" "_")))
+
+(defn- kw->lean-type
+       "Converts a type keyword to a Lean type name."
+       [kw]
+       (let [n (name kw)]
+            (if (Character/isUpperCase ^char (first n))
+                n
+                (str (str/capitalize (first (str/split n #"_")))
+                     (apply str (rest (str/split n #"_")))))))
+
+(defn- emit-op-inductive
+       "Emits an inductive type with one constructor per operation."
+       [type-name op-names]
+       (let [sorted (sort op-names)
+             ctors (str/join "\n"
+                             (mapv #(str "  | " (kw->lean-name %)) sorted))]
+            (str "inductive " type-name " where\n"
+                 ctors "\n"
+                 "  deriving DecidableEq, Repr\n")))
+
+(defn- emit-field-structure
+       "Emits a Lean structure for an operation's input fields."
+       [op-kw {:keys [input]}]
+       (let [struct-name (str (str/capitalize (kw->lean-name op-kw)) "Args")
+             fields (str/join "\n"
+                              (mapv (fn [[field-kw type-kw]]
+                                        (str "  " (kw->lean-name field-kw)
+                                             " : " (kw->lean-type type-kw)))
+                                    (sort-by (comp name key) input)))]
+            (str "structure " struct-name " where\n"
+                 fields "\n")))
+
+(defn- emit-output-type-fn
+       "Emits a function mapping each operation to its output type name."
+       [type-name operations]
+       (let [sorted (sort-by (comp name key) operations)
+             clauses (str/join "\n"
+                               (mapv (fn [[op-kw {:keys [output]}]]
+                                         (str "  | ." (kw->lean-name op-kw)
+                                              " => " (kw->lean-type output)))
+                                     sorted))]
+            (str "def " type-name ".outputType : " type-name " → Type\n"
+                 clauses "\n")))
+
+(defn- emit-op-count-theorem
+       "Emits a theorem about the number of operations."
+       [type-name id op-names]
+       (let [sorted (sort op-names)
+             members (str/join ", " (mapv #(str "." (kw->lean-name %)) sorted))
+             n (count op-names)]
+            (str (doc/lean-doc (str "Exhaustive list of all operations in EffectSignature" (when id (str " " (doc/id-str id))) "."))
+                 "def all" type-name "s : List " type-name " :=\n"
+                 "  [" members "]\n"
+                 "\n"
+                 "-- PROOF TARGET: the operation list is exhaustive\n"
+                 (doc/theorem-doc (str "Every member of " type-name " appears in all" type-name "s. Proved by case analysis."))
+                 "theorem all" type-name "s_complete :\n"
+                 "    ∀ op : " type-name ", op ∈ all" type-name "s := by\n"
+                 "  intro op\n"
+                 "  cases op <;> simp [all" type-name "s]\n"
+                 "\n"
+                 "-- PROOF TARGET: the operation count\n"
+                 (doc/theorem-doc (str "all" type-name "s contains exactly " n " members."))
+                 "theorem " type-name "_count :\n"
+                 "    all" type-name "s.length = " n " := by\n"
+                 "  rfl\n")))
+
+(defn- collect-type-refs
+       "Collects all type keywords referenced in operations (inputs + outputs)."
+       [operations]
+       (into (sorted-set)
+             (mapcat (fn [[_ {:keys [input output]}]]
+                         (conj (vec (vals input)) output)))
+             operations))
+
+(def ^:private lean-builtins
+     "Lean 4 built-in type names that must not be redeclared."
+     #{"Bool" "Nat" "Int" "String" "Unit" "Prop" "Type" "List" "Option" "Char" "Float" "UInt8" "UInt16" "UInt32" "UInt64"})
+
+(defn- emit-opaque-types
+       "Emits opaque type declarations for referenced types,
+  skipping Lean builtins."
+       [type-kws]
+       (let [non-builtin (remove #(lean-builtins (kw->lean-type %)) type-kws)]
+            (str/join "\n"
+                      (mapv #(str (doc/lean-doc (str "Opaque proxy for domain type :" (name %) "."))
+                                  "opaque " (kw->lean-type %) " : Type := Unit")
+                            non-builtin))))
+
+(defn- emit-effect-signature-lean
+       "Generates Lean 4 source for an EffectSignature."
+       [id operations]
+       (let [type-name "Op"
+             op-names (keys operations)
+             type-refs (collect-type-refs operations)]
+            (str "-- Generated by Pneuma from EffectSignature" (when id (str " " (doc/id-str id))) "\n\n"
+                 (emit-opaque-types type-refs)
+                 "\n\n"
+                 (doc/type-doc "EffectSignature" id
+                               (str "Operation alphabet for EffectSignature" (when id (str " " (doc/id-str id))) "."))
+                 (emit-op-inductive type-name op-names)
+                 "\n"
+                 (str/join "\n"
+                           (mapv (fn [[op-kw op-decl]]
+                                     (str (doc/lean-doc (str "Input fields for operation :" (name op-kw) "."))
+                                          (emit-field-structure op-kw op-decl)))
+                                 (sort-by (comp name key) operations)))
+                 "\n"
+                 (doc/lean-doc "Maps each operation to its output type.")
+                 (emit-output-type-fn type-name operations)
+                 "\n"
+                 (emit-op-count-theorem type-name id op-names))))
+
+(extend-protocol lp/ILeanProjectable
+                 EffectSignature
+                 (->lean [this]
+                         (emit-effect-signature-lean (:id this) (:operations this))))

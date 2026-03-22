@@ -1,0 +1,2 @@
+-- Human-written proofs importing generated definitions
+-- (currently empty — proofs are self-contained in generated files)

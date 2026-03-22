@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run cljfmt on the given files, then restage any that were reformatted.
+# Output is suppressed on success.
+output=$(cljfmt fix "$@" 2>&1) || { echo "$output"; exit 1; }
+
+# Retry git add to handle index.lock contention in worktree setups.
+for attempt in 1 2 3; do
+  git add "$@" 2>/dev/null && break
+  sleep 1
+done

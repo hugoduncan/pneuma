@@ -10,8 +10,9 @@ Pneuma embeds mathematical formalisms — statecharts, effect signatures, optics
 ;; Define the math. It lives in your runtime.
 (def session-chart
   (p/statechart
-    {:states #{:idle :generating :awaiting-approval :tool-executing :tool-error}
-     :initial :idle
+    {:label "Session Lifecycle"
+     :states #{:idle :generating :awaiting-approval :tool-executing :tool-error}
+     :initial {:root :idle}
      :transitions
      [{:source :idle :event :user-submit :target :generating}
       {:source :generating :event :tool-requested :target :awaiting-approval}
@@ -20,17 +21,168 @@ Pneuma embeds mathematical formalisms — statecharts, effect signatures, optics
       {:source :tool-executing :event :tool-error :target :tool-error}
       {:source :generating :event :generation-complete :target :idle}]}))
 
-;; One call. Schemas, monitors, generators, gap report.
+(def effect-sig
+  (p/effect-signature
+    {:label "AI Operations"
+     :operations
+     {:ai/generate  {:input {:session-id :SessionId :model :ModelId}
+                     :output :String}
+      :tool/execute {:input {:session-id :SessionId :tool :ToolId}
+                     :output :Any}}}))
+
+(def caps
+  (p/capability-set
+    {:label "Test Runner"
+     :id :test-runner
+     :dispatch #{:ai/generate :tool/execute}}))
+
+;; Connect formalisms with morphisms
+(def registry
+  {:caps->ops
+   (p/existential-morphism
+     {:id :caps->ops
+      :from :capability-set
+      :to :effect-signature
+      :source-ref-kind :dispatch-refs
+      :target-ref-kind :operation-ids})})
+
+;; One call. Three-layer gap report.
 (p/gap-report
-  {:formalisms [session-chart effect-sig mealy-handlers optics resolvers caps]
-   :refinement-map {:atom #'app-db :event-log #'event-log}})
+  {:formalisms {:statechart session-chart
+                :effect-signature effect-sig
+                :capability-set caps}
+   :registry registry})
 ```
 
 ```clojure
 ;; The report is data. Three layers deep.
-{:object-gaps    {...}  ;; per-formalism: what's missing
- :morphism-gaps  {...}  ;; per-connection: where integration breaks
- :path-gaps      {...}} ;; per-cycle: why the system misbehaves end-to-end
+{:object-gaps    [...]  ;; per-formalism: what's missing
+ :morphism-gaps  [...]  ;; per-connection: where integration breaks
+ :path-gaps      [...]} ;; per-cycle: why the system misbehaves end-to-end
+```
+
+---
+
+## Public API
+
+Everything is accessed through `pneuma.core`.
+
+### Formalism constructors
+
+```clojure
+;; All constructors require :label — a human-readable name for the instance
+(p/statechart {:label "..." ...})         ;; Harel statechart (S, ≤, T, C, H, δ)
+(p/effect-signature {:label "..." ...})   ;; Algebraic effect signature
+(p/mealy-handler-set {:label "..." ...})  ;; Handler contracts (guards, updates, effects)
+(p/optic-declaration {:label "..." ...})  ;; Lenses, traversals, folds, derived subs
+(p/resolver-graph {:label "..." ...})     ;; Functional dependency hypergraph
+(p/capability-set {:label "..." ...})     ;; Dispatch/subscribe/query bounds
+(p/type-schema {:label "..." :types {...}})  ;; Named type definitions
+```
+
+### Morphism constructors
+
+```clojure
+(p/existential-morphism {...})  ;; id in A must exist in B
+(p/structural-morphism {...})   ;; A's output conforms to B's schema
+(p/containment-morphism {...})  ;; A ⊆ B
+(p/ordering-morphism {...})     ;; A precedes B in chain
+```
+
+### Per-formalism checking
+
+```clojure
+;; Structural: does this value conform to the formalism's schema?
+(p/check-schema effect-sig {:op :ai/generate :session-id :s1 :model :gpt4})
+;; => {:status :conforms}
+
+;; Behavioral: does the event log conform to the formalism's monitor?
+(p/check-trace effect-sig [{:operation :ai/generate :fields {:session-id :s1}}])
+;; => {:status :conforms, :entries-checked 1}
+
+;; Generative: do random valid inputs satisfy the schema?
+(p/check-gen effect-sig {:num-tests 100})
+;; => {:status :conforms, :tests-run 100}
+```
+
+### Morphism checking
+
+```clojure
+(p/check-morphism morphism-record source-formalism target-formalism)
+;; => [{:id :caps->ops, :kind :existential, :status :conforms}]
+```
+
+### Gap report
+
+```clojure
+(def report
+  (p/gap-report
+    {:formalisms {:statechart session-chart
+                  :effect-signature effect-sig
+                  :capability-set caps}
+     :registry registry}))
+
+;; Each gap is a map with :layer, :status, and :detail
+;; {:layer :morphism, :id :caps->ops, :kind :existential,
+;;  :status :diverges, :detail {:dangling-refs #{:bogus-method}}}
+
+(p/failures report)          ;; non-conforming gaps only
+(p/has-failures? report)     ;; quick pass/fail predicate
+(p/gaps-involving report :capability-set)  ;; filter by formalism
+```
+
+### Report diffing
+
+```clojure
+(def diff (p/diff-reports old-report new-report))
+;; => {:object-gaps   {:introduced [...] :resolved [...] :changed [...]}
+;;     :morphism-gaps {:introduced [...] :resolved [...] :changed [...]}
+;;     :path-gaps     {:introduced [...] :resolved [...] :changed [...]}}
+
+(p/has-changes? diff)
+```
+
+### Path discovery
+
+```clojure
+;; Cycles in the morphism graph are found automatically
+(p/find-paths registry)
+;; => [#ComposedPath{:id :caps->ops->ops->caps, :steps [...]}]
+```
+
+### Refinement map
+
+```clojure
+(p/refinement-map
+  {:atom-ref      #'app-state/db
+   :event-log-ref #'app-state/event-log
+   :accessors     {:session (fn [db sid] (get-in db [:sessions sid]))}
+   :source-nss    '[app.handlers app.effects]})
+```
+
+### Lean 4 proof emission
+
+```clojure
+(require '[pneuma.lean.core :as lean])
+
+;; Per-formalism: type definitions + property theorems
+(lean/emit-lean session-chart)
+
+;; Per-morphism: boundary propositions
+(lean/emit-lean-conn morphism source-formalism target-formalism)
+
+;; All paths: per-step boundaries + composition theorem
+(lean/emit-lean-paths formalisms registry)
+
+;; Unified system file: gap-report-driven proofs
+(lean/emit-lean-system "my-spec" {:formalisms {...} :registry {...}})
+
+;; Everything at once
+(lean/emit-lean-all "my-spec" {:formalisms {...} :registry {...}})
+;; => {:formalisms {kind lean-src}
+;;     :morphisms  {id lean-src}
+;;     :paths      [{:id path-id :lean-src string}]
+;;     :system     lean-src}
 ```
 
 ---
@@ -47,7 +199,7 @@ The formalisms aren't decorative. Each one mechanically projects into checking a
 |---|---|---|---|
 | Harel statechart | Valid configurations | Event log vs. step function δ | Random walks over reachable states |
 | Effect signature | Per-operation field schemas | Effect descriptions in log | Well-typed effect maps |
-| Mealy transitions | Handler input/output shapes | db-before/db-after diffs | (state, event) pairs |
+| Mealy handlers | Handler input/output shapes | db-before/db-after diffs | (state, event) pairs |
 | Optics | Return types of `view` | Subscription change detection | States where paths resolve |
 | Func. dependencies | Attribute reachability | Resolver output validation | Reachable query inputs |
 | Capability sets | Set membership bounds | Extension dispatch metadata | Bounded event selections |
@@ -75,163 +227,124 @@ Morphism-level gaps tell you *where* the integration fails.
 
 ### Composed paths — end-to-end invariants
 
-The morphism graph has cycles, and those cycles carry invariants that no single formalism or morphism can see:
-
-- **Event-effect-callback loop** — a chart raises an event, a handler emits an effect, the effect's callback re-enters the chart. The chart must accept it.
-- **Observe-dispatch-update loop** — an extension subscribes via an optic, dispatches within its capability bounds, a handler updates state. If the update overlaps the optic path, the cycle must converge.
-- **Full dispatch cycle** — every step in the interceptor chain must establish the precondition for the next step. A missing interceptor breaks the chain.
+The morphism graph has cycles, and those cycles carry invariants that no single formalism or morphism can see. Cycles are discovered automatically via Johnson's algorithm — no application-specific cycles are hardcoded.
 
 Path-level gaps tell you *why* the system misbehaves end-to-end.
 
 ---
 
-## Quick start
+## Example: modelling integrant
 
-### Define formalisms
-
-Each formalism is a Clojure map. No macros, no code generation, no special syntax.
+Pneuma includes a formal model of [integrant](https://github.com/weavejester/integrant)'s architecture as a regression test. The model captures integrant's lifecycle state machine, multimethod contracts, and per-phase capability bounds — then verifies the model against integrant's actual code and emits machine-checked Lean 4 proofs.
 
 ```clojure
-(def effect-sig
+;; test-regression/pneuma/integrant/integrant_spec.clj
+
+;; Lifecycle as a Harel statechart
+(def lifecycle
+  (p/statechart
+    {:label "Integrant Lifecycle"
+     :states    #{:uninitialized :expanded :running :suspended :halted}
+     :hierarchy {:root #{:uninitialized :expanded :running :suspended :halted}}
+     :initial   {:root :uninitialized}
+     :transitions
+     [{:source :uninitialized :event :expand  :target :expanded}
+      {:source :expanded      :event :init    :target :running}
+      {:source :uninitialized :event :init    :target :running}
+      {:source :running       :event :halt    :target :halted}
+      {:source :running       :event :suspend :target :suspended}
+      {:source :suspended     :event :resume  :target :running}
+      {:source :suspended     :event :halt    :target :halted}]}))
+
+;; Seven multimethods as an effect signature
+(def multimethod-sig
   (p/effect-signature
-    {:operations
-     {:ai/generate   {:session-id :SessionId :messages [:List :Message]
-                       :model :ModelId
-                       :on-complete :EventRef :on-error :EventRef}
-      :tool/execute   {:session-id :SessionId :tool :ToolId
-                       :args [:Map :String :Any]
-                       :on-complete :EventRef :on-error :EventRef}}}))
+    {:label "Integrant Multimethods"
+     :operations
+     {:init-key    {:input {:key :ConfigKey :value :ConfigValue}
+                    :output :InitializedValue}
+      :halt-key!   {:input {:key :ConfigKey :value :InitializedValue}
+                    :output :UnitResult}
+      :resume-key  {:input {:key :ConfigKey :value :ConfigValue
+                            :old-value :ConfigValue :old-impl :InitializedValue}
+                    :output :InitializedValue}
+      ;; ... + suspend-key!, resolve-key, expand-key, assert-key
+      }}))
 
-(def submit-prompt
-  (p/mealy-transition
-    {:id :submit-prompt
-     :params [{:name :sid :type :SessionId} {:name :prompt :type :String}]
-     :guards [{:check :in-state? :args [:sid :idle]}]
-     :updates [{:path [:sessions :sid :messages] :op :append
-                :value {:role :user :content :prompt}}]
-     :effects [{:op :ai/generate
-                :fields {:session-id :sid
-                         :on-complete [:event-ref :generation-complete :sid]
-                         :on-error [:event-ref :generation-error :sid]}}]}))
+;; Per-phase capability bounds
+(def init-phase-caps
+  (p/capability-set
+    {:label "Init Phase"
+     :id :init-phase
+     :dispatch #{:assert-key :expand-key :init-key :resolve-key}}))
+
+;; Morphisms connect the formalisms
+;; e.g. every phase's dispatch set ⊆ declared operations
 ```
 
-### Check individual formalisms
+The model-based tests exercise integrant's real code against the spec:
+- **Statechart monitor**: real `ig/init` → `ig/suspend!` → `ig/resume` → `ig/halt!` traced through `->monitor`
+- **Effect signature monitor**: multimethod calls verified against declared operations
+- **Capability monitors**: per-phase operation checks for all 5 lifecycle phases
+- **Property-based testing**: `check-gen` generates valid configs, `check-schema` validates them
+- **Lean verification**: system proof emits with no `sorry`, all `decide`, compiles clean
 
-```clojure
-;; Structural check: does the atom conform?
-(p/check-schema session-chart @app-db)
-
-;; Behavioral check: does the event log conform?
-(p/check-trace session-chart @event-log)
-
-;; Generative check: do random valid inputs produce conforming outputs?
-(p/check-gen session-chart {:dispatch-fn dispatch! :num-tests 500})
-```
-
-### Check connections
-
-```clojure
-;; Do all effect callbacks reference real transitions?
-(p/check-morphism :effects->mealy/callbacks effect-sig mealy-handlers)
-
-;; Does the capability set stay within bounds?
-(p/check-morphism :caps->mealy/dispatch test-runner-caps mealy-handlers)
-```
-
-### Full gap report
-
-```clojure
-(def report
-  (p/gap-report
-    {:formalisms [session-chart effect-sig mealy-handlers
-                  optics resolvers caps]
-     :refinement-map {:atom #'app-db
-                      :event-log #'event-log
-                      :source-nss '[agent.handlers agent.effects]}}))
-
-;; Filter to just the failures
-(p/failures report)
-
-;; Diff against yesterday's report
-(p/diff-reports yesterday-report report)
-
-;; What's blocking error recovery?
-(p/gaps-involving report :tool-error)
+```bash
+bb test-regression       # model-based tests (fast)
+bb test-regression-lean  # lean proof emission + compilation
 ```
 
 ---
 
-## The gap report
+## Browsable HTML documentation
 
-The report is a Clojure map. Three layers, each with conforms/absent/diverges statuses.
+Pneuma generates browsable HTML for its own specifications:
 
-```clojure
-{:object-gaps
- {:chart {:states {:idle :conforms, :tool-error :absent}
-          :transitions {:idle->generating :conforms
-                        :tool-error->tool-executing :absent}}
-  :effects {:ai/generate :conforms
-            :tool/execute {:status :diverges
-                           :detail {:missing-fields #{:on-error}}}}}
-
- :morphism-gaps
- {:existential
-  [{:id :effects->mealy/callbacks
-    :status :diverges
-    :detail {:dangling-refs
-             [{:from [:tool/execute :on-error]
-               :target :tool-execution-error
-               :reason :no-such-transition}]}}]
-  :containment
-  [{:id :mealy->optics/updates
-    :status :diverges
-    :detail {:unobserved-updates
-             [{:handler :approve-tool
-               :update-path [:sessions :sid :tool-history]
-               :no-optic-covers-path true}]}}]}
-
- :path-gaps
- {:event-effect-callback
-  [{:callback :tool-execution-complete
-    :re-entry-state :awaiting-approval
-    :expected-re-entry-state :tool-executing
-    :status :diverges}]}}
+```bash
+bb gen-html              # generates doc/generated/index.html
+open doc/generated/index.html
 ```
 
-Read bottom-up for diagnosis: object gaps say *what*, morphism gaps say *where*, path gaps say *why*. Compute top-down for efficiency: fix object gaps first, and the morphism and path gaps may resolve on their own.
+Each spec page shows formalisms, morphism connection graphs, gap reports,
+and the generated Lean 4 proof code — with collapsible sections and
+summary/detail toggle.
 
 ---
 
-## Design principles
+## Development
 
-**The math is the spec.** There is no specification language. The Harel statechart tuple, the algebraic effect signature, the Mealy machine declarations — these are Clojure maps that directly represent mathematical objects. They are not an encoding or a notation. They are the thing.
-
-**Projections, not compilation.** Each formalism implements `IProjectable` and mechanically produces Malli schemas, trace monitors, test.check generators, and gap type descriptors. There is no compiler. The projections are derived values.
-
-**Connections are first-class.** The morphisms between formalisms — existential references, structural matches, containment constraints, ordering constraints — are mathematical objects in their own right, with their own checking protocol. Boundaries are where the bugs live.
-
-**Cycles carry the strongest invariants.** The event-effect-callback loop, the observe-dispatch-update loop, the full dispatch cycle — these composed paths through the morphism graph impose constraints that no single formalism can see. Pneuma checks them.
-
-**Same runtime, instant feedback.** Everything is Clojure data in the same JVM process as your application. Modify a formalism at the REPL and the gap report updates immediately. No build step, no file watching, no separate toolchain.
-
-**Your architecture already did the hard part.** A single state atom, pure event handlers, effects as data, an event log — these patterns were chosen for testability and replay. They also happen to be exactly what formal conformance checking needs. Pneuma just connects the dots.
+```bash
+bb test                  # unit tests (fast, skips lean compilation)
+bb test-all              # unit + lean + regression + regression-lean
+bb test-lean             # lean compilation tests only
+bb test-regression       # regression tests (external project models)
+bb test-regression-lean  # regression lean compilation tests
+bb lake                  # build Lean proofs
+bb gen-html              # generate browsable HTML docs
+bb lint                  # clj-kondo
+bb fmt                   # check formatting
+bb ci                    # lint + fmt + test-all + lake build
+```
 
 ---
 
 ## Requirements
 
-- Clojure 1.11+
+- Clojure 1.12+
 - [Malli](https://github.com/metosin/malli) — schema validation and generation
 - [test.check](https://github.com/clojure/test.check) — property-based testing
-- [Specter](https://github.com/redplanetlabs/specter) — path resolution (for optic checking)
 
-No external theorem provers, model checkers, or formal methods tools. The entire system lives in one codebase, one runtime, one REPL.
+Optional:
+- [Lean 4](https://leanprover.github.io/) + [elan](https://github.com/leanprover/elan) — for `->lean` proof emission and `lake build`
 
 ---
 
-## Status
+## Design documents
 
-Pneuma is a design document and early implementation. The architecture is described in full in [formalism-first-conformance.md](docs/formalism-first-conformance.md). The implementation is being built bottom-up: objects first, then morphisms, then composed paths.
+- [formalism-first-conformance.md](doc/formalism-first-conformance.md) — mathematical foundations
+- [structural-domain-model.md](doc/structural-domain-model.md) — 19 sorts, 30 axioms, 14 morphisms
+- [system-architecture-prose.md](doc/system-architecture-prose.md) — Option A: Records + Protocols + Data Registry
+- [pneuma-lean4-extension.md](doc/pneuma-lean4-extension.md) — Lean 4 proof integration
 
 ---
 

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Run clj-kondo, only showing output on failure.
+output=$(clj-kondo --lint "$@" 2>&1) || { echo "$output"; exit 1; }
