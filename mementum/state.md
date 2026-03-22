@@ -2,14 +2,14 @@
 
 ## Status
 All implementation phases (0–12c) complete. PLAN.md fully checked off.
-203 unit tests, 1079 assertions, 0 failures + lean compilation tests.
+204 unit tests, 1086 assertions, 0 failures + lean compilation tests.
 CI: `bb ci` runs lint + fmt + test-all + lake build.
 
 ## Active Intent
 System feature-complete. All planned phases delivered including
 dogfood specs, living documentation, and Lean human-readable proofs.
-Next is application to real targets beyond the dogfood spec, or
-writing real Lean proofs to replace `sorry` scaffolding.
+First external target (integrant) modeled and regression-tested.
+Expanding to more external targets and runtime monitoring.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
@@ -66,12 +66,19 @@ writing real Lean proofs to replace `sorry` scaffolding.
   - 12a: Lean 4 docstrings on all emitters
   - 12b: Lean Blueprint LaTeX emission
   - 12c: Structured proof style guidelines and scaffolding
-- 203 unit tests, 1079 assertions, 0 failures
+- Integrant regression spec: 8 formalisms, 6 morphisms, all conforming
+- 204 unit tests, 1086 assertions, 0 failures
 
 ## Next
-- Write real Lean proofs to replace `sorry` scaffolding
-- Application to real targets beyond the dogfood spec
+- Expand integrant model (refinement map bridging spec to source)
+- More external target specs
 - Runtime monitoring using ->monitor projections
+- Package/release as a Clojure library
+
+## Notes
+- Lean proofs are complete — all 31 files use `decide` (no `sorry`
+  obligations). The comment mentioning `sorry` on line 5 of each
+  generated file documents the generation strategy, not an open task.
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
@@ -83,6 +90,7 @@ writing real Lean proofs to replace `sorry` scaffolding.
 - proofs/Pneuma/System.lean — generated system proof
 - proofs/blueprint/ — generated LaTeX blueprint
 - doc/proof-style-guidelines.md — structured proof style
+- test-regression/pneuma/integrant/ — integrant formal model + test
 
 ## Related
 - memories/dogfood-intent.md

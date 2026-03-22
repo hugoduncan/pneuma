@@ -11,6 +11,9 @@
   test-lean {:doc  "Run lean compilation tests only"
              :task (clojure "-M:test" "--focus" "pneuma.lean.lean-compile-test")}
 
+  test-regression {:doc  "Run regression tests (external project specs)"
+                   :task (clojure "-M:test" "regression")}
+
   lint      {:doc  "Lint with clj-kondo"
              :task (clojure "-M:lint")}
 
