@@ -33,7 +33,12 @@
                                 (is (str/includes? lean-src "test_caps_dispatch")))
 
                        (testing "contains proof target"
-                                (is (str/includes? lean-src "theorem"))))))
+                                (is (str/includes? lean-src "theorem")))
+
+                       (testing "contains docstrings"
+                                (is (str/includes? lean-src "/-- "))
+                                (is (str/includes? lean-src " -/"))
+                                (is (str/includes? lean-src "Derived from Pneuma CapabilitySet :test-caps."))))))
 
 (deftest protocol-caps-lean-emission-test
   ;; Real dogfood instance: the protocol-spec's formalism-record-caps.

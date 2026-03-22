@@ -5,6 +5,7 @@
   embedding function mapping each source ref to its target counterpart,
   and the existential boundary proposition."
     (:require [clojure.string :as str]
+              [pneuma.lean.doc :as doc]
               [pneuma.lean.protocol :as lp]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.existential ExistentialMorphism]))
@@ -69,8 +70,10 @@
 (defn- emit-boundary-proposition
        "Emits the existential boundary proposition: every source ref embeds
   into the target set."
-       [prefix]
+       [id prefix]
        (str "-- PROOF TARGET: every source reference exists in the target\n"
+            (doc/morphism-theorem-doc "ExistentialMorphism" id
+                                      "Every source reference embeds into the target set.")
             "theorem " prefix "_existential_boundary :\n"
             "    ∀ s : " prefix "Source, (" prefix "Embed s).isSome = true := by\n"
             "  intro s\n"
@@ -85,17 +88,22 @@
                  "-- Boundary: " (name from) " → " (name to) "\n"
                  "-- Source ref-kind: " (name source-ref-kind)
                  ", Target ref-kind: " (name target-ref-kind) "\n\n"
+                 (doc/morphism-type-doc "ExistentialMorphism" id
+                                        (str "Source references for existential check " (name from) " → " (name to) "."))
                  (emit-inductive (str prefix "Source") source-refs)
                  "\n"
+                 (doc/morphism-type-doc "ExistentialMorphism" id
+                                        (str "Target references for existential check " (name from) " → " (name to) "."))
                  (emit-inductive (str prefix "Target") target-refs)
                  "\n"
                  (emit-all-list (str prefix "Source") source-refs)
                  "\n"
                  (emit-all-list (str prefix "Target") target-refs)
                  "\n"
+                 (doc/lean-doc "Maps each source reference to its target counterpart, if one exists.")
                  (emit-embedding prefix source-refs target-refs)
                  "\n"
-                 (emit-boundary-proposition prefix))))
+                 (emit-boundary-proposition id prefix))))
 
 (extend-protocol lp/ILeanConnection
                  ExistentialMorphism

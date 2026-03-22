@@ -44,4 +44,10 @@
                                 (is (str/includes? lean-src "chart_safety")))
 
                        (testing "contains determinism theorem"
-                                (is (str/includes? lean-src "step_deterministic"))))))
+                                (is (str/includes? lean-src "step_deterministic")))
+
+                       (testing "contains docstrings"
+                                (is (str/includes? lean-src "/-- "))
+                                (is (str/includes? lean-src "States of the"))
+                                (is (str/includes? lean-src "Transition function"))
+                                (is (str/includes? lean-src "all reachable states satisfy it"))))))

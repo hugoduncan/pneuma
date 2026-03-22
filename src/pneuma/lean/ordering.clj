@@ -5,6 +5,7 @@
   element to its Nat position, and the ordering proposition: source index
   < target index, proved by decide."
     (:require [clojure.string :as str]
+              [pneuma.lean.doc :as doc]
               [pneuma.lean.protocol :as lp]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.ordering OrderingMorphism]))
@@ -51,10 +52,13 @@
 
 (defn- emit-ordering-proposition
        "Emits the ordering proposition: source index < target index, proved by decide."
-       [prefix source-ref target-ref]
+       [id prefix source-ref target-ref]
        (let [src-name (kw->lean-name source-ref)
              tgt-name (kw->lean-name target-ref)]
             (str "-- PROOF TARGET: source precedes target in the chain\n"
+                 (doc/morphism-theorem-doc "OrderingMorphism" id
+                                           (str "Source :" (name source-ref) " precedes target :"
+                                                (name target-ref) " in the interceptor chain."))
                  "theorem " prefix "_ordering_boundary :\n"
                  "    " prefix "ChainIndex ." src-name " < "
                  prefix "ChainIndex ." tgt-name " := by\n"
@@ -70,11 +74,14 @@
                  "-- Boundary: " (name from) " → " (name to) "\n"
                  "-- Source ref-kind: " (name source-ref-kind)
                  ", Target ref-kind: " (name target-ref-kind) "\n\n"
+                 (doc/morphism-type-doc "OrderingMorphism" id
+                                        (str "Chain elements for ordering check " (name from) " → " (name to) "."))
                  (emit-chain-inductive type-name chain)
                  "\n"
+                 (doc/lean-doc "Maps each chain element to its positional index.")
                  (emit-index-fn prefix type-name chain)
                  "\n"
-                 (emit-ordering-proposition prefix source-ref target-ref))))
+                 (emit-ordering-proposition id prefix source-ref target-ref))))
 
 (extend-protocol lp/ILeanConnection
                  OrderingMorphism

@@ -5,6 +5,7 @@
   lean extension namespaces to ensure extend-protocol registrations
   are loaded."
     (:require [clojure.string :as str]
+              [pneuma.lean.doc :as doc]
               [pneuma.lean.protocol :as lp]
               [pneuma.lean.system :as sys]
               [pneuma.path.core :as path]
@@ -107,6 +108,8 @@
                 "-- Steps: " (count steps) " morphisms\n\n"
                 (str/join "\n" (mapv :lean-src step-emissions))
                 "\n\n-- Composition theorem: all boundaries hold along the cycle\n"
+                (doc/theorem-doc
+                 (str "All boundaries hold along the cycle " chain-desc "."))
                 "theorem " lean-path-name "_composition :\n"
                 "    " (str/join " ∧\n    "
                                  (mapv (fn [{:keys [morphism]}]

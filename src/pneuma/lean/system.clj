@@ -4,7 +4,8 @@
   conforming morphisms, sorry placeholders for failing ones. The Lean
   output is a direct projection of Pneuma's own conformance check."
     (:require [clojure.string :as str]
-              [pneuma.gap.core :as gap]))
+              [pneuma.gap.core :as gap]
+              [pneuma.lean.doc :as doc]))
 
 ;;; Helpers
 
@@ -48,15 +49,18 @@
                             operations)
              non-builtin (remove #(lean-builtins (kw->lean-type %)) type-kws)]
             (str (str/join "\n"
-                           (mapv #(str "opaque " (kw->lean-type %) " : Type := Unit")
+                           (mapv #(str (doc/lean-doc (str "Opaque proxy for domain type :" (name %) "."))
+                                       "opaque " (kw->lean-type %) " : Type := Unit")
                                  non-builtin))
                  "\n")))
 
 (defn- emit-op-type
        "Emits the inductive Op type from an EffectSignature."
-       [operations]
+       [spec-name operations]
        (let [sorted-ops (sort (map (comp kw->lean-name key) operations))]
-            (str "\ninductive Op where\n"
+            (str "\n"
+                 (doc/lean-doc (str "Operation alphabet for system specification " spec-name "."))
+                 "inductive Op where\n"
                  (str/join "\n" (mapv #(str "  | " %) sorted-ops))
                  "\n  deriving DecidableEq, Repr\n")))
 
@@ -66,13 +70,19 @@
        (let [sorted-ops (sort (map (comp kw->lean-name key) operations))
              members (str/join ", " (mapv #(str "." %) sorted-ops))
              n (count operations)]
-            (str "\ndef allOps : List Op :=\n"
+            (str "\n"
+                 (doc/lean-doc "Exhaustive list of all operations in the system specification.")
+                 "def allOps : List Op :=\n"
                  "  [" members "]\n"
-                 "\ntheorem allOps_complete :\n"
+                 "\n"
+                 (doc/theorem-doc "Every member of Op appears in allOps. Proved by case analysis.")
+                 "theorem allOps_complete :\n"
                  "    ∀ op : Op, op ∈ allOps := by\n"
                  "  intro op\n"
                  "  cases op <;> simp [allOps]\n"
-                 "\ntheorem allOps_count :\n"
+                 "\n"
+                 (doc/theorem-doc (str "allOps contains exactly " n " members."))
+                 "theorem allOps_count :\n"
                  "    allOps.length = " n " := by\n"
                  "  rfl\n")))
 
@@ -82,7 +92,9 @@
        (let [id-str (kw->lean-name caps-id)
              sorted-ops (sort (mapv kw->lean-name dispatch-refs))
              members (str/join ", " (mapv #(str "." %) sorted-ops))]
-            (str "\ndef " id-str "_dispatch : List Op :=\n"
+            (str "\n"
+                 (doc/lean-doc (str "Dispatch operations permitted by capability set :" (name caps-id) "."))
+                 "def " id-str "_dispatch : List Op :=\n"
                  "  [" members "]\n")))
 
 (defn- morphism-status
@@ -101,6 +113,8 @@
        (let [id-str (kw->lean-name caps-id)]
             (str "\n-- Morphism " (name morph-id) ": " id-str " dispatch ⊆ allOps"
                  " [" (name status) "]\n"
+                 (doc/theorem-doc (str "All dispatch operations of :" (name caps-id)
+                                       " are valid members of Op."))
                  "theorem " id-str "_dispatch_valid :\n"
                  "    ∀ op : Op, op ∈ " id-str "_dispatch"
                  " → op ∈ allOps := by\n"
@@ -119,6 +133,7 @@
                                                      "_dispatch → op ∈ allOps)")))
                                        (sort-by name cap-ids)))]
             (str "\n-- System-level: all capability dispatch sets reference valid operations\n"
+                 (doc/theorem-doc "All capability dispatch sets reference valid operations in the effect signature.")
                  "theorem system_conformance :\n"
                  "    " conjuncts " := by\n"
                  (if all-conform?
@@ -169,7 +184,7 @@
                                 registry)]
            (str (emit-header spec-name conforms?)
                 (emit-opaque-types operations)
-                (emit-op-type operations)
+                (emit-op-type spec-name operations)
                 (emit-all-ops operations)
                 (str/join ""
                           (mapv (fn [[_ caps]]

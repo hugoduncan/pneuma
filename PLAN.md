@@ -298,11 +298,12 @@ Augment the lean emission with human-readable proof artifacts. See
 
 **Phase 12a — Docstrings in Lean files:**
 
-- [ ] Update all `pneuma.lean.*` emitters to generate `/-- ... -/`
+- [x] Update all `pneuma.lean.*` emitters to generate `/-- ... -/`
   docstrings for every type definition and theorem
   - Type docstrings link back to the source Pneuma formalism
   - Theorem docstrings state the property in plain English
   - Visible on hover in VS Code with the Lean extension
+  - `pneuma.lean.doc` — shared docstring helper namespace
 
 **Phase 12b — Lean Blueprint integration:**
 

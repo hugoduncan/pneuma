@@ -4,6 +4,7 @@
   Emits inductive types for source and target reference sets and a subset
   proposition: every source ref is a member of the target set."
     (:require [clojure.string :as str]
+              [pneuma.lean.doc :as doc]
               [pneuma.lean.protocol :as lp]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.containment ContainmentMorphism]))
@@ -68,8 +69,10 @@
 (defn- emit-boundary-proposition
        "Emits the containment boundary proposition: every source ref is a
   member of the target set."
-       [prefix]
+       [id prefix]
        (str "-- PROOF TARGET: every source reference is contained in the target set\n"
+            (doc/morphism-theorem-doc "ContainmentMorphism" id
+                                      "Every source reference is contained in the target set.")
             "theorem " prefix "_containment_boundary :\n"
             "    ∀ s : " prefix "Source, " prefix "InTarget s = true := by\n"
             "  intro s\n"
@@ -84,17 +87,22 @@
                  "-- Boundary: " (name from) " → " (name to) "\n"
                  "-- Source ref-kind: " (name source-ref-kind)
                  ", Target ref-kind: " (name target-ref-kind) "\n\n"
+                 (doc/morphism-type-doc "ContainmentMorphism" id
+                                        (str "Source references for containment check " (name from) " → " (name to) "."))
                  (emit-inductive (str prefix "Source") source-refs)
                  "\n"
+                 (doc/morphism-type-doc "ContainmentMorphism" id
+                                        (str "Target references for containment check " (name from) " → " (name to) "."))
                  (emit-inductive (str prefix "Target") target-refs)
                  "\n"
                  (emit-all-list (str prefix "Source") source-refs)
                  "\n"
                  (emit-all-list (str prefix "Target") target-refs)
                  "\n"
+                 (doc/lean-doc "Checks whether each source reference exists in the target set.")
                  (emit-membership-fn prefix source-refs target-refs)
                  "\n"
-                 (emit-boundary-proposition prefix))))
+                 (emit-boundary-proposition id prefix))))
 
 (extend-protocol lp/ILeanConnection
                  ContainmentMorphism

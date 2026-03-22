@@ -40,7 +40,13 @@
                                 (is (str/includes? lean-src "allOps_complete")))
 
                        (testing "contains count theorem"
-                                (is (str/includes? lean-src "Op_count"))))))
+                                (is (str/includes? lean-src "Op_count")))
+
+                       (testing "contains docstrings"
+                                (is (str/includes? lean-src "/-- "))
+                                (is (str/includes? lean-src " -/"))
+                                (is (str/includes? lean-src "Operation alphabet for EffectSignature"))
+                                (is (str/includes? lean-src "Input fields for operation"))))))
 
 (deftest protocol-operations-lean-emission-test
   ;; Real dogfood: the protocol-spec's six protocol operations.

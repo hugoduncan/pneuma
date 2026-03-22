@@ -4,6 +4,7 @@
   Emits inductive types for source outputs, an opaque schema validation
   predicate, and the structural boundary proposition."
     (:require [clojure.string :as str]
+              [pneuma.lean.doc :as doc]
               [pneuma.lean.protocol :as lp]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.structural StructuralMorphism]))
@@ -56,13 +57,17 @@
        [prefix]
        (str "-- Schema validation is opaque: originates from Malli at the Clojure level.\n"
             "-- The predicate stands for: m/validate target-schema output\n"
+            (doc/lean-doc "Opaque predicate: source output conforms to the target schema."
+                          "Schema validation originates from Malli and cannot be expressed in Lean.")
             "opaque " prefix "Valid : " prefix "Output → Prop := fun _ => True\n"))
 
 (defn- emit-boundary-proposition
        "Emits the structural boundary proposition: every source output
   conforms to the target schema."
-       [prefix]
+       [id prefix]
        (str "-- PROOF TARGET: every source output validates against the target schema\n"
+            (doc/morphism-theorem-doc "StructuralMorphism" id
+                                      "Every source output validates against the target schema.")
             "theorem " prefix "_structural_boundary :\n"
             "    ∀ o : " prefix "Output, " prefix "Valid o := by\n"
             "  sorry\n"))
@@ -76,13 +81,15 @@
                  "-- Boundary: " (name from) " → " (name to) "\n"
                  "-- Source ref-kind: " (name source-ref-kind)
                  ", Target ref-kind: " (name target-ref-kind) "\n\n"
+                 (doc/morphism-type-doc "StructuralMorphism" id
+                                        (str "Source outputs for structural check " (name from) " → " (name to) "."))
                  (emit-inductive (str prefix "Output") source-outputs)
                  "\n"
                  (emit-all-list (str prefix "Output") source-outputs)
                  "\n"
                  (emit-validate-fn prefix)
                  "\n"
-                 (emit-boundary-proposition prefix))))
+                 (emit-boundary-proposition id prefix))))
 
 (extend-protocol lp/ILeanConnection
                  StructuralMorphism
