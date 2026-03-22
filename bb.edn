@@ -1,21 +1,30 @@
 {:tasks
- {repl    {:doc  "Start nREPL with CIDER middleware"
-           :task (clojure "-M:dev:nrepl")}
+ {repl      {:doc  "Start nREPL with CIDER middleware"
+             :task (clojure "-M:dev:nrepl")}
 
-  test    {:doc  "Run tests with kaocha"
-           :task (clojure "-M:test")}
+  test      {:doc  "Run unit tests (skips lean compilation)"
+             :task (clojure "-M:test")}
 
-  lint    {:doc  "Lint with clj-kondo"
-           :task (clojure "-M:lint")}
+  test-all  {:doc  "Run all tests including lean compilation"
+             :task (clojure "-M:test/all")}
 
-  fmt     {:doc  "Check formatting with cljfmt"
-           :task (clojure "-M:fmt")}
+  test-lean {:doc  "Run lean compilation tests only"
+             :task (clojure "-M:test" "--focus" "pneuma.lean.lean-compile-test")}
 
-  fmt/fix {:doc  "Fix formatting with cljfmt"
-           :task (clojure "-M:fmt/fix")}
+  lint      {:doc  "Lint with clj-kondo"
+             :task (clojure "-M:lint")}
 
-  outdated {:doc  "Check for outdated dependencies"
-            :task (clojure "-M:outdated")}
+  fmt       {:doc  "Check formatting with cljfmt"
+             :task (clojure "-M:fmt")}
 
-  ci      {:doc  "Run lint + fmt check + tests"
-           :depends [lint fmt test]}}}
+  fmt-fix   {:doc  "Fix formatting with cljfmt"
+             :task (clojure "-M:fmt/fix")}
+
+  lake      {:doc  "Build Lean proofs"
+             :task (shell {:dir "proofs"} "lake" "build")}
+
+  outdated  {:doc  "Check for outdated dependencies"
+             :task (clojure "-M:outdated")}
+
+  ci        {:doc  "Run lint + fmt check + all tests + lean proofs"
+             :depends [lint fmt test-all lake]}}}
