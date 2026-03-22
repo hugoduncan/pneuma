@@ -35,32 +35,46 @@ E = { Namespace, Protocol, ProtocolMethod, Record,
 | Sort | Description | Instance count in Option A |
 |---|---|---|
 | **Namespace** | A Clojure `.clj` file with a `ns` declaration. The fundamental unit of code organization, dependency management, and file-size accounting. | ~18 |
-| **Layer** | A build/dependency stratum. Namespaces are partitioned into layers; dependencies only flow from later layers to earlier ones. | 4 |
+| **Layer** | A build/dependency stratum. Namespaces are partitioned into layers; dependencies only flow from later layers to earlier ones. | 5 |
 
-The four layers, in dependency order:
+The five layers, in dependency order:
 
 ```
 protocol < formalism < morphism < integration
+                                < lean
 ```
 
 Where `integration` subsumes `path/*`, `gap/*`, `refinement`, and
-`core`.
+`core`. The `lean` layer is a sibling of `integration` — both depend
+on `formalism` and `morphism`, but neither depends on the other. The
+lean layer is optional; nothing in `integration` requires it.
 
 #### 1.2 Dispatch sorts
 
 | Sort | Description | Instance count |
 |---|---|---|
-| **Protocol** | A Clojure `defprotocol`. Defines a set of methods that records must implement. | 3 |
+| **Protocol** | A Clojure `defprotocol`. Defines a set of methods that records must implement. | 5 |
 | **ProtocolMethod** | A single method declared within a protocol. Has a name, an argument signature, and a docstring. | 8 |
 | **Record** | A Clojure `defrecord` type. Has positional fields and implements one or more protocols. | 10 |
 
-The three protocols:
+The five protocols (three core, two lean):
 
-| Protocol | Methods | Implemented by |
-|---|---|---|
-| `IProjectable` | `->schema`, `->monitor`, `->gen`, `->gap-type`, `->lean` | 6 formalism records |
-| `IConnection` | `check`, `->lean` | 4 morphism kind records |
-| `IReferenceable` | `extract-refs` | 6 formalism records |
+| Protocol | Methods | Implemented by | Layer |
+|---|---|---|---|
+| `IProjectable` | `->schema`, `->monitor`, `->gen`, `->gap-type` | 6 formalism records | protocol |
+| `IConnection` | `check` | 4 morphism kind records | protocol |
+| `IReferenceable` | `extract-refs` | 6 formalism records | protocol |
+| `ILeanProjectable` | `->lean` | 6 formalism records (via extend-protocol) | lean |
+| `ILeanConnection` | `->lean-conn` | 4 morphism kind records (via extend-protocol) | lean |
+
+The core protocols (`IProjectable`, `IConnection`, `IReferenceable`)
+are defined in `pneuma.protocol`. The lean protocols
+(`ILeanProjectable`, `ILeanConnection`) are defined in
+`pneuma.lean.protocol` — a separate namespace with no dependency on
+`pneuma.protocol`. The lean protocols are extended onto existing
+records via `extend-protocol` in per-formalism lean namespaces
+(e.g. `pneuma.lean.statechart`), so formalism records never need to
+know about Lean.
 
 The ten records:
 
@@ -206,6 +220,7 @@ A **Fibration** partitioning namespaces into layers. The four fibers:
 | `formalism` | `pneuma.formalism.statechart`, `.effect-signature`, `.mealy`, `.optic`, `.resolver`, `.capability` |
 | `morphism` | `pneuma.morphism.registry`, `.existential`, `.structural`, `.containment`, `.ordering` |
 | `integration` | `pneuma.path.core`, `.cycles`, `pneuma.gap.core`, `.diff`, `pneuma.refinement`, `pneuma.core` |
+| `lean` | `pneuma.lean.protocol`, `.statechart`, `.effect-signature`, `.mealy`, `.capability`, `.type-schema`, `.existential`, `.structural`, `.core` |
 
 The fibration is non-trivial because the dependency constraint (Axiom
 A2) is stated in terms of fibers: dependencies only cross fiber
@@ -222,8 +237,8 @@ declaration order is irrelevant in Clojure protocols.
 
 | Protocol | methods |
 |---|---|
-| IProjectable | `{ ->schema, ->monitor, ->gen, ->gap-type, ->lean }` |
-| IConnection | `{ check, ->lean }` |
+| IProjectable | `{ ->schema, ->monitor, ->gen, ->gap-type }` |
+| IConnection | `{ check }` |
 | IReferenceable | `{ extract-refs }` |
 
 #### 4.4 Record as Product of fields and protocol implementations
@@ -369,7 +384,7 @@ layout.)
 ∀ r : Record, layer(r) = formalism,
   { IProjectable, IReferenceable } ⊆ impls(r)
 ```
-Every formalism record implements both `IProjectable` (five
+Every formalism record implements both `IProjectable` (four
 projection methods) and `IReferenceable` (reference extraction).
 This is the structural guarantee behind Axiom A1 of the domain model
 (projection completeness).
@@ -518,7 +533,7 @@ record. This is a **case analysis** (coproduct elimination) over the
 implicit coproduct of records that implement the protocol.
 
 For IProjectable, dispatch resolves one of the six formalism records
-to one of five projection methods — 30 resolutions total. Each is
+to one of four projection methods — 24 resolutions total. Each is
 independent (Axiom A7 guarantees totality).
 
 **Preserves:** Coproduct structure (exhaustive, disjoint dispatch).
@@ -656,7 +671,7 @@ parallelism exists.
 | A2 | Layer respect | Implication | Deps flow toward earlier layers only |
 | A3 | Protocol isolation | Equation | protocol.clj has no project deps |
 | A4 | Method co-location | Equation | Methods live in protocol's namespace |
-| A5 | Formalism protocol coverage | SubsetOf | Formalism records implement IProjectable (5 methods) + IReferenceable |
+| A5 | Formalism protocol coverage | SubsetOf | Formalism records implement IProjectable + IReferenceable |
 | A6 | Morphism protocol coverage | Membership | Morphism records implement IConnection |
 | A7 | Implementation totality | Coverage | All protocol methods have bodies |
 | A8 | Registry entry resolution | Membership | from/to point to existing records |
@@ -729,6 +744,3 @@ Option A's distinguishing property is that Axioms A5, A6, and A7 are
 between specification and implementation, having the implementation's
 own structural invariants enforced at compile time rather than runtime
 is architecturally coherent — the tool practices what it preaches.
-This extends to the `->lean` projection: the protocol mechanism
-ensures every formalism provides Lean emission alongside its runtime
-projections.

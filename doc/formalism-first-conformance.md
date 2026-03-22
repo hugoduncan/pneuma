@@ -226,14 +226,13 @@ Each mathematical object implements a single protocol that projects it into four
 
 ```clojure
 (defprotocol IProjectable
-  (->schema   [this]  "Produce a Malli schema for structural validation.")
-  (->monitor  [this]  "Produce a trace monitor for behavioral checking.")
-  (->gen      [this]  "Produce a test.check generator for property testing.")
-  (->gap-type [this]  "Produce the gap type descriptor for this formalism.")
-  (->lean     [this]  "Produce a Lean 4 source fragment for proof targets."))
+  (->schema  [this]  "Produce a Malli schema for structural validation.")
+  (->monitor [this]  "Produce a trace monitor for behavioral checking.")
+  (->gen     [this]  "Produce a test.check generator for property testing.")
+  (->gap-type [this] "Produce the gap type descriptor for this formalism."))
 ```
 
-The protocol is deliberately minimal. Each method takes only `this` — the mathematical object — and returns a checking artifact. There is no compilation context, no symbol table, no cross-references to other formalisms. Each formalism is self-contained in what it can project. Cross-formalism checks (like verifying that raised events from the statechart have corresponding Mealy handlers) happen at a higher level, after the individual projections. The first four projections produce runtime checking artifacts (sampled); the fifth (`->lean`) produces Lean 4 source code for kernel-verified proofs (universal). See [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the full Lean integration design.
+The protocol is deliberately minimal. Each method takes only `this` — the mathematical object — and returns a checking artifact. There is no compilation context, no symbol table, no cross-references to other formalisms. Each formalism is self-contained in what it can project. Cross-formalism checks (like verifying that raised events from the statechart have corresponding Mealy handlers) happen at a higher level, after the individual projections.
 
 ### 3.1. Schema Projection
 
@@ -287,6 +286,15 @@ Every gap is assigned one of three statuses: **conforms** (spec equals implement
 
 ### 3.5. Lean Projection
 
+The Lean projection is implemented as a separate protocol
+(`ILeanProjectable`) in the `pneuma.lean` namespace layer, not as an
+additional method on `IProjectable`. This isolates the optional Lean
+dependency from the core checking system. Existing formalism records
+are extended via `extend-protocol` in per-formalism lean namespaces.
+See [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the
+full design and [dogfood-lean.md](dogfood-lean.md) for how Pneuma
+checks its own lean projection layer.
+
 `->lean` produces a string of Lean 4 source code — type definitions, property statements with `sorry` placeholders, and proof scaffolding. The output is not a compiled Lean term; it is source code that must be fed to the Lean compiler and may require human guidance to complete proofs.
 
 What each formalism projects as Lean source:
@@ -312,8 +320,7 @@ We promote these connections to first-class mathematical objects called **morphi
 (defprotocol IConnection
   (check   [this a b] "Check the boundary contract between a and b.")
   (->gap   [this a b] "Produce a typed gap if the contract is violated.")
-  (->gen   [this a b] "Generate test cases that exercise the boundary.")
-  (->lean  [this a b] "Emit Lean 4 boundary proposition and composition theorem."))
+  (->gen   [this a b] "Generate test cases that exercise the boundary."))
 ```
 
 ### 4.1. Four Kinds of Morphism

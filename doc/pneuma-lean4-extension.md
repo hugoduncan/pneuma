@@ -71,22 +71,31 @@ Lean proves: **two statecharts are bisimilar** if and only if there exists a bis
 
 ## 3. The ->lean Projection
 
-The `->lean` projection is a new method on the `IProjectable` protocol and the `IConnection` protocol. It sits alongside the existing projections:
+The `->lean` projection lives on separate protocols in the
+`pneuma.lean` namespace layer, isolating the optional Lean dependency
+from the core checking system. The core protocols are unchanged:
 
 ```clojure
-(defprotocol IProjectable
-  (->schema   [this])    ;; → Malli schema
-  (->monitor  [this])    ;; → trace checking function
-  (->gen      [this])    ;; → test.check generator
-  (->gap-type [this])    ;; → gap type descriptor
-  (->lean     [this]))   ;; → string of Lean 4 source code
+;; pneuma.lean.protocol — separate from pneuma.protocol
 
-(defprotocol IConnection
-  (check  [this a b])
-  (->gap  [this a b])
-  (->gen  [this a b])
-  (->lean [this a b]))   ;; → Lean 4 theorem statement + proof sketch
+(defprotocol ILeanProjectable
+  (->lean [this]
+    "Returns a string of Lean 4 source code: type definitions,
+     property statements with sorry placeholders, and proof
+     scaffolding."))
+
+(defprotocol ILeanConnection
+  (->lean-conn [this source target]
+    "Returns a string of Lean 4 source code: boundary propositions
+     and composition theorem scaffolding."))
 ```
+
+Existing formalism and morphism records are extended via
+`extend-protocol` in per-record lean namespaces (e.g.
+`pneuma.lean.statechart` extends `Statechart` with
+`ILeanProjectable`). This means the formalism records never import
+or depend on Lean — the lean layer reaches into them, not the other
+way around.
 
 The output of `->lean` is a string — a `.lean` file fragment containing type definitions, property statements, and proof scaffolding. It is not a compiled Lean term; it is source code that must be fed to the Lean compiler. The reason is pragmatic: Lean proofs often require human guidance (choosing the right tactic, providing a witness, decomposing a complex goal), and emitting source code gives the developer a starting point to work from rather than a black box.
 
@@ -402,19 +411,60 @@ The trust chain runs: Lean kernel → `->lean` translation → Pneuma formalisms
 
 ### 9.1. Build order
 
-The Lean integration is Phase 5 of the overall Pneuma build plan, after the three-layer runtime checking system is working.
+The Lean integration is Phase 5 of the overall Pneuma build plan,
+after the three-layer runtime checking system is working.
 
-**Step 1: Statechart emission.** This is the simplest and most valuable target. The statechart is a finite structure, Lean's `Fintype`/`DecidableEq` instances make proofs tractable, and chart safety is the most commonly desired invariant. Start here.
+**Step 0: Lean protocol layer.** Define `ILeanProjectable` and
+`ILeanConnection` in `pneuma.lean.protocol`. This is the leaf
+namespace of the lean layer — no dependencies on the core protocols
+or any formalism/morphism code.
 
-**Step 2: Effect signature emission.** Emit the inductive `Effect` type and field structures. This enables morphism composition proofs (step 4) because the effect types need to exist in Lean before you can state composition theorems about them.
+**Step 1: Statechart emission.** Implement `extend-protocol
+ILeanProjectable` for `Statechart` in `pneuma.lean.statechart`.
+This is the simplest and most valuable target. The statechart is a
+finite structure, Lean's `Fintype`/`DecidableEq` instances make
+proofs tractable, and chart safety is the most commonly desired
+invariant. Start here.
 
-**Step 3: Mealy handler emission.** Emit the handler contract as a Lean function. This is more complex because the handler has preconditions (guards) and postconditions (state updates, effect emissions). The replay determinism proof (Section 5.2) becomes available at this step.
+**Step 2: Effect signature emission.** `pneuma.lean.effect-signature`.
+Emit the inductive `Effect` type and field structures. This enables
+morphism composition proofs (step 4) because the effect types need
+to exist in Lean before you can state composition theorems.
 
-**Step 4: Morphism emission.** Emit the boundary propositions. Each morphism type (existential, structural, containment, ordering) has a fixed translation pattern. The composition theorem across morphism chains becomes available here.
+**Step 3: Mealy handler emission.** `pneuma.lean.mealy`. Emit the
+handler contract as a Lean function. The replay determinism proof
+(Section 5.2) becomes available at this step.
 
-**Step 5: Cycle emission.** Emit the cycle-level theorems. These depend on all previous steps. The event-effect-callback cycle theorem is the primary target.
+**Step 4: Morphism emission.** `pneuma.lean.existential` and
+`pneuma.lean.structural`. Emit boundary propositions via
+`extend-protocol ILeanConnection`. The composition theorem across
+morphism chains becomes available here.
 
-**Step 6: Bisimulation emission.** Emit the bisimulation checker for pairs of statecharts. This is useful for validating refactors but is not on the critical path.
+**Step 5: Cycle emission.** Emit cycle-level theorems via
+`pneuma.lean.core`. These depend on all previous steps.
+
+**Step 6: Bisimulation emission.** Also in `pneuma.lean.core`.
+Useful for validating refactors but not on the critical path.
+
+### 9.1.1. Clojure namespace structure
+
+```
+src/pneuma/lean/
+├── protocol.clj           # ILeanProjectable, ILeanConnection (no deps)
+├── statechart.clj         # extend Statechart
+├── effect_signature.clj   # extend EffectSignature
+├── mealy.clj              # extend MealyHandlerSet
+├── capability.clj         # extend CapabilitySet
+├── type_schema.clj        # extend TypeSchema
+├── existential.clj        # extend ExistentialMorphism
+├── structural.clj         # extend StructuralMorphism
+└── core.clj               # public API (requires all above)
+```
+
+The `lean` layer depends on `formalism/*` and `morphism/*` records
+(it imports their record classes for `extend-protocol`) but not on
+`pneuma.protocol` directly. Nothing in `pneuma.core` or
+`pneuma.gap.*` depends on `pneuma.lean.*`.
 
 ### 9.2. Dependencies
 

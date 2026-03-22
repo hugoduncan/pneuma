@@ -459,8 +459,10 @@ Each variant has a distinct formal structure:
   emits the strongest theorems: cycle closure, precondition chaining,
   and callback re-entry safety.
 
-The five variants are the five methods of `IProjectable`. Each
-formalism produces all five.
+The five variants correspond to the five projection functors (§6.1).
+The first four are methods of `IProjectable`; the fifth (`→lean`) is
+on the separate `ILeanProjectable` protocol. Each formalism produces
+all five.
 
 #### 4.9 MorphismKind as Coproduct
 
@@ -914,8 +916,9 @@ morphisms, and index comparisons for ordering morphisms.
 ```
 
 Five functors from the coproduct `Formalism` to the coproduct
-`Projection`. These are the `IProjectable` protocol methods. Each
-preserves the identity of the formalism — the projection is
+`Projection`. The first four are `IProjectable` protocol methods;
+the fifth (`→lean`) is on the separate `ILeanProjectable` protocol.
+Each preserves the identity of the formalism — the projection is
 *determined by* the formalism. These are natural in the sense that
 adding a new formalism (extending the coproduct) requires only
 implementing the five methods; existing formalisms and their
@@ -926,6 +929,15 @@ The first four projections produce runtime checking artifacts
 kernel-verified proofs (universal). See
 [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the
 translation rules and proof targets.
+
+**Implementation note:** In the Clojure realization (Option A), the
+first four projections are methods on `IProjectable` in
+`pneuma.protocol`. The fifth (`→lean`) is on a separate protocol
+`ILeanProjectable` in `pneuma.lean.protocol`, bridged to existing
+records via `extend-protocol`. This isolates the optional Lean
+dependency from the core checking system. See
+[option-a-formalism.md](option-a-formalism.md) §1.2 for the lean
+layer protocols.
 
 **Preserves:** Coproduct structure (case analysis).
 

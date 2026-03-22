@@ -17,7 +17,7 @@ report machinery.
 The protocol layer is the simplest piece of Pneuma with real
 structural invariants worth checking:
 
-- Three protocols, eight methods total.
+- Three protocols, six methods total.
 - Ten records must implement specific protocols (A5, A6 from the
   Option A formalism).
 - Method implementations must satisfy return-type contracts (A21–A28
@@ -70,23 +70,13 @@ protocol method becomes an operation with typed fields.
       {:input  {:formalism :Formalism}
        :output :GapTypeDesc}
 
-      :->lean
-      {:input  {:formalism :Formalism}
-       :output :LeanSource}
-
-      ;; IConnection — two methods
+      ;; IConnection — one checking method
       :check
       {:input  {:morphism :Morphism
                 :source   :Formalism
                 :target   :Formalism
                 :rm       :RefinementMap}
        :output :GapSequence}
-
-      :->lean-conn
-      {:input  {:morphism :Morphism
-                :source   :Formalism
-                :target   :Formalism}
-       :output :LeanSource}
 
       ;; IReferenceable — one extraction method
       :extract-refs
@@ -111,13 +101,13 @@ protocol operations it must implement.
 (def formalism-record-caps
   (p/capability-set
     {:id :formalism-record
-     :dispatch #{:->schema :->monitor :->gen :->gap-type :->lean
+     :dispatch #{:->schema :->monitor :->gen :->gap-type
                  :extract-refs}}))
 
 (def morphism-record-caps
   (p/capability-set
     {:id :morphism-record
-     :dispatch #{:check :->lean-conn}}))
+     :dispatch #{:check}}))
 ```
 
 These are two capability profiles. Every record in the `formalism`
@@ -173,7 +163,7 @@ against the actual `pneuma.protocol` implementation, the three-layer
 report tells us:
 
 **Object gaps** (per-formalism):
-- EffectSignature: are all eight operations defined? Do they have the
+- EffectSignature: are all six operations defined? Do they have the
   right field shapes? → catches missing or malformed protocol
   methods.
 - CapabilitySets: are the declared operation sets non-empty and
@@ -242,13 +232,6 @@ The protocol layer has no:
   needed.
 - **Composed paths** — no cycles in the formalism graph. Path layer
   not needed.
-- **Lean proof targets** — the protocol layer's invariants are
-  structural (protocol coverage, return types) rather than
-  behavioral. They are fully checkable at runtime by Malli schemas
-  and existential morphisms. The `->lean` projection is not needed
-  for this dogfood target — Lean proofs become valuable at the
-  statechart/cycle level where universal quantification over
-  reachable states and event sequences matters.
 
 These all arise when checking a real event-sourced application.
 The protocol dogfood exercises the *object* and *morphism* layers
