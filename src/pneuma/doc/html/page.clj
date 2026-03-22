@@ -72,6 +72,11 @@ details.section[open] > summary::before { transform: rotate(90deg); }
                    margin-left: 0.5em; }
 [data-intent=\"detail\"] > summary > .section-summary { display: none; }
 
+pre.code-block { background: #f8f9fa; border: 1px solid #e5e7eb;
+                 border-radius: 4px; padding: 1em; overflow-x: auto;
+                 font-size: 0.85em; line-height: 1.5; }
+pre.code-block code { background: none; padding: 0; }
+
 main { max-width: 60em; margin: 0 auto; padding: 1em;
        font-family: system-ui, sans-serif; }
 
@@ -106,6 +111,15 @@ function setAllIntent(intent) {
 
 (def ^:private mermaid-cdn-url
      "https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js")
+
+(def ^:private hljs-cdn-url
+     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/highlight.min.js")
+
+(def ^:private hljs-lean-url
+     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/languages/lean.min.js")
+
+(def ^:private hljs-css-url
+     "https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11/build/styles/github.min.css")
 
 (defn- build-toc
        "Builds a table-of-contents nav from the root fragment's children.
@@ -142,8 +156,12 @@ function setAllIntent(intent) {
                               :content "width=device-width, initial-scale=1"}]
                       [:title title]
                       [:style (h/raw css-text)]
+                      [:link {:rel "stylesheet" :href hljs-css-url}]
                       [:script {:src mermaid-cdn-url}]
                       [:script (h/raw "mermaid.initialize({startOnLoad:true});")]
+                      [:script {:src hljs-cdn-url}]
+                      [:script {:src hljs-lean-url}]
+                      [:script (h/raw "hljs.highlightAll();")]
                       [:script (h/raw js-text)]]
                      [:body
                       toc

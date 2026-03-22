@@ -3,6 +3,7 @@
     (:require [clojure.string :as str]
               [pneuma.doc.fragment :as doc]
               [pneuma.doc.render :as render]
+              [pneuma.lean.system :as lean-sys]
               [pneuma.morphism.registry :as mreg]
               [pneuma.path.core :as path]
               [pneuma.protocol :as p]))
@@ -114,17 +115,42 @@
              :docx     (render/render-docx fragment)
              (throw (ex-info "Unknown format" {:format format}))))
 
+(defn- lean-doc
+       "Produces a Lean projection section if the spec has effect signatures.
+  Returns a section fragment with the generated Lean 4 code, or nil."
+       [spec-name formalisms-map registry]
+       (try
+        (let [lean-code (lean-sys/emit-system-lean
+                         spec-name
+                         {:formalisms formalisms-map :registry registry})
+              line-count (count (str/split-lines lean-code))]
+             (doc/section
+              :lean/root "Lean Projection"
+              [(doc/summary :lean/summary
+                            (str line-count " lines of Lean 4"))
+               (doc/code-block :lean/code "lean" lean-code)]))
+        (catch Exception _
+               nil)))
+
 (defn render-doc
       "Assembles and renders a complete architecture document.
   Config keys: :formalisms (seq of IProjectable records), :registry (morphism
-  registry map), :gap-report (optional gap report map), :format (default :markdown).
+  registry map), :gap-report (optional gap report map), :format (default :markdown),
+  :formalisms-map (optional, keyed map for Lean projection),
+  :spec-name (optional, for Lean section title).
   Returns a rendered string (for :markdown) or bytes (for :docx)."
-      [{:keys [formalisms registry gap-report format render-opts]
+      [{:keys [formalisms registry gap-report format render-opts
+               formalisms-map spec-name]
         :or {format :markdown}}]
       (let [formalism-sections (mapv p/->doc formalisms)
             morphism-section   (morphism-doc registry)
             path-section       (path-doc registry)
-            base-children      (into formalism-sections [morphism-section path-section])
+            lean-section       (when formalisms-map
+                                     (lean-doc (or spec-name "spec")
+                                               formalisms-map registry))
+            base-children      (cond-> (into formalism-sections
+                                             [morphism-section path-section])
+                                       lean-section (conj lean-section))
             all-children       (if gap-report
                                    (conj base-children (gap-report-doc gap-report))
                                    base-children)

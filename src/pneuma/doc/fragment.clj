@@ -37,6 +37,12 @@
       [target-id status detail]
       {:kind :status-annotation :target-id target-id :status status :detail detail})
 
+(defn code-block
+      "Creates a syntax-highlighted code block fragment.
+  Language is a string like \"lean\", \"clojure\", etc."
+      [id language code]
+      {:kind :code-block :id id :language language :code code})
+
 (defn summary
       "Creates a compact one-line summary fragment for a section.
   Displayed in the section header when the section is collapsed or
@@ -47,7 +53,7 @@
 ;;; Predicates
 
 (def ^:private known-kinds
-     #{:section :table :prose :diagram-spec :cross-ref :status-annotation :summary})
+     #{:section :table :prose :diagram-spec :cross-ref :status-annotation :summary :code-block})
 
 (defn fragment?
       "Returns true if x is a known fragment map."

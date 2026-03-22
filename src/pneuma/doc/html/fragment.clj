@@ -127,6 +127,13 @@
                 :class "cross-ref"}
             label])
 
+;;; Code block
+
+(defmethod render-fragment :code-block [{:keys [id language code]} _ctx]
+           [:pre (cond-> {:class (str "code-block language-" language)}
+                         id (assoc :id (full-id id)))
+            [:code {:class (str "language-" language)} code]])
+
 ;;; Summary — consumed by section renderer, not rendered standalone
 
 (defmethod render-fragment :summary [_ _] nil)

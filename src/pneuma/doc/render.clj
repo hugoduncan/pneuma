@@ -84,6 +84,7 @@
              :diagram-spec      (render-diagram-spec fragment)
              :cross-ref         (render-cross-ref fragment)
              :status-annotation (render-status-annotation fragment)
+             :code-block        (str "```" (:language fragment) "\n" (:code fragment) "\n```\n\n")
              :summary           (str "*" (:text fragment) "*\n\n")
              (throw (ex-info "Unknown fragment kind" {:fragment fragment}))))
 

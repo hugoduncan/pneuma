@@ -86,6 +86,8 @@ clojure -M:dev -e '
                            failures (count (filterv #(not= :conforms (:status %)) all-gaps))
                            html     (dc/render-doc (assoc system
                                                           :formalisms (vals (:formalisms system))
+                                                          :formalisms-map (:formalisms system)
+                                                          :spec-name spec-name
                                                           :gap-report report
                                                           :format :html
                                                           :render-opts {:index-url "index.html"}))
