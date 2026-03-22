@@ -79,7 +79,7 @@ target.
 Build order within this phase is flexible. Each is independently
 testable.
 
-- [ ] `pneuma.formalism.statechart` — Statechart record + IProjectable
+- [x] `pneuma.formalism.statechart` — Statechart record + IProjectable
   - Harel statechart tuple (S, ≤, T, C, H, δ)
   - Step function δ: Configuration × Event → Configuration
   - Reachability analysis (BFS over transition relation)
@@ -87,7 +87,7 @@ testable.
   - →monitor: check config transitions match δ
   - →gen: random walks over reachable states
   - →gap-type: :missing-state, :missing-transition, :unreachable-state, :invalid-config
-- [ ] `pneuma.formalism.mealy` — MealyDeclaration record + IProjectable
+- [x] `pneuma.formalism.mealy` — MealyDeclaration record + IProjectable
   - Handler contracts: guards, updates, effect emissions
   - →schema: input/output schemas per handler
   - →monitor: check db-before/db-after diffs match declared updates
