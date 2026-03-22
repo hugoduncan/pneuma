@@ -84,7 +84,7 @@ Plus domain-specific enumerations:
 GapStatus      = { :conforms, :absent, :diverges }
 MorphismKind   = { :existential, :structural, :containment, :ordering }
 OpticType      = { :Lens, :Traversal, :Fold, :Derived }
-ProjectionKind = { :schema, :monitor, :generator, :gap-type }
+ProjectionKind = { :schema, :monitor, :generator, :gap-type, :lean }
 GapLayer       = { :object, :morphism, :path }
 Verdict        = { :ok, :violation }
 ```
@@ -185,8 +185,8 @@ The `detail` field is status-dependent — see Sigma construction (§4.11).
 #### 3.10 Projection arrows
 
 ```
-projectionKind : Projection → ProjectionKind  -- total
-sourceFormalism : Projection → Formalism      -- total
+projectionKind  : Projection → ProjectionKind  -- total
+sourceFormalism : Projection → Formalism       -- total
 ```
 
 #### 3.11 EventLogEntry arrows
@@ -389,7 +389,7 @@ operation.
 #### 4.8 Projection as Coproduct
 
 ```
-Projection = Schema ⊔ Monitor ⊔ Generator ⊔ GapTypeDesc
+Projection = Schema ⊔ Monitor ⊔ Generator ⊔ GapTypeDesc ⊔ LeanSource
 ```
 
 Each variant has a distinct formal structure:
@@ -438,8 +438,29 @@ Each variant has a distinct formal structure:
   `:unreachable-state` for statecharts; `:missing-field`,
   `:wrong-field-type` for effect signatures).
 
-The four variants are the four methods of `IProjectable`. Each
-formalism produces all four.
+- `LeanSource` — a string of Lean 4 source code. Contains three
+  components: type definitions (inductive types, structures mirroring
+  the Clojure data), property statements (theorem declarations with
+  `sorry` placeholders), and proof scaffolding (helper lemmas,
+  `Fintype`/`DecidableEq` instances). The output is self-contained —
+  it imports only Mathlib, not a Pneuma-specific Lean library.
+
+  | Formalism | Lean emission |
+  |---|---|
+  | Statechart | Inductive `State`, `Config`, `step` function, reachability, safety theorems |
+  | EffectSignature | Inductive `Effect` type, field structures per operation |
+  | MealyDeclaration | Handler contract as function with pre/postconditions, replay determinism |
+  | OpticDeclaration | Path resolution types (deferred — not on critical path) |
+  | ResolverGraph | Attribute reachability types (deferred — not on critical path) |
+  | CapabilitySet | Set membership bounds as propositions |
+
+  The `->lean` projection on `IConnection` emits boundary propositions
+  and composition theorems for morphism pairs. Cycle-level `->lean`
+  emits the strongest theorems: cycle closure, precondition chaining,
+  and callback re-entry safety.
+
+The five variants are the five methods of `IProjectable`. Each
+formalism produces all five.
 
 #### 4.9 MorphismKind as Coproduct
 
@@ -577,10 +598,11 @@ it. The gap report is the failure set of the categorical laws.
 **A1 — Projection completeness:**
 ```
 ∀ f : Formalism,
-  ∃ s : Schema, m : Monitor, g : Generator, d : GapTypeDesc
-  such that →schema(f) = s ∧ →monitor(f) = m ∧ →gen(f) = g ∧ →gap-type(f) = d
+  ∃ s : Schema, m : Monitor, g : Generator, d : GapTypeDesc, l : LeanSource
+  such that →schema(f) = s ∧ →monitor(f) = m ∧ →gen(f) = g
+        ∧ →gap-type(f) = d ∧ →lean(f) = l
 ```
-Every formalism projects to all four checking artifacts.
+Every formalism projects to all five checking artifacts.
 
 **A2 — Formalism exhaustiveness:**
 ```
@@ -836,13 +858,28 @@ taxonomy of failure modes for the formalism.
   ∧ →monitor(f) = →monitor(f)
   ∧ →gen(f) = →gen(f)
   ∧ →gap-type(f) = →gap-type(f)
+  ∧ →lean(f) = →lean(f)
 ```
-All four projections are deterministic. The same formalism always
-produces the same schema, monitor, generator, and gap-type
-descriptor. Projections are derived values, not stateful
+All five projections are deterministic. The same formalism always
+produces the same schema, monitor, generator, gap-type descriptor,
+and Lean source. Projections are derived values, not stateful
 computations.
 
-**A28 — IConnection contract:**
+**A28 — Lean well-formedness:**
+```
+∀ f : Formalism,
+  →lean(f) is a syntactically valid Lean 4 source fragment
+  ∧ the emitted type definitions are a faithful structural translation
+    of the Clojure data (injective, no information loss)
+```
+`→lean` produces a string of Lean 4 source code containing type
+definitions, property statements (with `sorry` placeholders), and
+proof scaffolding. The translation is mechanical and injective — the
+same formalism always produces the same Lean output (determinism
+follows from A27's pattern). The emitted code is self-contained,
+importing only Mathlib.
+
+**A29 — IConnection contract:**
 ```
 ∀ conn : Morphism, ∀ src tgt : Formalism, ∀ rm : RefinementMap,
   check(conn, src, tgt, rm) ⊆ { g : Gap | layer(g) = :morphism }
@@ -853,6 +890,17 @@ computations.
 gap has a valid status. The check is total — it returns an empty
 sequence (not an error) when the boundary contract holds.
 
+**A30 — IConnection Lean emission:**
+```
+∀ conn : Morphism, ∀ src tgt : Formalism,
+  →lean(conn, src, tgt) is a syntactically valid Lean 4 source fragment
+  containing a boundary proposition and (optionally) a composition theorem
+```
+The `->lean` method on `IConnection` emits Lean propositions about
+morphism pairs — `∀ ... ∈ ...` statements for existential and
+containment morphisms, type-compatibility propositions for structural
+morphisms, and index comparisons for ordering morphisms.
+
 ### 6. Morphisms
 
 #### 6.1 Projection functors
@@ -862,15 +910,22 @@ sequence (not an error) when the boundary contract holds.
 →monitor  : Formalism → Monitor
 →gen      : Formalism → Generator
 →gap-type : Formalism → GapTypeDesc
+→lean     : Formalism → LeanSource
 ```
 
-Four functors from the coproduct `Formalism` to the coproduct
+Five functors from the coproduct `Formalism` to the coproduct
 `Projection`. These are the `IProjectable` protocol methods. Each
 preserves the identity of the formalism — the projection is
 *determined by* the formalism. These are natural in the sense that
 adding a new formalism (extending the coproduct) requires only
-implementing the four methods; existing formalisms and their
+implementing the five methods; existing formalisms and their
 projections are unchanged.
+
+The first four projections produce runtime checking artifacts
+(sampled). The fifth (`→lean`) produces Lean 4 source code for
+kernel-verified proofs (universal). See
+[pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the
+translation rules and proof targets.
 
 **Preserves:** Coproduct structure (case analysis).
 
@@ -1016,8 +1071,8 @@ property of the graph's categorical structure.
 
 #### 7.1 Parallel projection strategies
 
-For a given formalism, the four projections (→schema, →monitor, →gen,
-→gap-type) are parallel morphisms from `Formalism` to `Projection`
+For a given formalism, the five projections (→schema, →monitor, →gen,
+→gap-type, →lean) are parallel morphisms from `Formalism` to `Projection`
 (different projection kinds). These are not 2-Cells in the strict
 sense — they have different codomains within the `Projection`
 coproduct.
@@ -1111,7 +1166,9 @@ structure.
 | A25 | Generator–monitor integration | Implication | Projection |
 | A26 | Gap-type descriptor completeness | SubsetOf | Projection |
 | A27 | Projection determinism | Equation | Projection |
-| A28 | IConnection contract | SubsetOf | Projection |
+| A28 | Lean well-formedness | Totality | Projection |
+| A29 | IConnection contract | SubsetOf | Projection |
+| A30 | IConnection Lean emission | Totality | Projection |
 
 ### Appendix C: Morphism Catalogue
 
@@ -1121,6 +1178,7 @@ structure.
 | 6.1 | →monitor | Formalism | Monitor | Coproduct |
 | 6.1 | →gen | Formalism | Generator | Coproduct |
 | 6.1 | →gap-type | Formalism | GapTypeDesc | Coproduct |
+| 6.1 | →lean | Formalism | LeanSource | Coproduct |
 | 6.2 | compose | Morphism × Morphism | Morphism | Presheaf |
 | 6.3 | check | Morphism × F × F | Gap | Coproduct |
 | 6.4 | aggregate | 𝒫(Gap)³ | GapReport | Product |

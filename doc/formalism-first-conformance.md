@@ -226,13 +226,14 @@ Each mathematical object implements a single protocol that projects it into four
 
 ```clojure
 (defprotocol IProjectable
-  (->schema  [this]  "Produce a Malli schema for structural validation.")
-  (->monitor [this]  "Produce a trace monitor for behavioral checking.")
-  (->gen     [this]  "Produce a test.check generator for property testing.")
-  (->gap-type [this] "Produce the gap type descriptor for this formalism."))
+  (->schema   [this]  "Produce a Malli schema for structural validation.")
+  (->monitor  [this]  "Produce a trace monitor for behavioral checking.")
+  (->gen      [this]  "Produce a test.check generator for property testing.")
+  (->gap-type [this]  "Produce the gap type descriptor for this formalism.")
+  (->lean     [this]  "Produce a Lean 4 source fragment for proof targets."))
 ```
 
-The protocol is deliberately minimal. Each method takes only `this` — the mathematical object — and returns a checking artifact. There is no compilation context, no symbol table, no cross-references to other formalisms. Each formalism is self-contained in what it can project. Cross-formalism checks (like verifying that raised events from the statechart have corresponding Mealy handlers) happen at a higher level, after the individual projections.
+The protocol is deliberately minimal. Each method takes only `this` — the mathematical object — and returns a checking artifact. There is no compilation context, no symbol table, no cross-references to other formalisms. Each formalism is self-contained in what it can project. Cross-formalism checks (like verifying that raised events from the statechart have corresponding Mealy handlers) happen at a higher level, after the individual projections. The first four projections produce runtime checking artifacts (sampled); the fifth (`->lean`) produces Lean 4 source code for kernel-verified proofs (universal). See [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for the full Lean integration design.
 
 ### 3.1. Schema Projection
 
@@ -284,6 +285,21 @@ Effect signature generators produce well-typed effect description maps. Mealy tr
 
 Every gap is assigned one of three statuses: **conforms** (spec equals implementation), **absent** (spec exists, implementation doesn't), or **diverges** (both exist, they disagree). The diverges status carries a structured payload specific to the gap type — not just "wrong" but *how* it's wrong.
 
+### 3.5. Lean Projection
+
+`->lean` produces a string of Lean 4 source code — type definitions, property statements with `sorry` placeholders, and proof scaffolding. The output is not a compiled Lean term; it is source code that must be fed to the Lean compiler and may require human guidance to complete proofs.
+
+What each formalism projects as Lean source:
+
+- Harel statechart → inductive `State` type, `Config` structure, `step` function, reachability definition, and chart safety theorem targets.
+- Effect signature → inductive `Effect` type with field structures per operation. Callback fields become concrete `Event` references in Lean.
+- Mealy transitions → handler contract as a function with pre/postconditions. Replay determinism theorem target.
+- Optics → path resolution types (deferred — not on critical path).
+- Functional dependencies → attribute reachability types (deferred — not on critical path).
+- Capability sets → set membership bounds as Lean propositions.
+
+The Lean projection complements the runtime projections: Lean proves properties of the *specification* (universal, permanent), while the runtime projections check conformance of the *implementation* (sampled, per-commit). Both operate on the same mathematical objects — the only difference is the projection target. See [pneuma-lean4-extension.md](pneuma-lean4-extension.md) for translation rules, proof targets, and the trust architecture.
+
 ---
 
 ## 4. Morphisms — Connections Between Formalisms
@@ -296,7 +312,8 @@ We promote these connections to first-class mathematical objects called **morphi
 (defprotocol IConnection
   (check   [this a b] "Check the boundary contract between a and b.")
   (->gap   [this a b] "Produce a typed gap if the contract is violated.")
-  (->gen   [this a b] "Generate test cases that exercise the boundary."))
+  (->gen   [this a b] "Generate test cases that exercise the boundary.")
+  (->lean  [this a b] "Emit Lean 4 boundary proposition and composition theorem."))
 ```
 
 ### 4.1. Four Kinds of Morphism
@@ -678,7 +695,7 @@ The system is built bottom-up through the three layers. Objects first, then morp
 
 ### 9.2. Dependencies
 
-The checking system requires only the standard Clojure ecosystem:
+The core checking system requires only the standard Clojure ecosystem:
 
 - Malli for schema validation and generation (structural checking).
 - test.check for property-based testing (behavioral checking via generators).
@@ -686,6 +703,15 @@ The checking system requires only the standard Clojure ecosystem:
 - The existing event log and state atom (no new infrastructure).
 
 No external theorem provers, model checkers, or formal methods tools are required for the core checking loop. The mathematical objects are Clojure maps; the projections are Clojure functions; the morphism checks are Clojure functions over pairs of maps; the gap report is a Clojure map. The entire system lives in one codebase, one runtime, one REPL.
+
+The optional Lean 4 integration (Phase 5, see
+[pneuma-lean4-extension.md](pneuma-lean4-extension.md)) adds:
+
+- Lean 4 toolchain (installed separately, not a Clojure dependency).
+- `lake` build system for managing the Lean project.
+- Mathlib (the Lean mathematical library) for tactic support.
+
+The Clojure side requires no new dependencies for Lean support — `->lean` is a pure function from Clojure maps to strings.
 
 ### 9.3. What To Defer
 
@@ -695,7 +721,9 @@ Bisimulation computation over statecharts is valuable for verifying refactors bu
 
 Automatic cycle enumeration (Johnson's algorithm over the morphism graph) can be deferred by hardcoding the three known cycles. Generalize only when new formalisms introduce new cycles.
 
-Integration with external tools (Alloy for relational model-finding, TLA+ for temporal model checking, Lean for proof) is a future extension. The mathematical objects can be serialized to these tools' input formats, but this requires translation layers that are not part of the core system.
+Integration with external tools (Alloy for relational model-finding, TLA+ for temporal model checking) is a future extension. The mathematical objects can be serialized to these tools' input formats, but this requires translation layers that are not part of the core system.
+
+Lean 4 integration is designed as Phase 5 — see [pneuma-lean4-extension.md](pneuma-lean4-extension.md). The `->lean` projection on `IProjectable` and `IConnection` emits Lean source for kernel-verified proofs of architectural invariants (chart safety, replay determinism, morphism composition, cycle closure, bisimulation).
 
 ---
 

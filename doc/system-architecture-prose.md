@@ -4,7 +4,7 @@
 a Clojure system.**
 
 This document considers three architectural options for mapping the 19
-sorts, 20 axioms, and 13 morphisms of the [structural domain
+sorts, 30 axioms, and 14 morphisms of the [structural domain
 model](structural-domain-model.md) to Clojure namespaces, protocols,
 and data structures. Each option is evaluated against the constraints
 from the [design document](formalism-first-conformance.md) and the
@@ -32,7 +32,7 @@ schemas. The architecture must keep the formalisms as data while
 attaching behavior through a clean seam.
 
 **Closed exhaustiveness vs. open extension.** Axiom A1 (projection
-completeness) requires that every formalism implements all four
+completeness) requires that every formalism implements all five
 projections. Axiom A2 (formalism exhaustiveness) says there are
 exactly six kinds. These favor a closed dispatch mechanism with
 compile-time guarantees. But the design document also describes
@@ -48,7 +48,7 @@ the namespace dependency graph acyclic.
 
 **File size discipline.** No file may exceed 800 lines. The six
 formalisms vary in complexity — the statechart has a step function, a
-reachability analyzer, and four projections; the capability set is
+reachability analyzer, and five projections; the capability set is
 comparatively simple. The namespace structure must distribute
 complexity so that no single file accumulates too much.
 
@@ -125,7 +125,7 @@ Each arrow means "depends on." No backward dependencies. The
 Use Clojure protocols for uniform dispatch (IProjectable,
 IConnection). Use `defrecord` for each formalism type. Use a pure
 data map for the morphism registry. The protocol gives compile-time
-enforcement that each formalism implements all four projection
+enforcement that each formalism implements all five projection
 methods. The registry gives runtime inspectability of the morphism
 graph.
 
@@ -165,6 +165,7 @@ IProjectable
   →monitor  : formalism → (EventLogEntry → Verdict)
   →gen      : formalism → test.check generator
   →gap-type : formalism → gap type descriptor map
+  →lean     : formalism → Lean 4 source code string
 ```
 
 Each formalism record implements IProjectable directly. The protocol
@@ -174,7 +175,8 @@ no existing files change.
 
 ```
 IConnection
-  check : morphism × source × target × refinement-map → seq of Gap
+  check  : morphism × source × target × refinement-map → seq of Gap
+  →lean  : morphism × source × target → Lean 4 boundary proposition
 ```
 
 Each morphism kind record (ExistentialMorphism, StructuralMorphism,
@@ -225,7 +227,7 @@ implementations or record definitions are modified.
 **Strengths:**
 
 - Protocol enforcement of Axiom A1 — if a record doesn't implement
-  `→schema`, the code won't compile.
+  `→schema` or `→lean`, the code won't compile.
 - Clear namespace boundaries — each formalism is isolated, each
   morphism kind is isolated.
 - The registry is data — inspectable, testable, serializable.
@@ -265,7 +267,7 @@ discriminator:
   (assoc m :formalism/type :statechart))
 ```
 
-The four projection operations and the morphism checking are
+The five projection operations and the morphism checking are
 multimethods:
 
 ```clojure
@@ -364,7 +366,7 @@ pneuma/
 **Weaknesses:**
 
 - The interpreter file will exceed 800 lines almost immediately.
-  Six formalisms × four projections = 24 branches in the projection
+  Six formalisms × five projections = 30 branches in the projection
   logic alone, before morphisms or paths.
 - Adding a formalism requires editing the central `case` branches.
   This is the opposite of the extension model the design document
@@ -423,7 +425,7 @@ extension, and file size discipline.
 **Option A** is the best fit, for two reasons:
 
 First, Axiom A1 (projection completeness) is a hard requirement —
-every formalism must implement all four projections. The protocol
+every formalism must implement all five projections. The protocol
 mechanism enforces this at the point where a record is defined. The
 other options defer this check to runtime, which means a formalism
 author can ship incomplete work without immediate feedback. For a
