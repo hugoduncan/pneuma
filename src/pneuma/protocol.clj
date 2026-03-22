@@ -6,8 +6,8 @@
   reference extraction.")
 
 (defprotocol IProjectable
-             "Projects a mathematical formalism into four checking artifacts.
-  Every formalism record must implement all four methods."
+             "Projects a mathematical formalism into five checking and documentation artifacts.
+  Every formalism record must implement all five methods."
              (->schema [this]
                        "Returns a Malli schema for structural validation of the
     formalism's relevant state.")
@@ -19,7 +19,9 @@
     property-based testing.")
              (->gap-type [this]
                          "Returns a gap type descriptor map classifying how conformance
-    failures are reported for this formalism."))
+    failures are reported for this formalism.")
+             (->doc [this]
+                    "Returns a format-agnostic document fragment tree describing this formalism."))
 
 (defprotocol IConnection
              "Checks a typed boundary contract between two formalisms.
