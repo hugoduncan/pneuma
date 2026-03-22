@@ -10,6 +10,7 @@
               [pneuma.formalism.effect-signature :as es]
               [pneuma.formalism.mealy :as mealy]
               [pneuma.formalism.optic :as optic]
+              [pneuma.formalism.resolver :as resolver]
               [pneuma.formalism.statechart :as sc]
               [pneuma.formalism.type-schema :as ts]
               [pneuma.lean.protocol :as lp]
@@ -17,6 +18,7 @@
               [pneuma.lean.effect-signature]
               [pneuma.lean.mealy]
               [pneuma.lean.optic]
+              [pneuma.lean.resolver]
               [pneuma.lean.statechart]
               [pneuma.lean.type-schema]
               [pneuma.lean.system :as sys]
@@ -136,6 +138,22 @@
                                         :optic-type :Derived
                                         :sources {:msgs [:sessions :sid :messages]}
                                         :derivations {:count [:length :msgs]}}]}))))))
+
+(deftest ^:lean resolver-lean-compiles-test
+  ;; ResolverGraph ->lean produces valid Lean 4.
+         (when (lean-available?)
+               (testing "ResolverGraph ->lean compiles"
+                        (assert-compiles
+                         "ResolverGraph"
+                         (lp/->lean (resolver/resolver-graph
+                                     {:declarations
+                                      [{:id     :fetch-msgs
+                                        :input  #{:session/id}
+                                        :output #{:session/messages}
+                                        :source :local}
+                                       {:id     :count-msgs
+                                        :input  #{:session/messages}
+                                        :output #{:session/count}}]}))))))
 
 ;;; System-level compilation test
 

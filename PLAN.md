@@ -104,7 +104,7 @@ with 100 trials and shrinking.
   - →monitor: subscription change detection
   - →gen: state maps where optics resolve
   - →gap-type: :broken-path, :wrong-derivation, :missing-subscription
-- [ ] `pneuma.formalism.resolver` — ResolverGraph record + IProjectable
+- [x] `pneuma.formalism.resolver` — ResolverGraph record + IProjectable
   - Functional dependency hypergraph
   - Reachability computation (chase algorithm)
   - →schema: attribute reachability graph
@@ -163,6 +163,7 @@ Build order within this phase follows §9.1 of the extension document.
 - [ ] `pneuma.lean.mealy` — extend MealyHandlerSet
 - [ ] `pneuma.lean.capability` — extend CapabilitySet
 - [x] `pneuma.lean.optic` — extend OpticDeclaration
+- [x] `pneuma.lean.resolver` — extend ResolverGraph
 - [ ] `pneuma.lean.existential` — extend ExistentialMorphism
 - [ ] `pneuma.lean.structural` — extend StructuralMorphism
 - [ ] `pneuma.lean.core` — public API (emit-lean, emit-lean-cycle, emit-lean-bisim)
@@ -202,6 +203,7 @@ pneuma.lean.protocol (no deps)
   ├── pneuma.lean.mealy ── (lean.protocol + formalism.mealy)
   ├── pneuma.lean.capability ── (lean.protocol + formalism.capability)
   ├── pneuma.lean.optic ── (lean.protocol + formalism.optic)
+  ├── pneuma.lean.resolver ── (lean.protocol + formalism.resolver)
   ├── pneuma.lean.existential ── (lean.protocol + morphism.existential)
   ├── pneuma.lean.structural ── (lean.protocol + morphism.structural)
   └── pneuma.lean.core ── (all lean.* namespaces)
