@@ -2,14 +2,14 @@
 
 ## Status
 All implementation phases (0–12c) complete. PLAN.md fully checked off.
-204 unit tests, 1086 assertions, 0 failures + lean compilation tests.
+217 unit + 7 regression + 7 regression-lean tests, 0 failures.
 CI: `bb ci` runs lint + fmt + test-all + lake build.
 
 ## Active Intent
 System feature-complete. All planned phases delivered including
 dogfood specs, living documentation, and Lean human-readable proofs.
-First external target (integrant) modeled and regression-tested.
-Expanding to more external targets and runtime monitoring.
+First external target (integrant) fully modeled with model-based
+tests exercising real integrant code and Lean proof verification.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
@@ -38,6 +38,11 @@ Expanding to more external targets and runtime monitoring.
   macros for browsable HTML proof status.
 - 🎯 Structured proof style: calc chains, have steps, suffices,
   decide for finite-state properties.
+- 🎯 Regression tests in test-regression/ (model-based, fast) and
+  test-regression-lean/ (lean compilation, slow). Separate kaocha
+  suites: :regression and :regression-lean.
+- 🎯 Integrant added as test dependency (1.0.1) for model-based tests.
+- 🎯 Avoid Lean builtin names in type schemas (Void → UnitResult).
 
 ## Completed
 - Phase 0: pneuma.protocol — IProjectable, IConnection, IReferenceable
@@ -67,7 +72,10 @@ Expanding to more external targets and runtime monitoring.
   - 12b: Lean Blueprint LaTeX emission
   - 12c: Structured proof style guidelines and scaffolding
 - Integrant regression spec: 8 formalisms, 6 morphisms, all conforming
-- 204 unit tests, 1086 assertions, 0 failures
+  - Model-based tests: lifecycle, effects, capabilities, morphisms, types
+  - Lean verification: no sorry, all decide, system_conformance proved
+- Fixed empty-dispatch capability lean emission (always emit dispatch list)
+- 217 unit + 7 regression + 7 regression-lean tests, 0 failures
 
 ## Next
 - Expand integrant model (refinement map bridging spec to source)
@@ -90,7 +98,8 @@ Expanding to more external targets and runtime monitoring.
 - proofs/Pneuma/System.lean — generated system proof
 - proofs/blueprint/ — generated LaTeX blueprint
 - doc/proof-style-guidelines.md — structured proof style
-- test-regression/pneuma/integrant/ — integrant formal model + test
+- test-regression/pneuma/integrant/ — integrant formal model + model-based tests
+- test-regression-lean/pneuma/integrant/ — integrant lean compilation + verification
 
 ## Related
 - memories/dogfood-intent.md
