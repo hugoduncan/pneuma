@@ -25,7 +25,11 @@ clojure -M:dev -e '
          (quote [pneuma.morphism.structural-spec :as st-spec])
          (quote [pneuma.morphism.containment-spec :as ct-spec])
          (quote [pneuma.morphism.ordering-spec :as ord-spec])
-         (quote [pneuma.morphism.registry-spec :as reg-spec]))
+         (quote [pneuma.morphism.registry-spec :as reg-spec])
+         (quote [pneuma.gap.core-spec :as gap-spec])
+         (quote [pneuma.gap.diff-spec :as diff-spec])
+         (quote [pneuma.path.graph-spec :as pgraph-spec])
+         (quote [pneuma.path.core-spec :as pcore-spec]))
 
 (let [specs {"Protocol"        {:formalisms protocol-spec/protocol-formalisms
                                  :registry   protocol-spec/protocol-registry}
@@ -54,7 +58,15 @@ clojure -M:dev -e '
              "Ordering"        {:formalisms ord-spec/ord-formalisms
                                  :registry   ord-spec/ord-registry}
              "Registry"        {:formalisms reg-spec/reg-formalisms
-                                 :registry   reg-spec/reg-registry}}
+                                 :registry   reg-spec/reg-registry}
+             "GapCore"         {:formalisms gap-spec/gap-formalisms
+                                 :registry   gap-spec/gap-registry}
+             "GapDiff"         {:formalisms diff-spec/diff-formalisms
+                                 :registry   diff-spec/diff-registry}
+             "PathGraph"       {:formalisms pgraph-spec/graph-formalisms
+                                 :registry   pgraph-spec/graph-registry}
+             "PathCore"        {:formalisms pcore-spec/path-formalisms
+                                 :registry   pcore-spec/path-registry}}
       dir "proofs/Pneuma"
       failed (atom false)]
   (doseq [[spec-name config] (sort specs)]

@@ -217,10 +217,10 @@ inputs, outputs, and gap shapes.
 Formal specs for the gap report structure and path composition
 invariants.
 
-- [ ] `spec/pneuma/gap/core_spec.clj` — spec for 3-layer gap report structure
-- [ ] `spec/pneuma/gap/diff_spec.clj` — spec for gap diff operations
-- [ ] `spec/pneuma/path/core_spec.clj` — spec for ComposedPath and cycle checking
-- [ ] `spec/pneuma/path/graph_spec.clj` — spec for graph algorithm contracts
+- [x] `spec/pneuma/gap/core_spec.clj` — spec for 3-layer gap report structure
+- [x] `spec/pneuma/gap/diff_spec.clj` — spec for gap diff operations
+- [x] `spec/pneuma/path/core_spec.clj` — spec for ComposedPath and cycle checking
+- [x] `spec/pneuma/path/graph_spec.clj` — spec for graph algorithm contracts
 
 ### Phase 9 — Dogfood: lean emitters
 
