@@ -78,7 +78,9 @@
             "    (h_step : ∀ s e, inv s → inv (step s e)) :\n"
             "    ∀ s, reachable s → inv s := by\n"
             "  intro s ⟨events, hc⟩\n"
+            "  -- The state s was reached by folding `step` over `events`\n"
             "  subst hc\n"
+            "  -- Apply the induction lemma to the event sequence\n"
             "  exact chart_safety_aux inv h_step initialState h_init events\n"))
 
 (defn- emit-determinism-theorem

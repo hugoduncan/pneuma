@@ -320,14 +320,16 @@ Augment the lean emission with human-readable proof artifacts. See
 
 **Phase 12c — Structured proof style:**
 
-- [ ] Proof style guidelines for human-written proofs
+- [x] Proof style guidelines for human-written proofs
   - `calc` chains for equality/inequality reasoning
   - `have` steps with named intermediate goals
   - `suffices` for backwards reasoning
   - `decide` for finite-state properties (opaque but trustworthy)
-- [ ] Update emitted proof scaffolding to use structured style
+  - [doc/proof-style-guidelines.md](doc/proof-style-guidelines.md)
+- [x] Update emitted proof scaffolding to use structured style
   - `have` step templates in cycle closure proofs
   - Named intermediate goals in composition proofs
+  - System conformance uses `have` per capability set
 
 ## Namespace Dependency Graph
 

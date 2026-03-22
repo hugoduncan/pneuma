@@ -137,12 +137,19 @@
                  "theorem system_conformance :\n"
                  "    " conjuncts " := by\n"
                  (if all-conform?
-                     (str "  exact ⟨"
-                          (str/join ", "
-                                    (mapv (fn [id]
-                                              (str (kw->lean-name id) "_dispatch_valid"))
-                                          (sort-by name cap-ids)))
-                          "⟩\n")
+                     (let [sorted-ids (sort-by name cap-ids)
+                           have-steps
+                           (map-indexed
+                            (fn [i id]
+                                (let [id-str (kw->lean-name id)]
+                                     (str "  -- " id-str " dispatch is valid\n"
+                                          "  have h" (inc i)
+                                          " := " id-str "_dispatch_valid\n")))
+                            sorted-ids)
+                           h-names (map-indexed (fn [i _] (str "h" (inc i)))
+                                                sorted-ids)]
+                          (str (str/join "" have-steps)
+                               "  exact ⟨" (str/join ", " h-names) "⟩\n"))
                      "  sorry -- some morphisms have failures\n"))))
 
 ;;; Public API

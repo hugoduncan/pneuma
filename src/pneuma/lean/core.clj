@@ -135,9 +135,18 @@
                                        step-emissions))
                 " := by\n"
                 (if all-proved?
-                    (str "  exact ⟨"
-                         (str/join ", " (mapv :theorem-name step-emissions))
-                         "⟩\n")
+                    (let [have-steps
+                          (map-indexed
+                           (fn [i {:keys [morphism theorem-name]}]
+                               (str "  -- Step " (inc i) ": "
+                                    (morphism-kind-name morphism) " boundary for "
+                                    (name (:id morphism)) "\n"
+                                    "  have h" (inc i) " := " theorem-name "\n"))
+                           step-emissions)
+                          h-names (map-indexed (fn [i _] (str "h" (inc i)))
+                                               step-emissions)]
+                         (str (str/join "" have-steps)
+                              "  exact ⟨" (str/join ", " h-names) "⟩\n"))
                     "  sorry -- some step boundaries are unproved\n"))))
 
 (defn emit-lean-paths
