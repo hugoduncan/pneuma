@@ -215,7 +215,11 @@
                        (doc/section
                         :statechart/root label
                         (filterv some?
-                                 [(doc/diagram-spec :statechart/diagram :mermaid-state diag-data)
+                                 [(doc/summary :statechart/summary
+                                               (str (count leaves) " states, "
+                                                    (count transitions) " transitions, "
+                                                    (count all-cfgs) " configs"))
+                                  (doc/diagram-spec :statechart/diagram :mermaid-state diag-data)
                                   (doc/table :statechart/transitions
                                              [:source :event :target :guard :raise]
                                              t-rows)

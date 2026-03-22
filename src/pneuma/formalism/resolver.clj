@@ -158,7 +158,10 @@
                                           declarations)]
                        (doc/section
                         :resolver/root label
-                        [(doc/table :resolver/resolvers
+                        [(doc/summary :resolver/summary
+                                      (str (count declarations) " resolvers, "
+                                           (count reachable) " reachable attrs"))
+                         (doc/table :resolver/resolvers
                                     [:id :input :output :source]
                                     resolver-rows)
                          (doc/prose :resolver/reachability

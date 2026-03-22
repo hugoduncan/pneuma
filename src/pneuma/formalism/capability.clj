@@ -96,7 +96,11 @@
            (->doc [_]
                   (doc/section
                    :capability/root label
-                   [(doc/table :capability/permissions
+                   [(doc/summary :capability/summary
+                                 (str "dispatch: " (count dispatch)
+                                      ", subscribe: " (count subscribe)
+                                      ", query: " (count query)))
+                    (doc/table :capability/permissions
                                [:kind :operations]
                                [{:kind "dispatch"  :operations (str dispatch)}
                                 {:kind "subscribe" :operations (str subscribe)}

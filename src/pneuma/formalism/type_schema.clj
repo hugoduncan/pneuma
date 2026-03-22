@@ -52,7 +52,9 @@
                                         types)]
                        (doc/section
                         :type-schema/root label
-                        [(doc/table :type-schema/types
+                        [(doc/summary :type-schema/summary
+                                      (str (count types) " types"))
+                         (doc/table :type-schema/types
                                     [:type :schema]
                                     type-rows)])))
 

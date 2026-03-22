@@ -40,9 +40,14 @@
        (mapv #(render-fragment % ctx) children))
 
 (defn- non-annotation-children
-       "Returns children that are not status-annotation fragments."
+       "Returns children that are not status-annotation or summary fragments."
        [children]
-       (filterv #(not= :status-annotation (:kind %)) children))
+       (filterv #(not (#{:status-annotation :summary} (:kind %))) children))
+
+(defn- summary-child
+       "Returns the first summary fragment from children, or nil."
+       [children]
+       (first (filterv #(= :summary (:kind %)) children)))
 
 (defn- annotation-children
        "Returns children that are status-annotation fragments."
@@ -63,20 +68,32 @@
            (let [child-ctx   (ctx/section-ctx fragment ctx)
                  children    (:children fragment)
                  annotations (annotation-children children)
+                 summ        (summary-child children)
                  content     (non-annotation-children children)
                  attrs       (section-attrs fragment child-ctx)
                  badges      (render-children annotations child-ctx)
-                 body        (render-children content child-ctx)]
-                (if (= :hero (:intent ctx))
-                    (into [:header attrs
-                           (into [(heading-tag (:depth ctx)) (:title fragment)] badges)]
-                          body)
-                    (into [:details (merge attrs {:open true :class "section"})
-                           (into [:summary
-                                  (intent-toggle)
-                                  [:span {:class "section-title"} (:title fragment)]]
-                                 badges)]
-                          body))))
+                 body        (render-children content child-ctx)
+                 summary-el  (when summ
+                                   [:span {:class "section-summary"} (:text summ)])]
+                (cond
+                 (= :hero (:intent ctx))
+                 (into [:header attrs
+                        (into [(heading-tag (:depth ctx)) (:title fragment)] badges)]
+                       body)
+
+                 (zero? (:depth ctx))
+                 (into [:section attrs
+                        (into [(heading-tag (:depth ctx)) (:title fragment)] badges)]
+                       body)
+
+                 :else
+                 (into [:details (merge attrs {:open true :class "section"})
+                        (into [:summary
+                               (intent-toggle)
+                               [:span {:class "section-title"} (:title fragment)]
+                               summary-el]
+                              badges)]
+                       body))))
 
 ;;; Table
 
@@ -109,6 +126,10 @@
            [:a {:href (str (:base-url ctx) "#" (full-id target-id))
                 :class "cross-ref"}
             label])
+
+;;; Summary — consumed by section renderer, not rendered standalone
+
+(defmethod render-fragment :summary [_ _] nil)
 
 ;;; Status annotation
 

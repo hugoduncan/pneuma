@@ -46,19 +46,23 @@
 
 (deftest render-section-collapsible-test
          (testing "render-fragment"
-                  (testing "sections render as :details at all depths"
+                  (testing "section at depth 0 renders as :section"
+                           (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])
+                                 h (hfrag/render-fragment f (ctx/default-ctx {:depth 0}))]
+                                (is (= :section (first h)))))
+                  (testing "sections at depth > 0 render as :details"
                            (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])]
-                                (doseq [depth [0 1 2 3]]
+                                (doseq [depth [1 2 3]]
                                        (let [h (hfrag/render-fragment f (ctx/default-ctx {:depth depth}))]
                                             (is (= :details (first h))
                                                 (str "depth " depth " should produce :details"))))))
-                  (testing "section has open attribute"
+                  (testing "section at depth > 0 has open attribute"
                            (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])
-                                 h (hfrag/render-fragment f (ctx/default-ctx))]
+                                 h (hfrag/render-fragment f (ctx/default-ctx {:depth 1}))]
                                 (is (true? (:open (second h))))))
-                  (testing "section has intent toggle button in summary"
+                  (testing "section at depth > 0 has intent toggle"
                            (let [f (frag/section :s1 "Title" [(frag/prose :p "x")])
-                                 h (hfrag/render-fragment f (ctx/default-ctx))
+                                 h (hfrag/render-fragment f (ctx/default-ctx {:depth 1}))
                                  summary (nth h 2)]
                                 (is (= :summary (first summary)))
                                 (is (some #(and (vector? %) (= :button (first %)))

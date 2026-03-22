@@ -199,7 +199,9 @@
                               declarations)]
                        (doc/section
                         :mealy/root label
-                        [(doc/table :mealy/handlers
+                        [(doc/summary :mealy/summary
+                                      (str (count declarations) " handlers"))
+                         (doc/table :mealy/handlers
                                     [:handler :params :guards :updates :effects]
                                     handler-rows)])))
 

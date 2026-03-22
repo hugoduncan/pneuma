@@ -37,10 +37,17 @@
       [target-id status detail]
       {:kind :status-annotation :target-id target-id :status status :detail detail})
 
+(defn summary
+      "Creates a compact one-line summary fragment for a section.
+  Displayed in the section header when the section is collapsed or
+  in summary intent."
+      [id text]
+      {:kind :summary :id id :text text})
+
 ;;; Predicates
 
 (def ^:private known-kinds
-     #{:section :table :prose :diagram-spec :cross-ref :status-annotation})
+     #{:section :table :prose :diagram-spec :cross-ref :status-annotation :summary})
 
 (defn fragment?
       "Returns true if x is a known fragment map."
@@ -76,6 +83,11 @@
       "Returns true if x is a status-annotation fragment."
       [x]
       (= (:kind x) :status-annotation))
+
+(defn summary?
+      "Returns true if x is a summary fragment."
+      [x]
+      (= (:kind x) :summary))
 
 ;;; Gap annotation
 

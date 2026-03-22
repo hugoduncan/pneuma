@@ -107,10 +107,10 @@
 
 (defn- render-for-format
        "Dispatches a fragment tree to the renderer for the given format keyword."
-       [fragment format]
+       [fragment format opts]
        (case format
              :markdown (render/render-markdown fragment)
-             :html     (render/render-html fragment)
+             :html     (render/render-html fragment opts)
              :docx     (render/render-docx fragment)
              (throw (ex-info "Unknown format" {:format format}))))
 
@@ -119,7 +119,8 @@
   Config keys: :formalisms (seq of IProjectable records), :registry (morphism
   registry map), :gap-report (optional gap report map), :format (default :markdown).
   Returns a rendered string (for :markdown) or bytes (for :docx)."
-      [{:keys [formalisms registry gap-report format] :or {format :markdown}}]
+      [{:keys [formalisms registry gap-report format render-opts]
+        :or {format :markdown}}]
       (let [formalism-sections (mapv p/->doc formalisms)
             morphism-section   (morphism-doc registry)
             path-section       (path-doc registry)
@@ -131,7 +132,7 @@
             annotated          (if gap-report
                                    (doc/annotate-with-gaps root gap-report)
                                    root)]
-           (render-for-format annotated format)))
+           (render-for-format annotated format (or render-opts {}))))
 
 ;;; REPL integration
 

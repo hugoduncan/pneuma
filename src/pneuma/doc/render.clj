@@ -84,6 +84,7 @@
              :diagram-spec      (render-diagram-spec fragment)
              :cross-ref         (render-cross-ref fragment)
              :status-annotation (render-status-annotation fragment)
+             :summary           (str "*" (:text fragment) "*\n\n")
              (throw (ex-info "Unknown fragment kind" {:fragment fragment}))))
 
 ;;; Public API
@@ -94,9 +95,10 @@
       (render-fragment fragment 0))
 
 (defn render-html
-      "Renders a fragment tree to a self-contained HTML string."
-      [fragment]
-      (html.page/render-page fragment {}))
+      "Renders a fragment tree to a self-contained HTML string.
+  Opts are passed through to render-page (e.g. :index-url, :title)."
+      ([fragment] (html.page/render-page fragment {}))
+      ([fragment opts] (html.page/render-page fragment opts)))
 
 (defn render-docx
       "Renders a fragment tree to docx bytes."

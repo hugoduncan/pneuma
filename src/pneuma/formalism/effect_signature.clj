@@ -4,7 +4,8 @@
   input fields and a typed output. Implements IProjectable to project
   into Malli schemas, trace monitors, test.check generators, and gap
   type descriptors."
-    (:require [malli.core :as m]
+    (:require [clojure.string :as str]
+              [malli.core :as m]
               [malli.generator :as mg]
               [pneuma.doc.fragment :as doc]
               [pneuma.protocol :as p]))
@@ -128,14 +129,17 @@
                         :statuses #{:conforms :absent :diverges}})
 
            (->doc [_]
-                  (let [op-rows (mapv (fn [[op-kw {:keys [input output]}]]
-                                          {:operation (name op-kw)
-                                           :fields    (str input)
-                                           :output    (name output)})
-                                      operations)]
+                  (let [op-names (str/join ", " (mapv (comp name key) operations))
+                        op-rows  (mapv (fn [[op-kw {:keys [input output]}]]
+                                           {:operation (name op-kw)
+                                            :fields    (str input)
+                                            :output    (name output)})
+                                       operations)]
                        (doc/section
                         :effect-signature/root label
-                        [(doc/table :effect-signature/operations
+                        [(doc/summary :effect-signature/summary
+                                      (str (count operations) " ops: " op-names))
+                         (doc/table :effect-signature/operations
                                     [:operation :fields :output]
                                     op-rows)])))
 

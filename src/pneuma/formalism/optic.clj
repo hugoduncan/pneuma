@@ -235,7 +235,9 @@
                               declarations)]
                        (doc/section
                         :optic/root label
-                        [(doc/table :optic/catalog
+                        [(doc/summary :optic/summary
+                                      (str (count declarations) " optics"))
+                         (doc/table :optic/catalog
                                     [:id :optic-type :path]
                                     optic-rows)])))
 

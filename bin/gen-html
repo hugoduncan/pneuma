@@ -41,6 +41,7 @@ clojure -M:dev -e '
          (quote [pneuma.core-spec :as core-spec])
          (quote [pneuma.refinement-spec :as rm-spec])
          (quote [pneuma.doc.core :as dc])
+         (quote [pneuma.doc.html.page :as html.page])
          (quote [pneuma.gap.core :as gap]))
 
 (let [specs {"capability"      cap-spec/spec-system
@@ -74,16 +75,31 @@ clojure -M:dev -e '
              "statechart"      sc-spec/spec-system
              "structural"      st-spec/spec-system
              "type-schema"     ts-spec/spec-system}
-      dir "'"$OUTPUT_DIR"'"]
-  (doseq [[spec-name system] (sort specs)]
-    (let [report (gap/gap-report system)
-          html   (dc/render-doc (assoc system
-                                       :formalisms (vals (:formalisms system))
-                                       :gap-report report
-                                       :format :html))
-          path   (str dir "/" spec-name ".html")]
-      (spit path html)
-      (println (str "  OK " spec-name " -> " path)))))
+      dir "'"$OUTPUT_DIR"'"
+      index-entries
+      (into []
+            (map (fn [[spec-name system]]
+                     (let [report   (gap/gap-report system)
+                           all-gaps (into [] cat [(:object-gaps report)
+                                                  (:morphism-gaps report)
+                                                  (:path-gaps report)])
+                           failures (count (filterv #(not= :conforms (:status %)) all-gaps))
+                           html     (dc/render-doc (assoc system
+                                                          :formalisms (vals (:formalisms system))
+                                                          :gap-report report
+                                                          :format :html
+                                                          :render-opts {:index-url "index.html"}))
+                           path     (str dir "/" spec-name ".html")]
+                       (spit path html)
+                       (println (str "  OK " spec-name " -> " path))
+                       {:name spec-name
+                        :file (str spec-name ".html")
+                        :gap-summary {:total (count all-gaps) :failures failures}})))
+            (sort specs))]
+  (let [index-html (html.page/render-index "Pneuma Architecture Specs" index-entries)
+        index-path (str dir "/index.html")]
+    (spit index-path index-html)
+    (println (str "  OK index -> " index-path))))
 '
 
 echo "Done."
