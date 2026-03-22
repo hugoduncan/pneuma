@@ -10,7 +10,7 @@ repos:
 
       - id: clj-kondo
         name: clj-kondo
-        language: system
-        entry: clj-kondo --lint
+        language: script
+        entry: bin/clj-kondo-quiet
         types: [clojure]
         pass_filenames: true

@@ -2,7 +2,8 @@
 set -euo pipefail
 
 # Run cljfmt on the given files, then restage any that were reformatted.
-cljfmt fix "$@"
+# Output is suppressed on success.
+output=$(cljfmt fix "$@" 2>&1) || { echo "$output"; exit 1; }
 
 for f in "$@"; do
   git add "$f"
