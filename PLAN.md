@@ -184,7 +184,7 @@ Build order within this phase follows §9.1 of the extension document.
   - emit-lean-paths: discover all cycles, emit path-level Lean for each
   - Requires all lean extension namespaces for extend-protocol loading
 - [x] `proofs/` Lean project structure with `lakefile.lean`
-- [ ] CI integration: `lake build` alongside `clojure -M:test`
+- [x] CI integration: `bb ci` runs lint + fmt + test-all + `lake build`
 
 ## Namespace Dependency Graph
 

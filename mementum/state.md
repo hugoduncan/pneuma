@@ -1,12 +1,13 @@
 # Pneuma — Working Memory
 
 ## Status
-All implementation phases (0–5) complete except CI integration.
+All implementation phases (0–5) complete. PLAN.md fully checked off.
 139 unit tests, 767 assertions, 0 failures + 8 lean compilation tests.
+CI: `bb ci` runs lint + fmt + test-all + lake build.
 
 ## Active Intent
-Core system complete. Remaining work is CI integration and
-application to real targets beyond the dogfood spec.
+System feature-complete. Next is application to real targets
+beyond the dogfood spec.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
@@ -51,7 +52,6 @@ application to real targets beyond the dogfood spec.
 - 139 unit tests, 767 assertions + 8 lean compilation tests
 
 ## Next
-- CI integration: `lake build` alongside `clojure -M:test`
 - Application to real targets beyond the dogfood spec
 
 ## Key Files
