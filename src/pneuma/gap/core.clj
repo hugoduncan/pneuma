@@ -1,8 +1,8 @@
 (ns pneuma.gap.core
-    "Gap report assembly — combines object-level and morphism-level
-  gaps into the three-layer gap report structure.
-  Path gaps are not yet supported (Phase 3)."
-    (:require [pneuma.protocol :as p]))
+    "Gap report assembly — combines object-level, morphism-level,
+  and path-level gaps into the three-layer gap report structure."
+    (:require [pneuma.path.core :as path]
+              [pneuma.protocol :as p]))
 
 (defn check-object-gaps
       "Checks a single formalism against a refinement map, producing
@@ -50,18 +50,20 @@
             registry))
 
 (defn gap-report
-      "Assembles a two-layer gap report (object + morphism) from a set
-  of formalisms and a morphism registry.
+      "Assembles a three-layer gap report from a set of formalisms and
+  a morphism registry. Path gaps are discovered automatically via
+  Johnson's algorithm on the morphism graph.
 
   Config map keys:
     :formalisms     - map of kind keyword → formalism record
     :registry       - map of morphism id → morphism record"
       [{:keys [formalisms registry]}]
       (let [object-gaps (into [] (mapcat check-object-gaps) (vals formalisms))
-            morphism-gaps (check-morphism-gaps registry formalisms)]
+            morphism-gaps (check-morphism-gaps registry formalisms)
+            path-gaps (path/check-all-paths registry)]
            {:object-gaps object-gaps
             :morphism-gaps morphism-gaps
-            :path-gaps []}))
+            :path-gaps path-gaps}))
 
 (defn failures
       "Returns only non-conforming gaps from a gap report."

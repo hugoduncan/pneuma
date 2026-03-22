@@ -1,12 +1,13 @@
 # Pneuma — Working Memory
 
 ## Status
-Phase 2a complete — all six formalisms done (optic, resolver added).
-All implement ILeanProjectable. Phase 2b (remaining morphisms) is next.
+Phase 3 complete — generic cycle detection via Johnson's algorithm.
+ComposedPath discovery and axiom checking (A13, A14) wired into
+gap.core. All phases through 3 done.
 
 ## Active Intent
 Build pneuma bottom-up, sequenced for earliest dogfooding. Lean
-proof emission is a parallel track alongside remaining formalisms.
+proof emission is a parallel track alongside core implementation.
 
 ## Key Decisions
 - 🎯 Dogfood: pneuma checks itself. Protocol layer is first target.
@@ -31,37 +32,23 @@ proof emission is a parallel track alongside remaining formalisms.
   etc.) to avoid redeclaration errors.
 
 ## Completed
-- pneuma.protocol — IProjectable, IConnection, IReferenceable
-- pneuma.formalism.effect-signature — EffectSignature record
-- pneuma.formalism.capability — CapabilitySet record
-- pneuma.formalism.type-schema — TypeSchema record
-- pneuma.formalism.statechart — Statechart record (Phase 2a)
-- pneuma.formalism.mealy — MealyHandlerSet record (Phase 2a)
-- pneuma.morphism.existential — ExistentialMorphism + IConnection
-- pneuma.morphism.structural — StructuralMorphism + IConnection
-- pneuma.morphism.registry — connection registry (2 entries)
-- pneuma.gap.core — two-layer gap report assembly
-- pneuma.protocol-spec — formal spec of pneuma.protocol (in spec/)
-- pneuma.lean-spec — formal spec of lean projection layer (in spec/)
-- pneuma.lean.protocol — ILeanProjectable, ILeanConnection
-- pneuma.lean.capability — ->lean for CapabilitySet
-- pneuma.lean.effect-signature — ->lean for EffectSignature
-- pneuma.lean.statechart — ->lean for Statechart (State/Event/step/safety)
-- pneuma.lean.mealy — ->lean for MealyHandlerSet
-- pneuma.lean.type-schema — ->lean for TypeSchema
-- pneuma.formalism.optic — OpticDeclaration record (Phase 2a)
-- pneuma.formalism.resolver — ResolverGraph record (Phase 2a)
-- pneuma.lean.optic — ->lean for OpticDeclaration
-- pneuma.lean.resolver — ->lean for ResolverGraph
-- pneuma.lean.system — gap-report-driven system-level Lean emission
-- proofs/Pneuma/System.lean — verified by lake build (Lean 4.28.0)
-- Lean compilation tests for all 7 formalisms + system
-- 92 unit tests, 565 assertions + 8 lean compilation tests
+- Phase 0: pneuma.protocol — IProjectable, IConnection, IReferenceable
+- Phase 1a: EffectSignature, CapabilitySet, TypeSchema formalisms
+- Phase 1b: ExistentialMorphism, StructuralMorphism, morphism registry
+- Phase 1c: gap.core — two-layer gap report assembly
+- Dogfood checkpoint: pneuma.protocol-spec, pneuma.lean-spec
+- Phase 2a: Statechart, MealyHandlerSet, OpticDeclaration, ResolverGraph
+- Phase 2b: ContainmentMorphism, OrderingMorphism
+- Phase 3: pneuma.path.graph (Johnson's algorithm), pneuma.path.core
+  (ComposedPath record, A13/A14 axiom checking, wired into gap.core)
+- Phase 5 (partial): Lean projections for all formalisms + morphisms
+  - pneuma.lean.protocol, lean.system, proofs/Pneuma/System.lean
+  - Lean compilation tests (separate :lean kaocha suite)
+- 118 unit tests, 692 assertions + 8 lean compilation tests
 
 ## Next
-- Phase 2b: containment and ordering morphisms
-- Phase 3: composed paths (cycles)
-- Phase 5: ->lean-conn for morphisms (cross-formalism proofs)
+- Phase 4: full gap report + public API
+- Phase 5 (remaining): lean.core, proofs/ project structure, CI
 
 ## Key Files
 - PLAN.md — full implementation plan and build order

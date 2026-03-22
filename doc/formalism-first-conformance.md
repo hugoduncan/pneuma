@@ -726,7 +726,7 @@ The indexed coalgebra framing (Section 2.7) is useful for understanding how the 
 
 Bisimulation computation over statecharts is valuable for verifying refactors but is a second-order concern — get basic gap reporting working first.
 
-Automatic cycle enumeration (Johnson's algorithm over the morphism graph) can be deferred by hardcoding the three known cycles. Generalize only when new formalisms introduce new cycles.
+Cycle enumeration uses Johnson's algorithm (1975) over the morphism graph, discovering all elementary circuits generically. No application-specific cycles are hardcoded.
 
 Integration with external tools (Alloy for relational model-finding, TLA+ for temporal model checking) is a future extension. The mathematical objects can be serialized to these tools' input formats, but this requires translation layers that are not part of the core system.
 

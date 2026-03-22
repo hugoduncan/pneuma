@@ -123,15 +123,21 @@ with 100 trials and shrinking.
 
 ### Phase 3 — Composed paths
 
-Cycles through the morphism graph carrying end-to-end invariants.
+Generic cycle detection over the morphism graph. Cycles are discovered
+automatically via Johnson's algorithm — no hardcoded application-specific
+cycles.
 
-- [ ] `pneuma.path.cycles` — three named cycles as data
-  - Event-effect-callback: Chart → Mealy → Effects → Chart
-  - Observe-dispatch-update: Optics → Caps → Mealy → Optics
-  - Full dispatch: Caps → Chart → Mealy → Validator → Optics → Effects → Chart
-- [ ] `pneuma.path.core` — ComposedPath record, cycle checker
-  - Compose morphisms along FreeMonoid steps
-  - Verify cycle closure and precondition chaining
+- [x] `pneuma.path.graph` — pure graph algorithms
+  - `registry->graph`: morphism registry → adjacency map
+  - `registry->edge-index`: morphism registry → [from to] → morphisms index
+  - `elementary-circuits`: Johnson's algorithm (1975) for all simple cycles
+  - Tarjan's SCC as internal helper
+- [x] `pneuma.path.core` — ComposedPath record, cycle checker
+  - `circuit->paths`: resolve node circuits to ComposedPath records (handles multi-edge)
+  - `check-closure`: axiom A13 (cycle closure)
+  - `check-adjacency`: axiom A14 (structural precondition chaining)
+  - `find-paths`, `check-all-paths`: discovery + checking pipeline
+  - Wired into `gap.core/gap-report` for :path-gaps layer
 
 ### Phase 4 — Full gap report and public API
 
@@ -189,8 +195,8 @@ pneuma.protocol (no deps)
   ├── pneuma.morphism.ordering
   ├── pneuma.morphism.registry ── (formalism/* + morphism/*)
   │
-  ├── pneuma.path.cycles ── (morphism.registry)
-  ├── pneuma.path.core ── (path.cycles + morphism/*)
+  ├── pneuma.path.graph ── (no deps)
+  ├── pneuma.path.core ── (path.graph + morphism.*)
   │
   ├── pneuma.gap.core ── (protocol + formalism/* + morphism/*)
   ├── pneuma.gap.diff ── (gap.core)
