@@ -5,9 +5,17 @@
   lean extension namespaces to ensure extend-protocol registrations
   are loaded."
     (:require [clojure.string :as str]
+              [pneuma.gap.core :as gap]
               [pneuma.lean.blueprint :as bp]
+              [pneuma.lean.circuit :as circuit]
+              [pneuma.lean.composition-transitivity :as ct]
               [pneuma.lean.doc :as doc]
+              [pneuma.lean.gap-completeness :as gc]
+              [pneuma.lean.monitor-schema :as ms]
+              [pneuma.lean.morphism-algebra :as ma]
+              [pneuma.lean.path-semantic :as ps]
               [pneuma.lean.protocol :as lp]
+              [pneuma.lean.ref-exhaustive :as re]
               [pneuma.lean.system :as sys]
               [pneuma.path.core :as path]
               ;; Require all extension namespaces for side effects
@@ -170,35 +178,106 @@
       [spec-name config]
       (bp/emit-blueprint spec-name config))
 
+;;; New emission layers
+
+(defn emit-lean-algebra
+      "Emits morphism algebra proofs for a registry.
+  Returns a string of Lean 4 source code."
+      [registry formalisms]
+      (ma/emit-morphism-algebra registry formalisms))
+
+(defn emit-lean-circuits
+      "Emits circuit verification proofs.
+  Returns a string of Lean 4 source code."
+      [registry]
+      (circuit/emit-circuit-verification registry))
+
+(defn emit-lean-gap-completeness
+      "Emits gap report completeness proof.
+  Returns a string of Lean 4 source code."
+      [registry formalisms report]
+      (gc/emit-gap-completeness registry formalisms report))
+
+(defn emit-lean-monitor-consistency
+      "Emits monitor-schema consistency proofs.
+  Returns a string of Lean 4 source code."
+      [formalisms]
+      (ms/emit-monitor-schema-consistency formalisms))
+
+(defn emit-lean-ref-exhaustive
+      "Emits ref-extraction exhaustiveness proofs.
+  Returns a string of Lean 4 source code."
+      [formalisms registry]
+      (re/emit-ref-exhaustiveness formalisms registry))
+
+(defn emit-lean-composition-transitivity
+      "Emits composition transitivity proofs per path.
+  Returns a string of Lean 4 source code."
+      [formalisms registry]
+      (let [paths (path/find-paths registry)]
+           (ct/emit-composition-transitivity paths formalisms)))
+
+(defn emit-lean-path-semantic
+      "Emits full path semantic composition proofs.
+  Returns a string of Lean 4 source code."
+      [formalisms registry]
+      (let [paths (path/find-paths registry)]
+           (ps/emit-path-semantic-composition paths formalisms)))
+
 ;;; Full emission
 
 (defn emit-lean-all
-      "Emits Lean 4 source for all formalisms, morphisms, and paths.
-  Returns a map of {:formalisms {kind lean-src}
-                    :morphisms  {id lean-src}
-                    :paths      [{:id path-id :lean-src string}]
-                    :system     lean-src
-                    :blueprint  latex-src}."
+      "Emits Lean 4 source for all formalisms, morphisms, paths,
+  and verification layers.
+  Returns a map with keys:
+    :formalisms               {kind lean-src}
+    :morphisms                {id lean-src}
+    :paths                    [{:id path-id :lean-src string}]
+    :system                   lean-src
+    :blueprint                latex-src
+    :algebra                  lean-src
+    :circuits                 lean-src
+    :gap-completeness         lean-src
+    :monitor-consistency      lean-src
+    :ref-exhaustive           lean-src
+    :composition-transitivity lean-src
+    :path-semantic            lean-src"
       [spec-name {:keys [formalisms registry] :as config}]
-      {:formalisms
-       (into {}
-             (map (fn [[kind f]]
-                      [kind (lp/->lean f)]))
-             formalisms)
-       :morphisms
-       (into {}
-             (map (fn [[id morphism]]
-                      (let [source (get formalisms (:from morphism))
-                            target (get formalisms (:to morphism))]
-                           [id (when (and source target)
-                                     (lp/->lean-conn morphism source target))])))
-             registry)
-       :paths
-       (emit-lean-paths formalisms registry)
-       :system
-       (sys/emit-system-lean spec-name config)
-       :blueprint
-       (bp/emit-blueprint spec-name config)})
+      (let [report (gap/gap-report config)
+            paths (path/find-paths registry)]
+           {:formalisms
+            (into {}
+                  (map (fn [[kind f]]
+                           [kind (lp/->lean f)]))
+                  formalisms)
+            :morphisms
+            (into {}
+                  (map (fn [[id morphism]]
+                           (let [source (get formalisms (:from morphism))
+                                 target (get formalisms (:to morphism))]
+                                [id (when (and source target)
+                                          (lp/->lean-conn morphism source target))])))
+                  registry)
+            :paths
+            (emit-lean-paths formalisms registry)
+            :system
+            (sys/emit-system-lean spec-name config)
+            :blueprint
+            (bp/emit-blueprint spec-name config)
+            :algebra
+            (ma/emit-morphism-algebra registry formalisms)
+            :circuits
+            (circuit/emit-circuit-verification registry)
+            :gap-completeness
+            (gc/emit-gap-completeness registry formalisms report)
+            :monitor-consistency
+            (ms/emit-monitor-schema-consistency formalisms)
+            :ref-exhaustive
+            (re/emit-ref-exhaustiveness formalisms registry)
+            :composition-transitivity
+            (ct/emit-composition-transitivity paths formalisms)
+            :path-semantic
+            (ps/emit-path-semantic-composition paths formalisms)}))
 
 (defn emit-lean-file
       "Composes multiple Lean emission strings into a single file

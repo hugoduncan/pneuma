@@ -4,36 +4,47 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :Registry. -/
 opaque Registry : Type := Unit
 
+/-- Operation alphabet for system specification Registry. -/
 inductive Op where
   | default_registry
   | morphisms_involving
   | morphisms_of_kind
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.default_registry, .morphisms_involving, .morphisms_of_kind]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 3 members. -/
 theorem allOps_count :
     allOps.length = 3 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :reg-api. -/
 def reg_api_dispatch : List Op :=
   [.default_registry, .morphisms_involving, .morphisms_of_kind]
 
 -- Morphism api-caps->api-ops: reg_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :reg-api are valid members of Op. -/
 theorem reg_api_dispatch_valid :
     ∀ op : Op, op ∈ reg_api_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ reg_api_dispatch → op ∈ allOps) := by
-  exact ⟨reg_api_dispatch_valid⟩
+  -- reg_api dispatch is valid
+  have h1 := reg_api_dispatch_valid
+  exact ⟨h1⟩

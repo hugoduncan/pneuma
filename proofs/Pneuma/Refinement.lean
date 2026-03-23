@@ -4,13 +4,20 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :AccessorMap. -/
 opaque AccessorMap : Type := Unit
+/-- Opaque proxy for domain type :Any. -/
 opaque Any : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :NsVec. -/
 opaque NsVec : Type := Unit
+/-- Opaque proxy for domain type :RefinementMap. -/
 opaque RefinementMap : Type := Unit
+/-- Opaque proxy for domain type :VarRef. -/
 opaque VarRef : Type := Unit
 
+/-- Operation alphabet for system specification Refinement. -/
 inductive Op where
   | access
   | deref_event_log
@@ -18,27 +25,35 @@ inductive Op where
   | refinement_map
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.access, .deref_event_log, .deref_state, .refinement_map]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 4 members. -/
 theorem allOps_count :
     allOps.length = 4 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :rm-api. -/
 def rm_api_dispatch : List Op :=
   [.access, .deref_event_log, .deref_state, .refinement_map]
 
 -- Morphism api-caps->api-ops: rm_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :rm-api are valid members of Op. -/
 theorem rm_api_dispatch_valid :
     ∀ op : Op, op ∈ rm_api_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ rm_api_dispatch → op ∈ allOps) := by
-  exact ⟨rm_api_dispatch_valid⟩
+  -- rm_api dispatch is valid
+  have h1 := rm_api_dispatch_valid
+  exact ⟨h1⟩

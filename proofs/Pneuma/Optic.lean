@@ -4,11 +4,16 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :DeclarationVec. -/
 opaque DeclarationVec : Type := Unit
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
+/-- Opaque proxy for domain type :OpticDeclaration. -/
 opaque OpticDeclaration : Type := Unit
+/-- Opaque proxy for domain type :PathSet. -/
 opaque PathSet : Type := Unit
 
+/-- Operation alphabet for system specification Optic. -/
 inductive Op where
   | optic_declaration
   | optic_ids
@@ -16,36 +21,48 @@ inductive Op where
   | source_optic_refs
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.optic_declaration, .optic_ids, .paths, .source_optic_refs]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 4 members. -/
 theorem allOps_count :
     allOps.length = 4 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :optic-api. -/
 def optic_api_dispatch : List Op :=
   [.optic_declaration]
 
+/-- Dispatch operations permitted by capability set :optic-ref-kinds. -/
 def optic_ref_kinds_dispatch : List Op :=
   [.optic_ids, .paths, .source_optic_refs]
 
 -- Morphism api-caps->api-ops: optic_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :optic-api are valid members of Op. -/
 theorem optic_api_dispatch_valid :
     ∀ op : Op, op ∈ optic_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism ref-kind-caps->ref-ops: optic_ref_kinds dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :optic-ref-kinds are valid members of Op. -/
 theorem optic_ref_kinds_dispatch_valid :
     ∀ op : Op, op ∈ optic_ref_kinds_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ optic_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ optic_ref_kinds_dispatch → op ∈ allOps) := by
-  exact ⟨optic_api_dispatch_valid, optic_ref_kinds_dispatch_valid⟩
+  -- optic_api dispatch is valid
+  have h1 := optic_api_dispatch_valid
+  -- optic_ref_kinds dispatch is valid
+  have h2 := optic_ref_kinds_dispatch_valid
+  exact ⟨h1, h2⟩

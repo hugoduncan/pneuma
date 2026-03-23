@@ -4,47 +4,65 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :ExistentialMorphism. -/
 opaque ExistentialMorphism : Type := Unit
+/-- Opaque proxy for domain type :GapSeq. -/
 opaque GapSeq : Type := Unit
+/-- Opaque proxy for domain type :IReferenceable. -/
 opaque IReferenceable : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :RefinementMap. -/
 opaque RefinementMap : Type := Unit
 
+/-- Operation alphabet for system specification Existential. -/
 inductive Op where
   | check
   | existential_morphism
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.check, .existential_morphism]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 2 members. -/
 theorem allOps_count :
     allOps.length = 2 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :ex-api. -/
 def ex_api_dispatch : List Op :=
   [.existential_morphism]
 
+/-- Dispatch operations permitted by capability set :ex-check. -/
 def ex_check_dispatch : List Op :=
   [.check]
 
 -- Morphism api-caps->api-ops: ex_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :ex-api are valid members of Op. -/
 theorem ex_api_dispatch_valid :
     ∀ op : Op, op ∈ ex_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism check-caps->check-ops: ex_check dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :ex-check are valid members of Op. -/
 theorem ex_check_dispatch_valid :
     ∀ op : Op, op ∈ ex_check_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ ex_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ ex_check_dispatch → op ∈ allOps) := by
-  exact ⟨ex_api_dispatch_valid, ex_check_dispatch_valid⟩
+  -- ex_api dispatch is valid
+  have h1 := ex_api_dispatch_valid
+  -- ex_check dispatch is valid
+  have h2 := ex_check_dispatch_valid
+  exact ⟨h1, h2⟩

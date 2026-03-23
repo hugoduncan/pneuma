@@ -77,6 +77,8 @@ clojure -M:dev -e '
              "Refinement"      rm-spec/spec-system}
       dir "proofs/Pneuma"
       failed (atom false)]
+
+  ;; Per-spec system-level emission
   (doseq [[spec-name config] (sort specs)]
     (let [report (gap/gap-report config)]
       (if (gap/has-failures? report)
@@ -86,6 +88,38 @@ clojure -M:dev -e '
               path (str dir "/" spec-name ".lean")]
           (spit path lean-src)
           (println (str "  OK " spec-name " -> " path))))))
+
+  ;; Cross-cutting verification layers (emitted per-spec)
+  ;; Each file is wrapped in a Lean namespace to avoid type collisions.
+  (println "")
+  (println "Emitting verification layers per spec...")
+  (letfn [(ns-wrap [ns-name body]
+            (str "namespace " ns-name "\n\n" body "\nend " ns-name "\n"))
+          (emit-layer [spec-name suffix emit-fn]
+            (let [lean-ns (str spec-name suffix)
+                  src (ns-wrap lean-ns (emit-fn))
+                  path (str dir "/" spec-name suffix ".lean")]
+              (spit path src)
+              (println (str "  OK " lean-ns " -> " path))))]
+    (doseq [[spec-name config] (sort specs)]
+      (let [{:keys [formalisms registry]} config
+            report (gap/gap-report config)]
+        (when-not (gap/has-failures? report)
+          (emit-layer spec-name "Algebra"
+            (fn [] (lean/emit-lean-algebra registry formalisms)))
+          (emit-layer spec-name "Circuits"
+            (fn [] (lean/emit-lean-circuits registry)))
+          (emit-layer spec-name "GapComplete"
+            (fn [] (lean/emit-lean-gap-completeness registry formalisms report)))
+          (emit-layer spec-name "MonitorSchema"
+            (fn [] (lean/emit-lean-monitor-consistency formalisms)))
+          (emit-layer spec-name "RefExhaustive"
+            (fn [] (lean/emit-lean-ref-exhaustive formalisms registry)))
+          (emit-layer spec-name "CompTransitivity"
+            (fn [] (lean/emit-lean-composition-transitivity formalisms registry)))
+          (emit-layer spec-name "PathSemantic"
+            (fn [] (lean/emit-lean-path-semantic formalisms registry)))))))
+
   (when @failed
     (System/exit 1)))
 '

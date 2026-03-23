@@ -4,34 +4,45 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :LeanSource. -/
 opaque LeanSource : Type := Unit
+/-- Opaque proxy for domain type :ResolverGraph. -/
 opaque ResolverGraph : Type := Unit
 
+/-- Operation alphabet for system specification LeanResolver. -/
 inductive Op where
   | lean
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.lean]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 1 members. -/
 theorem allOps_count :
     allOps.length = 1 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :lean-resolver. -/
 def lean_resolver_dispatch : List Op :=
   [.lean]
 
 -- Morphism caps->ops: lean_resolver dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :lean-resolver are valid members of Op. -/
 theorem lean_resolver_dispatch_valid :
     ∀ op : Op, op ∈ lean_resolver_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ lean_resolver_dispatch → op ∈ allOps) := by
-  exact ⟨lean_resolver_dispatch_valid⟩
+  -- lean_resolver dispatch is valid
+  have h1 := lean_resolver_dispatch_valid
+  exact ⟨h1⟩

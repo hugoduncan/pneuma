@@ -4,38 +4,51 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :AdjacencyMap. -/
 opaque AdjacencyMap : Type := Unit
+/-- Opaque proxy for domain type :CircuitVec. -/
 opaque CircuitVec : Type := Unit
+/-- Opaque proxy for domain type :EdgeIndex. -/
 opaque EdgeIndex : Type := Unit
+/-- Opaque proxy for domain type :Registry. -/
 opaque Registry : Type := Unit
 
+/-- Operation alphabet for system specification PathGraph. -/
 inductive Op where
   | elementary_circuits
   | registry_>edge_index
   | registry_>graph
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.elementary_circuits, .registry_>edge_index, .registry_>graph]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 3 members. -/
 theorem allOps_count :
     allOps.length = 3 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :graph-api. -/
 def graph_api_dispatch : List Op :=
   [.elementary_circuits, .registry_>edge_index, .registry_>graph]
 
 -- Morphism api-caps->api-ops: graph_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :graph-api are valid members of Op. -/
 theorem graph_api_dispatch_valid :
     ∀ op : Op, op ∈ graph_api_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ graph_api_dispatch → op ∈ allOps) := by
-  exact ⟨graph_api_dispatch_valid⟩
+  -- graph_api dispatch is valid
+  have h1 := graph_api_dispatch_valid
+  exact ⟨h1⟩

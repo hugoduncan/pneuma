@@ -4,11 +4,16 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :DeclarationMap. -/
 opaque DeclarationMap : Type := Unit
+/-- Opaque proxy for domain type :DeclarationVec. -/
 opaque DeclarationVec : Type := Unit
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
+/-- Opaque proxy for domain type :ResolverGraph. -/
 opaque ResolverGraph : Type := Unit
 
+/-- Operation alphabet for system specification Resolver. -/
 inductive Op where
   | external_sources
   | input_attributes
@@ -18,36 +23,48 @@ inductive Op where
   | resolver_ids
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.external_sources, .input_attributes, .output_attributes, .reachable_attributes, .resolver_graph, .resolver_ids]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 6 members. -/
 theorem allOps_count :
     allOps.length = 6 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :resolver-api. -/
 def resolver_api_dispatch : List Op :=
   [.reachable_attributes, .resolver_graph]
 
+/-- Dispatch operations permitted by capability set :resolver-ref-kinds. -/
 def resolver_ref_kinds_dispatch : List Op :=
   [.external_sources, .input_attributes, .output_attributes, .resolver_ids]
 
 -- Morphism api-caps->api-ops: resolver_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :resolver-api are valid members of Op. -/
 theorem resolver_api_dispatch_valid :
     ∀ op : Op, op ∈ resolver_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism ref-kind-caps->ref-ops: resolver_ref_kinds dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :resolver-ref-kinds are valid members of Op. -/
 theorem resolver_ref_kinds_dispatch_valid :
     ∀ op : Op, op ∈ resolver_ref_kinds_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ resolver_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ resolver_ref_kinds_dispatch → op ∈ allOps) := by
-  exact ⟨resolver_api_dispatch_valid, resolver_ref_kinds_dispatch_valid⟩
+  -- resolver_api dispatch is valid
+  have h1 := resolver_api_dispatch_valid
+  -- resolver_ref_kinds dispatch is valid
+  have h2 := resolver_ref_kinds_dispatch_valid
+  exact ⟨h1, h2⟩

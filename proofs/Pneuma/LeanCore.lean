@@ -4,18 +4,30 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :ComposedPath. -/
 opaque ComposedPath : Type := Unit
+/-- Opaque proxy for domain type :EmissionMap. -/
 opaque EmissionMap : Type := Unit
+/-- Opaque proxy for domain type :Formalism. -/
 opaque Formalism : Type := Unit
+/-- Opaque proxy for domain type :FormalismMap. -/
 opaque FormalismMap : Type := Unit
+/-- Opaque proxy for domain type :ILeanConnection. -/
 opaque ILeanConnection : Type := Unit
+/-- Opaque proxy for domain type :ILeanProjectable. -/
 opaque ILeanProjectable : Type := Unit
+/-- Opaque proxy for domain type :LeanSource. -/
 opaque LeanSource : Type := Unit
+/-- Opaque proxy for domain type :PathResultVec. -/
 opaque PathResultVec : Type := Unit
+/-- Opaque proxy for domain type :Registry. -/
 opaque Registry : Type := Unit
+/-- Opaque proxy for domain type :SectionVec. -/
 opaque SectionVec : Type := Unit
+/-- Opaque proxy for domain type :SystemConfig. -/
 opaque SystemConfig : Type := Unit
 
+/-- Operation alphabet for system specification LeanCore. -/
 inductive Op where
   | emit_lean
   | emit_lean_all
@@ -26,27 +38,35 @@ inductive Op where
   | emit_lean_system
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.emit_lean, .emit_lean_all, .emit_lean_conn, .emit_lean_file, .emit_lean_path, .emit_lean_paths, .emit_lean_system]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 7 members. -/
 theorem allOps_count :
     allOps.length = 7 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :lean-core. -/
 def lean_core_dispatch : List Op :=
   [.emit_lean, .emit_lean_all, .emit_lean_conn, .emit_lean_file, .emit_lean_path, .emit_lean_paths, .emit_lean_system]
 
 -- Morphism caps->ops: lean_core dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :lean-core are valid members of Op. -/
 theorem lean_core_dispatch_valid :
     ∀ op : Op, op ∈ lean_core_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ lean_core_dispatch → op ∈ allOps) := by
-  exact ⟨lean_core_dispatch_valid⟩
+  -- lean_core dispatch is valid
+  have h1 := lean_core_dispatch_valid
+  exact ⟨h1⟩

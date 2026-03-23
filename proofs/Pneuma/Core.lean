@@ -4,37 +4,68 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :Any. -/
 opaque Any : Type := Unit
+/-- Opaque proxy for domain type :Boolean. -/
 opaque Boolean : Type := Unit
+/-- Opaque proxy for domain type :CapabilitySet. -/
 opaque CapabilitySet : Type := Unit
+/-- Opaque proxy for domain type :ComposedPathVec. -/
 opaque ComposedPathVec : Type := Unit
+/-- Opaque proxy for domain type :ContainmentMorphism. -/
 opaque ContainmentMorphism : Type := Unit
+/-- Opaque proxy for domain type :DiffReport. -/
 opaque DiffReport : Type := Unit
+/-- Opaque proxy for domain type :EffectSignature. -/
 opaque EffectSignature : Type := Unit
+/-- Opaque proxy for domain type :EventLog. -/
 opaque EventLog : Type := Unit
+/-- Opaque proxy for domain type :ExistentialMorphism. -/
 opaque ExistentialMorphism : Type := Unit
+/-- Opaque proxy for domain type :Formalism. -/
 opaque Formalism : Type := Unit
+/-- Opaque proxy for domain type :FormalismConfig. -/
 opaque FormalismConfig : Type := Unit
+/-- Opaque proxy for domain type :GapReport. -/
 opaque GapReport : Type := Unit
+/-- Opaque proxy for domain type :GapReportConfig. -/
 opaque GapReportConfig : Type := Unit
+/-- Opaque proxy for domain type :GapVec. -/
 opaque GapVec : Type := Unit
+/-- Opaque proxy for domain type :GenOpts. -/
 opaque GenOpts : Type := Unit
+/-- Opaque proxy for domain type :IConnection. -/
 opaque IConnection : Type := Unit
+/-- Opaque proxy for domain type :IProjectable. -/
 opaque IProjectable : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :MealyHandlerSet. -/
 opaque MealyHandlerSet : Type := Unit
+/-- Opaque proxy for domain type :MorphismConfig. -/
 opaque MorphismConfig : Type := Unit
+/-- Opaque proxy for domain type :OpticDeclaration. -/
 opaque OpticDeclaration : Type := Unit
+/-- Opaque proxy for domain type :OrderingMorphism. -/
 opaque OrderingMorphism : Type := Unit
+/-- Opaque proxy for domain type :RefinementConfig. -/
 opaque RefinementConfig : Type := Unit
+/-- Opaque proxy for domain type :RefinementMap. -/
 opaque RefinementMap : Type := Unit
+/-- Opaque proxy for domain type :Registry. -/
 opaque Registry : Type := Unit
+/-- Opaque proxy for domain type :ResolverGraph. -/
 opaque ResolverGraph : Type := Unit
+/-- Opaque proxy for domain type :Statechart. -/
 opaque Statechart : Type := Unit
+/-- Opaque proxy for domain type :StructuralMorphism. -/
 opaque StructuralMorphism : Type := Unit
+/-- Opaque proxy for domain type :TypeSchema. -/
 opaque TypeSchema : Type := Unit
+/-- Opaque proxy for domain type :Verdict. -/
 opaque Verdict : Type := Unit
 
+/-- Operation alphabet for system specification Core. -/
 inductive Op where
   | capability_set
   | check_gen
@@ -61,45 +92,61 @@ inductive Op where
   | type_schema
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.capability_set, .check_gen, .check_morphism, .check_schema, .check_trace, .containment_morphism, .diff_reports, .effect_signature, .existential_morphism, .failures, .find_paths, .gap_report, .gaps_involving, .has_changes?, .has_failures?, .mealy_handler_set, .optic_declaration, .ordering_morphism, .refinement_map, .resolver_graph, .statechart, .structural_morphism, .type_schema]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 23 members. -/
 theorem allOps_count :
     allOps.length = 23 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :core-check. -/
 def core_check_dispatch : List Op :=
   [.check_gen, .check_morphism, .check_schema, .check_trace]
 
+/-- Dispatch operations permitted by capability set :core-constructors. -/
 def core_constructors_dispatch : List Op :=
   [.capability_set, .containment_morphism, .effect_signature, .existential_morphism, .mealy_handler_set, .optic_declaration, .ordering_morphism, .refinement_map, .resolver_graph, .statechart, .structural_morphism, .type_schema]
 
+/-- Dispatch operations permitted by capability set :core-gap. -/
 def core_gap_dispatch : List Op :=
   [.diff_reports, .failures, .find_paths, .gap_report, .gaps_involving, .has_changes?, .has_failures?]
 
 -- Morphism check-caps->check-ops: core_check dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :core-check are valid members of Op. -/
 theorem core_check_dispatch_valid :
     ∀ op : Op, op ∈ core_check_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism constructor-caps->constructor-ops: core_constructors dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :core-constructors are valid members of Op. -/
 theorem core_constructors_dispatch_valid :
     ∀ op : Op, op ∈ core_constructors_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism gap-caps->gap-ops: core_gap dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :core-gap are valid members of Op. -/
 theorem core_gap_dispatch_valid :
     ∀ op : Op, op ∈ core_gap_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ core_check_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ core_constructors_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ core_gap_dispatch → op ∈ allOps) := by
-  exact ⟨core_check_dispatch_valid, core_constructors_dispatch_valid, core_gap_dispatch_valid⟩
+  -- core_check dispatch is valid
+  have h1 := core_check_dispatch_valid
+  -- core_constructors dispatch is valid
+  have h2 := core_constructors_dispatch_valid
+  -- core_gap dispatch is valid
+  have h3 := core_gap_dispatch_valid
+  exact ⟨h1, h2, h3⟩

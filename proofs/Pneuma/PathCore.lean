@@ -4,14 +4,22 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :ComposedPath. -/
 opaque ComposedPath : Type := Unit
+/-- Opaque proxy for domain type :ComposedPathVec. -/
 opaque ComposedPathVec : Type := Unit
+/-- Opaque proxy for domain type :EdgeIndex. -/
 opaque EdgeIndex : Type := Unit
+/-- Opaque proxy for domain type :GapMap. -/
 opaque GapMap : Type := Unit
+/-- Opaque proxy for domain type :GapVec. -/
 opaque GapVec : Type := Unit
+/-- Opaque proxy for domain type :NodeVec. -/
 opaque NodeVec : Type := Unit
+/-- Opaque proxy for domain type :Registry. -/
 opaque Registry : Type := Unit
 
+/-- Operation alphabet for system specification PathCore. -/
 inductive Op where
   | check_adjacency
   | check_all_paths
@@ -21,27 +29,35 @@ inductive Op where
   | find_paths
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.check_adjacency, .check_all_paths, .check_closure, .check_path, .circuit_>paths, .find_paths]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 6 members. -/
 theorem allOps_count :
     allOps.length = 6 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :path-api. -/
 def path_api_dispatch : List Op :=
   [.check_adjacency, .check_all_paths, .check_closure, .check_path, .circuit_>paths, .find_paths]
 
 -- Morphism api-caps->api-ops: path_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :path-api are valid members of Op. -/
 theorem path_api_dispatch_valid :
     ∀ op : Op, op ∈ path_api_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ path_api_dispatch → op ∈ allOps) := by
-  exact ⟨path_api_dispatch_valid⟩
+  -- path_api dispatch is valid
+  have h1 := path_api_dispatch_valid
+  exact ⟨h1⟩

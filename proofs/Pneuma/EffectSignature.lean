@@ -4,13 +4,20 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :EffectSignature. -/
 opaque EffectSignature : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
+/-- Opaque proxy for domain type :MalliSchema. -/
 opaque MalliSchema : Type := Unit
+/-- Opaque proxy for domain type :Nil. -/
 opaque Nil : Type := Unit
+/-- Opaque proxy for domain type :OperationsMap. -/
 opaque OperationsMap : Type := Unit
 
+/-- Operation alphabet for system specification EffectSignature. -/
 inductive Op where
   | callback_refs
   | effect_signature
@@ -20,36 +27,48 @@ inductive Op where
   | resolve_type
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.callback_refs, .effect_signature, .operation_ids, .operation_outputs, .register_type!, .resolve_type]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 6 members. -/
 theorem allOps_count :
     allOps.length = 6 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :es-api. -/
 def es_api_dispatch : List Op :=
   [.effect_signature, .register_type!, .resolve_type]
 
+/-- Dispatch operations permitted by capability set :es-ref-kinds. -/
 def es_ref_kinds_dispatch : List Op :=
   [.callback_refs, .operation_ids, .operation_outputs]
 
 -- Morphism api-caps->api-ops: es_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :es-api are valid members of Op. -/
 theorem es_api_dispatch_valid :
     ∀ op : Op, op ∈ es_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism ref-kind-caps->ref-ops: es_ref_kinds dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :es-ref-kinds are valid members of Op. -/
 theorem es_ref_kinds_dispatch_valid :
     ∀ op : Op, op ∈ es_ref_kinds_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ es_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ es_ref_kinds_dispatch → op ∈ allOps) := by
-  exact ⟨es_api_dispatch_valid, es_ref_kinds_dispatch_valid⟩
+  -- es_api dispatch is valid
+  have h1 := es_api_dispatch_valid
+  -- es_ref_kinds dispatch is valid
+  have h2 := es_ref_kinds_dispatch_valid
+  exact ⟨h1, h2⟩

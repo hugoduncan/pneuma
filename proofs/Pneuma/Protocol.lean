@@ -4,17 +4,28 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :Formalism. -/
 opaque Formalism : Type := Unit
+/-- Opaque proxy for domain type :GapSequence. -/
 opaque GapSequence : Type := Unit
+/-- Opaque proxy for domain type :GapTypeDesc. -/
 opaque GapTypeDesc : Type := Unit
+/-- Opaque proxy for domain type :Generator. -/
 opaque Generator : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
+/-- Opaque proxy for domain type :MalliSchema. -/
 opaque MalliSchema : Type := Unit
+/-- Opaque proxy for domain type :MonitorFn. -/
 opaque MonitorFn : Type := Unit
+/-- Opaque proxy for domain type :Morphism. -/
 opaque Morphism : Type := Unit
+/-- Opaque proxy for domain type :RefinementMap. -/
 opaque RefinementMap : Type := Unit
 
+/-- Operation alphabet for system specification Protocol. -/
 inductive Op where
   | check
   | extract_refs
@@ -24,36 +35,48 @@ inductive Op where
   | schema
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.check, .extract_refs, .gap_type, .gen, .monitor, .schema]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 6 members. -/
 theorem allOps_count :
     allOps.length = 6 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :formalism-record. -/
 def formalism_record_dispatch : List Op :=
   [.extract_refs, .gap_type, .gen, .monitor, .schema]
 
+/-- Dispatch operations permitted by capability set :morphism-record. -/
 def morphism_record_dispatch : List Op :=
   [.check]
 
 -- Morphism formalism-caps->ops: formalism_record dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :formalism-record are valid members of Op. -/
 theorem formalism_record_dispatch_valid :
     ∀ op : Op, op ∈ formalism_record_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism morphism-caps->ops: morphism_record dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :morphism-record are valid members of Op. -/
 theorem morphism_record_dispatch_valid :
     ∀ op : Op, op ∈ morphism_record_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ formalism_record_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ morphism_record_dispatch → op ∈ allOps) := by
-  exact ⟨formalism_record_dispatch_valid, morphism_record_dispatch_valid⟩
+  -- formalism_record dispatch is valid
+  have h1 := formalism_record_dispatch_valid
+  -- morphism_record dispatch is valid
+  have h2 := morphism_record_dispatch_valid
+  exact ⟨h1, h2⟩
