@@ -1,14 +1,18 @@
 # Pneuma — Working Memory
 
 ## Status
-All implementation phases (0–13e) complete. PLAN.md fully checked off.
-273 unit + 7 regression + 7 regression-lean tests, 0 failures.
+All implementation phases (0–14c) complete. PLAN.md fully checked off.
+280 unit + 7 regression + 7 regression-lean tests, 0 failures.
+248 Lean proof files (31 system + 217 verification), all build with lake.
 CI: `bb ci` runs lint + fmt + test-all + lake build.
 
 ## Active Intent
 System feature-complete. All planned phases delivered including
 dogfood specs, living documentation, Lean human-readable proofs,
-and ->code projection (code generation from formalisms).
+->code projection (code generation from formalisms), and deep Lean
+verification layers (morphism algebra, circuit verification, gap
+completeness, monitor-schema consistency, ref exhaustiveness,
+composition transitivity, path semantic composition).
 First external target (integrant) fully modeled with model-based
 tests exercising real integrant code and Lean proof verification.
 
@@ -84,7 +88,11 @@ tests exercising real integrant code and Lean proof verification.
   - 13e: CI integration (fill validation, morphism test generation, contract checking)
 - Required :label field added to all formalism records
 - HTML renderer for architecture documents, collapsible sections, intent toggle
-- 273 unit + 7 regression + 7 regression-lean tests, 0 failures
+- Phase 14: Deep Lean verification layers
+  - 14a: morphism-algebra, circuit, gap-completeness, monitor-schema, ref-exhaustive
+  - 14b: composition-transitivity, path-semantic
+  - 14c: Integration into lean.core, bin/self-proof, 248 Lean files emitted and verified
+- 280 unit + 7 regression + 7 regression-lean tests, 0 failures
 
 ## Next
 - Expand integrant model (refinement map bridging spec to source)
@@ -93,9 +101,12 @@ tests exercising real integrant code and Lean proof verification.
 - Package/release as a Clojure library
 
 ## Notes
-- Lean proofs are complete — all 31 files use `decide` (no `sorry`
-  obligations). The comment mentioning `sorry` on line 5 of each
-  generated file documents the generation strategy, not an open task.
+- 248 Lean proof files: 31 system-level + 217 verification layers (31
+  specs × 7 layers). All use `decide` (no `sorry`). The comment
+  mentioning `sorry` on line 5 of system files documents the generation
+  strategy, not an open task.
+- Verification layers wrap each file in a Lean namespace to avoid type
+  collisions between specs.
 
 ## Key Files
 - PLAN.md — full implementation plan and build order
