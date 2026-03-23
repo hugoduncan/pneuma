@@ -4,6 +4,7 @@
   structure generation, fill-status checking, and gap report
   integration."
     (:require [clojure.set :as set]
+              [pneuma.code.path :as code-path]
               [pneuma.code.protocol :as cp]
               [pneuma.code.render :as render]
               [pneuma.fills :as fills]
@@ -31,6 +32,14 @@
   Returns a morphism code fragment with :assertions."
       [morphism source target opts]
       (cp/->code-conn morphism source target opts))
+
+;;; Composed path test generation
+
+(defn path-tests
+      "Discover all cycles in the morphism graph and generate test
+  assertion data for each. Delegates to pneuma.code.path/path-tests."
+      [registry formalisms opts]
+      (code-path/path-tests registry formalisms opts))
 
 ;;; Project-level emission
 

@@ -379,7 +379,7 @@ for the full design.
 - [x] `pneuma.code.structural` — extend StructuralMorphism: schema conformance test assertions
 - [x] `pneuma.code.containment` — extend ContainmentMorphism: bounds-checking test assertions
 - [x] `pneuma.code.ordering` — extend OrderingMorphism: ordering invariant test assertions
-- [ ] Composed path test generation — cycle closure tests from morphism graph
+- [x] `pneuma.code.path` — composed path test generation: cycle closure, adjacency, per-step boundary tests
 
 **Phase 13d — Code rendering and project emission:**
 
