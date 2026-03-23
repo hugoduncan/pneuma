@@ -1,13 +1,14 @@
 # Pneuma — Working Memory
 
 ## Status
-All implementation phases (0–12c) complete. PLAN.md fully checked off.
-217 unit + 7 regression + 7 regression-lean tests, 0 failures.
+All implementation phases (0–13e) complete. PLAN.md fully checked off.
+273 unit + 7 regression + 7 regression-lean tests, 0 failures.
 CI: `bb ci` runs lint + fmt + test-all + lake build.
 
 ## Active Intent
 System feature-complete. All planned phases delivered including
-dogfood specs, living documentation, and Lean human-readable proofs.
+dogfood specs, living documentation, Lean human-readable proofs,
+and ->code projection (code generation from formalisms).
 First external target (integrant) fully modeled with model-based
 tests exercising real integrant code and Lean proof verification.
 
@@ -75,7 +76,15 @@ tests exercising real integrant code and Lean proof verification.
   - Model-based tests: lifecycle, effects, capabilities, morphisms, types
   - Lean verification: no sorry, all decide, system_conformance proved
 - Fixed empty-dispatch capability lean emission (always emit dispatch list)
-- 217 unit + 7 regression + 7 regression-lean tests, 0 failures
+- Phase 13: ->code projection (code generation from formalisms)
+  - 13a: Fill-point infrastructure (pneuma.fills, combinators)
+  - 13b: Code protocols + per-formalism ->code (statechart, effect-sig, mealy, optic, resolver, capability)
+  - 13c: Morphism ->code test generation (existential, structural, containment, ordering, path)
+  - 13d: Code rendering, project emission, fill-status in gap report
+  - 13e: CI integration (fill validation, morphism test generation, contract checking)
+- Required :label field added to all formalism records
+- HTML renderer for architecture documents, collapsible sections, intent toggle
+- 273 unit + 7 regression + 7 regression-lean tests, 0 failures
 
 ## Next
 - Expand integrant model (refinement map bridging spec to source)
@@ -94,10 +103,13 @@ tests exercising real integrant code and Lean proof verification.
 - src/pneuma/lean/core.clj — Lean emission public API
 - src/pneuma/lean/blueprint.clj — LaTeX blueprint emission
 - src/pneuma/doc/core.clj — living documentation API
+- src/pneuma/code/core.clj — code generation public API
+- src/pneuma/fills.clj — fill registry for code generation
 - spec/ — 31 dogfood spec files
 - proofs/Pneuma/System.lean — generated system proof
 - proofs/blueprint/ — generated LaTeX blueprint
 - doc/proof-style-guidelines.md — structured proof style
+- doc/pneuma-codegen-extension.md — ->code projection design
 - test-regression/pneuma/integrant/ — integrant formal model + model-based tests
 - test-regression-lean/pneuma/integrant/ — integrant lean compilation + verification
 
