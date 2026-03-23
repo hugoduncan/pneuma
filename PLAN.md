@@ -360,37 +360,37 @@ for the full design.
 
 **Phase 13a — Fill-point infrastructure:**
 
-- [ ] `pneuma.fills` — fill registry (reg-fill, fill, fill-or) with nullable registry argument
-- [ ] `pneuma.fills.combinators` — declarative fill helpers (from-config, from-session, const-val)
+- [x] `pneuma.fills` — fill registry (reg-fill, fill, fill-or) with nullable registry argument
+- [x] `pneuma.fills.combinators` — declarative fill helpers (from-path, from-session, const-val)
 
 **Phase 13b — Code protocols and per-formalism ->code:**
 
-- [ ] `pneuma.code.protocol` — ICodeProjectable, ICodeConnection
-- [ ] `pneuma.code.statechart` — extend Statechart: defmulti + defmethod stubs with guards, state transitions, fill points
-- [ ] `pneuma.code.effect-signature` — extend EffectSignature: executor dispatch with schema validation, fill points
-- [ ] `pneuma.code.mealy` — extend MealyHandlerSet: handler contracts with guard preconditions and update fill points
-- [ ] `pneuma.code.optic` — extend OpticDeclaration: subscription declarations, derived subscription fill points
-- [ ] `pneuma.code.resolver` — extend ResolverGraph: resolver skeletons with input/output declarations, body fill points
-- [ ] `pneuma.code.capability` — extend CapabilitySet: capability guard checks (often 100% generated)
+- [x] `pneuma.code.protocol` — ICodeProjectable, ICodeConnection
+- [x] `pneuma.code.statechart` — extend Statechart: defmulti + defmethod stubs with guards, state transitions, fill points
+- [x] `pneuma.code.effect-signature` — extend EffectSignature: executor dispatch with schema validation, fill points
+- [x] `pneuma.code.mealy` — extend MealyHandlerSet: handler contracts with guard preconditions and update fill points
+- [x] `pneuma.code.optic` — extend OpticDeclaration: subscription declarations, derived subscription fill points
+- [x] `pneuma.code.resolver` — extend ResolverGraph: resolver skeletons with input/output declarations, body fill points
+- [x] `pneuma.code.capability` — extend CapabilitySet: capability guard checks (often 100% generated)
 
 **Phase 13c — Morphism ->code (test generation):**
 
-- [ ] `pneuma.code.existential` — extend ExistentialMorphism: referential integrity test assertions
-- [ ] `pneuma.code.structural` — extend StructuralMorphism: schema conformance test assertions
-- [ ] `pneuma.code.containment` — extend ContainmentMorphism: bounds-checking test assertions
-- [ ] `pneuma.code.ordering` — extend OrderingMorphism: ordering invariant test assertions
+- [x] `pneuma.code.existential` — extend ExistentialMorphism: referential integrity test assertions
+- [x] `pneuma.code.structural` — extend StructuralMorphism: schema conformance test assertions
+- [x] `pneuma.code.containment` — extend ContainmentMorphism: bounds-checking test assertions
+- [x] `pneuma.code.ordering` — extend OrderingMorphism: ordering invariant test assertions
 - [ ] Composed path test generation — cycle closure tests from morphism graph
 
 **Phase 13d — Code rendering and project emission:**
 
-- [ ] `pneuma.code.render` — code fragment → Clojure source, fill manifest → EDN
-- [ ] `pneuma.code.core` — public API
+- [x] `pneuma.code.render` — code fragment → Clojure source, fill manifest → EDN
+- [x] `pneuma.code.core` — public API
   - emit-code: per-formalism code generation
   - emit-project: compose all formalisms + morphisms into project structure
   - fill-status: compare manifest against registered fills (ok/missing/orphaned/arity-mismatch)
   - code-diff: structural diff of generated code against existing version
   - regenerate!: overwrite generated files, preserve fills
-- [ ] Integrate fill-status into `pneuma.gap.core/gap-report` as `:fill-gaps` layer
+- [x] Integrate fill-status into `pneuma.gap.core/gap-report` as `:fill-gaps` layer
 
 **Phase 13e — CI and drift detection:**
 
