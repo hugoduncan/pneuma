@@ -5,7 +5,8 @@
   transition with guard preconditions, state transition logic, effect
   emission slots, and named fill points for business logic."
     (:require [clojure.set :as set]
-              [pneuma.code.protocol :as cp])
+              [pneuma.code.protocol :as cp]
+              [pneuma.formalism.statechart])
     (:import [pneuma.formalism.statechart Statechart]))
 
 (defn- kw->sym

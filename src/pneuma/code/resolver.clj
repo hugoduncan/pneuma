@@ -3,7 +3,8 @@
   Extends ResolverGraph with ICodeProjectable via extend-protocol.
   Emits resolver skeletons with input/output attribute declarations
   and fill points for resolver body logic."
-    (:require [pneuma.code.protocol :as cp])
+    (:require [pneuma.code.protocol :as cp]
+              [pneuma.formalism.resolver])
     (:import [pneuma.formalism.resolver ResolverGraph]))
 
 (defn- resolver-fill-points

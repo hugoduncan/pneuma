@@ -4,6 +4,7 @@
   Emits test assertions verifying that source outputs conform to
   the target's schema."
     (:require [pneuma.code.protocol :as cp]
+              [pneuma.morphism.structural]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.structural StructuralMorphism]))
 

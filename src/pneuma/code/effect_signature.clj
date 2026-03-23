@@ -4,7 +4,8 @@
   Emits a defmulti dispatching on effect type, one defmethod per
   operation with destructured arguments and schema validation, plus
   a fill point for the actual execution logic."
-    (:require [pneuma.code.protocol :as cp])
+    (:require [pneuma.code.protocol :as cp]
+              [pneuma.formalism.effect-signature])
     (:import [pneuma.formalism.effect_signature EffectSignature]))
 
 (defn- operation-fill-points

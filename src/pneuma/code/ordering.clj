@@ -4,6 +4,7 @@
   Emits test assertions verifying that source refs precede target refs
   in the declared ordering chain."
     (:require [pneuma.code.protocol :as cp]
+              [pneuma.morphism.ordering]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.ordering OrderingMorphism]))
 

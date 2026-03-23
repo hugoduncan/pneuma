@@ -4,6 +4,7 @@
   Emits test assertions verifying that every source reference exists
   in the target set."
     (:require [pneuma.code.protocol :as cp]
+              [pneuma.morphism.existential]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.existential ExistentialMorphism]))
 
