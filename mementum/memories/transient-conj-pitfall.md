@@ -1,0 +1,1 @@
+`conj!` on a transient vector returns the new transient — discarding the return value silently loses data. Unlike `swap!` on an atom, `conj!` has no side-effect on the original binding. For imperative accumulation in `doseq`/`when` blocks, use `atom` + `swap! conj` instead of transients, or thread the transient through a reduce.
