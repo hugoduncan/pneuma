@@ -1,0 +1,1 @@
+`(keyword "submit/" "update-db")` produces `:submit//update-db` (double slash), not `:submit/update-db`. The first argument to `keyword` is the namespace, the second is the name — neither should contain `/`. Use `(keyword "submit" "update-db")` to get `:submit/update-db`.
