@@ -12,6 +12,7 @@ earliest possible dogfooding.
 - [doc/dogfood-protocol.md](doc/dogfood-protocol.md) — how pneuma checks its own protocol layer
 - [doc/pneuma-lean4-extension.md](doc/pneuma-lean4-extension.md) — Lean 4 proof extension (->lean projection)
 - [doc/dogfood-lean.md](doc/dogfood-lean.md) — how pneuma checks its own lean projection layer
+- [doc/pneuma-codegen-extension.md](doc/pneuma-codegen-extension.md) — code generation from formalisms (->code projection)
 
 ## Phases
 
@@ -331,6 +332,72 @@ Augment the lean emission with human-readable proof artifacts. See
   - Named intermediate goals in composition proofs
   - System conformance uses `have` per capability set
 
+### Phase 13 — Code generation (->code projection)
+
+Adds the `->code` projection via separate protocols
+(`ICodeProjectable`, `ICodeConnection`) in the `pneuma.code`
+namespace layer — mirroring the lean extension pattern. Existing
+formalism and morphism records are extended via `extend-protocol`;
+core protocols are unchanged. Generates implementation scaffolding
+with fill points for business logic. Generated frames carry the
+formalism's structural invariants (guards, orderings, callback
+wiring, schema contracts); human-written fill implementations live
+in separate files that are never regenerated. Target namespace
+names are passed as arguments to `->code`, not stored in formalism
+records. See
+[doc/pneuma-codegen-extension.md](doc/pneuma-codegen-extension.md)
+for the full design.
+
+**Design decisions:**
+
+- Separate protocols (`ICodeProjectable`, `ICodeConnection`), not
+  added to core `IProjectable`/`IConnection` — consistent with lean
+- Fill registry accepts an explicit registry argument (nullable for
+  tests), with a convenience global default
+- Clojure-only output — no language-neutral intermediate representation
+- Target namespace/project naming passed as argument to `->code`
+- `fill-status` feeds back into the gap report as a `:fill-gaps` layer
+
+**Phase 13a — Fill-point infrastructure:**
+
+- [ ] `pneuma.fills` — fill registry (reg-fill, fill, fill-or) with nullable registry argument
+- [ ] `pneuma.fills.combinators` — declarative fill helpers (from-config, from-session, const-val)
+
+**Phase 13b — Code protocols and per-formalism ->code:**
+
+- [ ] `pneuma.code.protocol` — ICodeProjectable, ICodeConnection
+- [ ] `pneuma.code.statechart` — extend Statechart: defmulti + defmethod stubs with guards, state transitions, fill points
+- [ ] `pneuma.code.effect-signature` — extend EffectSignature: executor dispatch with schema validation, fill points
+- [ ] `pneuma.code.mealy` — extend MealyHandlerSet: handler contracts with guard preconditions and update fill points
+- [ ] `pneuma.code.optic` — extend OpticDeclaration: subscription declarations, derived subscription fill points
+- [ ] `pneuma.code.resolver` — extend ResolverGraph: resolver skeletons with input/output declarations, body fill points
+- [ ] `pneuma.code.capability` — extend CapabilitySet: capability guard checks (often 100% generated)
+
+**Phase 13c — Morphism ->code (test generation):**
+
+- [ ] `pneuma.code.existential` — extend ExistentialMorphism: referential integrity test assertions
+- [ ] `pneuma.code.structural` — extend StructuralMorphism: schema conformance test assertions
+- [ ] `pneuma.code.containment` — extend ContainmentMorphism: bounds-checking test assertions
+- [ ] `pneuma.code.ordering` — extend OrderingMorphism: ordering invariant test assertions
+- [ ] Composed path test generation — cycle closure tests from morphism graph
+
+**Phase 13d — Code rendering and project emission:**
+
+- [ ] `pneuma.code.render` — code fragment → Clojure source, fill manifest → EDN
+- [ ] `pneuma.code.core` — public API
+  - emit-code: per-formalism code generation
+  - emit-project: compose all formalisms + morphisms into project structure
+  - fill-status: compare manifest against registered fills (ok/missing/orphaned/arity-mismatch)
+  - code-diff: structural diff of generated code against existing version
+  - regenerate!: overwrite generated files, preserve fills
+- [ ] Integrate fill-status into `pneuma.gap.core/gap-report` as `:fill-gaps` layer
+
+**Phase 13e — CI and drift detection:**
+
+- [ ] Fill-point validation in CI (missing fills fail, orphaned fills warn)
+- [ ] Morphism-derived test suite generation
+- [ ] Fill contract tests (arity + return schema validation)
+
 ## Namespace Dependency Graph
 
 ```
@@ -361,7 +428,25 @@ pneuma.protocol (no deps)
   ├── pneuma.doc.render ── (doc.fragment)
   ├── pneuma.doc.core ── (doc.render + gap.core + morphism.registry)
   │
-  └── pneuma.core ── (everything except lean)
+  │
+  ├── pneuma.fills ── (no deps)
+  ├── pneuma.fills.combinators ── (fills)
+  │
+  └── pneuma.core ── (everything except lean, code)
+
+pneuma.code.protocol (no deps)
+  ├── pneuma.code.statechart ── (code.protocol + formalism.statechart)
+  ├── pneuma.code.effect-signature ── (code.protocol + formalism.effect-signature)
+  ├── pneuma.code.mealy ── (code.protocol + formalism.mealy)
+  ├── pneuma.code.capability ── (code.protocol + formalism.capability)
+  ├── pneuma.code.optic ── (code.protocol + formalism.optic)
+  ├── pneuma.code.resolver ── (code.protocol + formalism.resolver)
+  ├── pneuma.code.existential ── (code.protocol + morphism.existential)
+  ├── pneuma.code.structural ── (code.protocol + morphism.structural)
+  ├── pneuma.code.containment ── (code.protocol + morphism.containment)
+  ├── pneuma.code.ordering ── (code.protocol + morphism.ordering)
+  ├── pneuma.code.render ── (no deps)
+  └── pneuma.code.core ── (all code.* + fills + gap.core + morphism.registry)
 
 pneuma.lean.protocol (no deps)
   ├── pneuma.lean.statechart ── (lean.protocol + formalism.statechart)
