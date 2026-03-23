@@ -4,35 +4,47 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :ContainmentMorphism. -/
 opaque ContainmentMorphism : Type := Unit
+/-- Opaque proxy for domain type :IReferenceable. -/
 opaque IReferenceable : Type := Unit
+/-- Opaque proxy for domain type :LeanSource. -/
 opaque LeanSource : Type := Unit
 
+/-- Operation alphabet for system specification LeanContainment. -/
 inductive Op where
   | lean_conn
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.lean_conn]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 1 members. -/
 theorem allOps_count :
     allOps.length = 1 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :lean-ct. -/
 def lean_ct_dispatch : List Op :=
   [.lean_conn]
 
 -- Morphism caps->ops: lean_ct dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :lean-ct are valid members of Op. -/
 theorem lean_ct_dispatch_valid :
     ∀ op : Op, op ∈ lean_ct_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ lean_ct_dispatch → op ∈ allOps) := by
-  exact ⟨lean_ct_dispatch_valid⟩
+  -- lean_ct dispatch is valid
+  have h1 := lean_ct_dispatch_valid
+  exact ⟨h1⟩

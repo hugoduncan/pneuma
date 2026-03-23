@@ -4,14 +4,22 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :Boolean. -/
 opaque Boolean : Type := Unit
+/-- Opaque proxy for domain type :FormalismMap. -/
 opaque FormalismMap : Type := Unit
+/-- Opaque proxy for domain type :GapReport. -/
 opaque GapReport : Type := Unit
+/-- Opaque proxy for domain type :GapReportConfig. -/
 opaque GapReportConfig : Type := Unit
+/-- Opaque proxy for domain type :GapVec. -/
 opaque GapVec : Type := Unit
+/-- Opaque proxy for domain type :IProjectable. -/
 opaque IProjectable : Type := Unit
+/-- Opaque proxy for domain type :Registry. -/
 opaque Registry : Type := Unit
 
+/-- Operation alphabet for system specification GapCore. -/
 inductive Op where
   | check_morphism_gaps
   | check_object_gaps
@@ -20,27 +28,35 @@ inductive Op where
   | has_failures?
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.check_morphism_gaps, .check_object_gaps, .failures, .gap_report, .has_failures?]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 5 members. -/
 theorem allOps_count :
     allOps.length = 5 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :gap-api. -/
 def gap_api_dispatch : List Op :=
   [.check_morphism_gaps, .check_object_gaps, .failures, .gap_report, .has_failures?]
 
 -- Morphism api-caps->api-ops: gap_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :gap-api are valid members of Op. -/
 theorem gap_api_dispatch_valid :
     ∀ op : Op, op ∈ gap_api_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ gap_api_dispatch → op ∈ allOps) := by
-  exact ⟨gap_api_dispatch_valid⟩
+  -- gap_api dispatch is valid
+  have h1 := gap_api_dispatch_valid
+  exact ⟨h1⟩

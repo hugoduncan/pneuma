@@ -4,12 +4,18 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :HierarchyMap. -/
 opaque HierarchyMap : Type := Unit
+/-- Opaque proxy for domain type :InitialMap. -/
 opaque InitialMap : Type := Unit
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
+/-- Opaque proxy for domain type :Statechart. -/
 opaque Statechart : Type := Unit
+/-- Opaque proxy for domain type :TransitionVec. -/
 opaque TransitionVec : Type := Unit
 
+/-- Operation alphabet for system specification Statechart. -/
 inductive Op where
   | event_ids
   | raised_events
@@ -17,36 +23,48 @@ inductive Op where
   | statechart
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.event_ids, .raised_events, .state_ids, .statechart]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 4 members. -/
 theorem allOps_count :
     allOps.length = 4 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :sc-api. -/
 def sc_api_dispatch : List Op :=
   [.statechart]
 
+/-- Dispatch operations permitted by capability set :sc-ref-kinds. -/
 def sc_ref_kinds_dispatch : List Op :=
   [.event_ids, .raised_events, .state_ids]
 
 -- Morphism api-caps->api-ops: sc_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :sc-api are valid members of Op. -/
 theorem sc_api_dispatch_valid :
     ∀ op : Op, op ∈ sc_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism ref-kind-caps->ref-ops: sc_ref_kinds dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :sc-ref-kinds are valid members of Op. -/
 theorem sc_ref_kinds_dispatch_valid :
     ∀ op : Op, op ∈ sc_ref_kinds_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ sc_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ sc_ref_kinds_dispatch → op ∈ allOps) := by
-  exact ⟨sc_api_dispatch_valid, sc_ref_kinds_dispatch_valid⟩
+  -- sc_api dispatch is valid
+  have h1 := sc_api_dispatch_valid
+  -- sc_ref_kinds dispatch is valid
+  have h2 := sc_ref_kinds_dispatch_valid
+  exact ⟨h1, h2⟩

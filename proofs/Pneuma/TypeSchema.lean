@@ -4,45 +4,61 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
+/-- Opaque proxy for domain type :TypeSchema. -/
 opaque TypeSchema : Type := Unit
+/-- Opaque proxy for domain type :TypesMap. -/
 opaque TypesMap : Type := Unit
 
+/-- Operation alphabet for system specification TypeSchema. -/
 inductive Op where
   | type_ids
   | type_schema
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.type_ids, .type_schema]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 2 members. -/
 theorem allOps_count :
     allOps.length = 2 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :ts-api. -/
 def ts_api_dispatch : List Op :=
   [.type_schema]
 
+/-- Dispatch operations permitted by capability set :ts-ref-kinds. -/
 def ts_ref_kinds_dispatch : List Op :=
   [.type_ids]
 
 -- Morphism api-caps->api-ops: ts_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :ts-api are valid members of Op. -/
 theorem ts_api_dispatch_valid :
     ∀ op : Op, op ∈ ts_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism ref-kind-caps->ref-ops: ts_ref_kinds dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :ts-ref-kinds are valid members of Op. -/
 theorem ts_ref_kinds_dispatch_valid :
     ∀ op : Op, op ∈ ts_ref_kinds_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ ts_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ ts_ref_kinds_dispatch → op ∈ allOps) := by
-  exact ⟨ts_api_dispatch_valid, ts_ref_kinds_dispatch_valid⟩
+  -- ts_api dispatch is valid
+  have h1 := ts_api_dispatch_valid
+  -- ts_ref_kinds dispatch is valid
+  have h2 := ts_ref_kinds_dispatch_valid
+  exact ⟨h1, h2⟩

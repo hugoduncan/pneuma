@@ -4,45 +4,61 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :Formalism. -/
 opaque Formalism : Type := Unit
+/-- Opaque proxy for domain type :LeanSource. -/
 opaque LeanSource : Type := Unit
+/-- Opaque proxy for domain type :Morphism. -/
 opaque Morphism : Type := Unit
 
+/-- Operation alphabet for system specification Lean. -/
 inductive Op where
   | lean
   | lean_conn
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.lean, .lean_conn]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 2 members. -/
 theorem allOps_count :
     allOps.length = 2 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :lean-formalism. -/
 def lean_formalism_dispatch : List Op :=
   [.lean]
 
+/-- Dispatch operations permitted by capability set :lean-morphism. -/
 def lean_morphism_dispatch : List Op :=
   [.lean_conn]
 
 -- Morphism lean-formalism-caps->ops: lean_formalism dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :lean-formalism are valid members of Op. -/
 theorem lean_formalism_dispatch_valid :
     ∀ op : Op, op ∈ lean_formalism_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism lean-morphism-caps->ops: lean_morphism dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :lean-morphism are valid members of Op. -/
 theorem lean_morphism_dispatch_valid :
     ∀ op : Op, op ∈ lean_morphism_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ lean_formalism_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ lean_morphism_dispatch → op ∈ allOps) := by
-  exact ⟨lean_formalism_dispatch_valid, lean_morphism_dispatch_valid⟩
+  -- lean_formalism dispatch is valid
+  have h1 := lean_formalism_dispatch_valid
+  -- lean_morphism dispatch is valid
+  have h2 := lean_morphism_dispatch_valid
+  exact ⟨h1, h2⟩

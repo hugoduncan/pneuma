@@ -4,38 +4,51 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :Boolean. -/
 opaque Boolean : Type := Unit
+/-- Opaque proxy for domain type :DiffReport. -/
 opaque DiffReport : Type := Unit
+/-- Opaque proxy for domain type :GapReport. -/
 opaque GapReport : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
 
+/-- Operation alphabet for system specification GapDiff. -/
 inductive Op where
   | diff_reports
   | gaps_involving
   | has_changes?
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.diff_reports, .gaps_involving, .has_changes?]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 3 members. -/
 theorem allOps_count :
     allOps.length = 3 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :diff-api. -/
 def diff_api_dispatch : List Op :=
   [.diff_reports, .gaps_involving, .has_changes?]
 
 -- Morphism api-caps->api-ops: diff_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :diff-api are valid members of Op. -/
 theorem diff_api_dispatch_valid :
     ∀ op : Op, op ∈ diff_api_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ diff_api_dispatch → op ∈ allOps) := by
-  exact ⟨diff_api_dispatch_valid⟩
+  -- diff_api dispatch is valid
+  have h1 := diff_api_dispatch_valid
+  exact ⟨h1⟩

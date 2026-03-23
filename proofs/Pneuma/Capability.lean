@@ -4,10 +4,14 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :CapabilitySet. -/
 opaque CapabilitySet : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :KeywordSet. -/
 opaque KeywordSet : Type := Unit
 
+/-- Operation alphabet for system specification Capability. -/
 inductive Op where
   | all_refs
   | capability_set
@@ -16,36 +20,48 @@ inductive Op where
   | subscribe_refs
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.all_refs, .capability_set, .dispatch_refs, .query_refs, .subscribe_refs]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 5 members. -/
 theorem allOps_count :
     allOps.length = 5 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :cap-api. -/
 def cap_api_dispatch : List Op :=
   [.capability_set]
 
+/-- Dispatch operations permitted by capability set :cap-ref-kinds. -/
 def cap_ref_kinds_dispatch : List Op :=
   [.all_refs, .dispatch_refs, .query_refs, .subscribe_refs]
 
 -- Morphism api-caps->api-ops: cap_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :cap-api are valid members of Op. -/
 theorem cap_api_dispatch_valid :
     ∀ op : Op, op ∈ cap_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism ref-kind-caps->ref-ops: cap_ref_kinds dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :cap-ref-kinds are valid members of Op. -/
 theorem cap_ref_kinds_dispatch_valid :
     ∀ op : Op, op ∈ cap_ref_kinds_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ cap_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ cap_ref_kinds_dispatch → op ∈ allOps) := by
-  exact ⟨cap_api_dispatch_valid, cap_ref_kinds_dispatch_valid⟩
+  -- cap_api dispatch is valid
+  have h1 := cap_api_dispatch_valid
+  -- cap_ref_kinds dispatch is valid
+  have h2 := cap_ref_kinds_dispatch_valid
+  exact ⟨h1, h2⟩

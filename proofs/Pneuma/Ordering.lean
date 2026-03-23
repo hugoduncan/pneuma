@@ -4,48 +4,67 @@
 -- Proofs are mechanically generated from Pneuma's conformance check.
 -- Conforming morphisms get `decide` proofs; failing ones get `sorry`.
 
+/-- Opaque proxy for domain type :GapSeq. -/
 opaque GapSeq : Type := Unit
+/-- Opaque proxy for domain type :IReferenceable. -/
 opaque IReferenceable : Type := Unit
+/-- Opaque proxy for domain type :Keyword. -/
 opaque Keyword : Type := Unit
+/-- Opaque proxy for domain type :OrderedSeq. -/
 opaque OrderedSeq : Type := Unit
+/-- Opaque proxy for domain type :OrderingMorphism. -/
 opaque OrderingMorphism : Type := Unit
+/-- Opaque proxy for domain type :RefinementMap. -/
 opaque RefinementMap : Type := Unit
 
+/-- Operation alphabet for system specification Ordering. -/
 inductive Op where
   | check
   | ordering_morphism
   deriving DecidableEq, Repr
 
+/-- Exhaustive list of all operations in the system specification. -/
 def allOps : List Op :=
   [.check, .ordering_morphism]
 
+/-- Every member of Op appears in allOps. Proved by case analysis. -/
 theorem allOps_complete :
     ∀ op : Op, op ∈ allOps := by
   intro op
   cases op <;> simp [allOps]
 
+/-- allOps contains exactly 2 members. -/
 theorem allOps_count :
     allOps.length = 2 := by
   rfl
 
+/-- Dispatch operations permitted by capability set :ord-api. -/
 def ord_api_dispatch : List Op :=
   [.ordering_morphism]
 
+/-- Dispatch operations permitted by capability set :ord-check. -/
 def ord_check_dispatch : List Op :=
   [.check]
 
 -- Morphism api-caps->api-ops: ord_api dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :ord-api are valid members of Op. -/
 theorem ord_api_dispatch_valid :
     ∀ op : Op, op ∈ ord_api_dispatch → op ∈ allOps := by
   decide
 
 -- Morphism check-caps->check-ops: ord_check dispatch ⊆ allOps [conforms]
+/-- All dispatch operations of :ord-check are valid members of Op. -/
 theorem ord_check_dispatch_valid :
     ∀ op : Op, op ∈ ord_check_dispatch → op ∈ allOps := by
   decide
 
 -- System-level: all capability dispatch sets reference valid operations
+/-- All capability dispatch sets reference valid operations in the effect signature. -/
 theorem system_conformance :
     (∀ op, op ∈ ord_api_dispatch → op ∈ allOps) ∧
     (∀ op, op ∈ ord_check_dispatch → op ∈ allOps) := by
-  exact ⟨ord_api_dispatch_valid, ord_check_dispatch_valid⟩
+  -- ord_api dispatch is valid
+  have h1 := ord_api_dispatch_valid
+  -- ord_check dispatch is valid
+  have h2 := ord_check_dispatch_valid
+  exact ⟨h1, h2⟩

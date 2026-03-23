@@ -4,6 +4,24 @@
 
 See [PLAN.md](PLAN.md) for the implementation plan and build order.
 
+## Tasks (bb)
+
+- `bb repl` — start nREPL with CIDER middleware
+- `bb test` — run unit tests (skips lean compilation)
+- `bb test-all` — run all tests including lean compilation
+- `bb test-lean` — run lean compilation tests only
+- `bb test-regression` — run regression tests (external project specs)
+- `bb test-regression-lean` — run regression lean compilation tests
+- `bb lint` — lint with clj-kondo
+- `bb fmt` — check formatting with cljfmt
+- `bb fmt-fix` — fix formatting with cljfmt
+- `bb lake` — build existing Lean proofs
+- `bb self-proof` — emit Lean proofs from all dogfood specs and build with lake
+- `bb gen-doc` — generate architecture docs from dogfood specs
+- `bb gen-html` — generate browsable HTML docs from dogfood specs
+- `bb outdated` — check for outdated dependencies
+- `bb ci` — lint + fmt check + all tests + lean proofs
+
 ## Memory
 
 λ engage(nucleus).
