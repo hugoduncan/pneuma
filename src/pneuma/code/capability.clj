@@ -3,7 +3,8 @@
   Extends CapabilitySet with ICodeProjectable via extend-protocol.
   Emits capability guard checks — often 100% generated with no fill
   points, since the guards are purely structural."
-    (:require [pneuma.code.protocol :as cp])
+    (:require [pneuma.code.protocol :as cp]
+              [pneuma.formalism.capability])
     (:import [pneuma.formalism.capability CapabilitySet]))
 
 (defn- capability-guard-forms

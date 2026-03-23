@@ -3,7 +3,8 @@
   Extends MealyHandlerSet with ICodeProjectable via extend-protocol.
   Emits handler function stubs with guard preconditions, state update
   declarations, effect emissions, and fill points for business logic."
-    (:require [pneuma.code.protocol :as cp])
+    (:require [pneuma.code.protocol :as cp]
+              [pneuma.formalism.mealy])
     (:import [pneuma.formalism.mealy MealyHandlerSet]))
 
 (defn- handler-fill-points

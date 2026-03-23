@@ -4,6 +4,7 @@
   Emits test assertions verifying that source references are contained
   within the target set."
     (:require [pneuma.code.protocol :as cp]
+              [pneuma.morphism.containment]
               [pneuma.protocol :as p])
     (:import [pneuma.morphism.containment ContainmentMorphism]))
 

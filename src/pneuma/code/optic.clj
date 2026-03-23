@@ -3,7 +3,8 @@
   Extends OpticDeclaration with ICodeProjectable via extend-protocol.
   Emits subscription declarations for path-based optics and fill
   points for derived subscription computation logic."
-    (:require [pneuma.code.protocol :as cp])
+    (:require [pneuma.code.protocol :as cp]
+              [pneuma.formalism.optic])
     (:import [pneuma.formalism.optic OpticDeclaration]))
 
 (defn- optic-fill-points
