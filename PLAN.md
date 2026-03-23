@@ -394,9 +394,11 @@ for the full design.
 
 **Phase 13e — CI and drift detection:**
 
-- [ ] Fill-point validation in CI (missing fills fail, orphaned fills warn)
-- [ ] Morphism-derived test suite generation
-- [ ] Fill contract tests (arity + return schema validation)
+- [x] `pneuma.code.ci` — CI integration namespace
+  - validate-fills: missing fills fail, orphaned fills warn
+  - format-fill-report: human-readable fill validation output
+  - generate-morphism-tests: morphism boundary + path cycle test data
+  - check-fill-contracts: arity + return schema validation
 
 ## Namespace Dependency Graph
 
