@@ -55,10 +55,11 @@ Pneuma embeds mathematical formalisms — statecharts, effect signatures, optics
 ```
 
 ```clojure
-;; The report is data. Three layers deep.
+;; The report is data. Up to four layers deep.
 {:object-gaps    [...]  ;; per-formalism: what's missing
  :morphism-gaps  [...]  ;; per-connection: where integration breaks
- :path-gaps      [...]} ;; per-cycle: why the system misbehaves end-to-end
+ :path-gaps      [...]  ;; per-cycle: why the system misbehaves end-to-end
+ :fill-gaps      [...]} ;; per-fill-point: what business logic is unimplemented
 ```
 
 ---
@@ -120,7 +121,9 @@ Everything is accessed through `pneuma.core`.
     {:formalisms {:statechart session-chart
                   :effect-signature effect-sig
                   :capability-set caps}
-     :registry registry}))
+     :registry registry
+     ;; Optional: include fill-point gaps as a fourth layer
+     :fill-manifest manifest}))
 
 ;; Each gap is a map with :layer, :status, and :detail
 ;; {:layer :morphism, :id :caps->ops, :kind :existential,
@@ -185,6 +188,36 @@ Everything is accessed through `pneuma.core`.
 ;;     :system     lean-src}
 ```
 
+### Code generation
+
+```clojure
+(require '[pneuma.code.core :as code])
+
+;; Per-formalism: code fragments with fill points
+(code/emit-code session-chart {:target-ns 'agent.handlers})
+;; => {:namespace agent.handlers, :forms [...], :fill-manifest {...}}
+
+;; Full project: sources, tests, manifest, fills skeleton
+(code/emit-project
+  {:formalisms {:statechart session-chart
+                :effect-signature effect-sig
+                :capability-set caps}
+   :registry registry
+   :opts {:target-ns {:statechart 'agent.handlers
+                      :effect-signature 'agent.effects
+                      :capability-set 'agent.caps}}})
+
+;; Fill-point status: what's implemented, what's missing
+(code/fill-status manifest)
+;; => {:ok [...] :missing [...] :orphaned [...] :arity-mismatch [...]}
+
+;; Structural diff between generated versions
+(code/code-diff new-code old-code)
+;; => {:new-methods [...] :removed-methods [...] :new-fill-points [...]}
+```
+
+Generated frames carry formalism invariants (guards, orderings, schema contracts). Business logic lives in separate fill-point files that are never regenerated. See [pneuma-codegen-extension.md](doc/pneuma-codegen-extension.md).
+
 ---
 
 ## Why
@@ -195,14 +228,14 @@ Pneuma takes a different position: the mathematical objects that describe your a
 
 The formalisms aren't decorative. Each one mechanically projects into checking artifacts:
 
-| Formalism | `->schema` | `->monitor` | `->gen` |
-|---|---|---|---|
-| Harel statechart | Valid configurations | Event log vs. step function δ | Random walks over reachable states |
-| Effect signature | Per-operation field schemas | Effect descriptions in log | Well-typed effect maps |
-| Mealy handlers | Handler input/output shapes | db-before/db-after diffs | (state, event) pairs |
-| Optics | Return types of `view` | Subscription change detection | States where paths resolve |
-| Func. dependencies | Attribute reachability | Resolver output validation | Reachable query inputs |
-| Capability sets | Set membership bounds | Extension dispatch metadata | Bounded event selections |
+| Formalism | `->schema` | `->monitor` | `->gen` | `->code` |
+|---|---|---|---|---|
+| Harel statechart | Valid configurations | Event log vs. step function δ | Random walks over reachable states | defmulti + defmethod stubs with guards |
+| Effect signature | Per-operation field schemas | Effect descriptions in log | Well-typed effect maps | Executor dispatch with schema validation |
+| Mealy handlers | Handler input/output shapes | db-before/db-after diffs | (state, event) pairs | Handler contracts with fill points |
+| Optics | Return types of `view` | Subscription change detection | States where paths resolve | Subscription declarations |
+| Func. dependencies | Attribute reachability | Resolver output validation | Reachable query inputs | Resolver skeletons |
+| Capability sets | Set membership bounds | Extension dispatch metadata | Bounded event selections | Guard checks (100% generated) |
 
 ---
 
@@ -345,6 +378,7 @@ Optional:
 - [structural-domain-model.md](doc/structural-domain-model.md) — 19 sorts, 30 axioms, 14 morphisms
 - [system-architecture-prose.md](doc/system-architecture-prose.md) — Option A: Records + Protocols + Data Registry
 - [pneuma-lean4-extension.md](doc/pneuma-lean4-extension.md) — Lean 4 proof integration
+- [pneuma-codegen-extension.md](doc/pneuma-codegen-extension.md) — code generation from formalisms
 
 ---
 
